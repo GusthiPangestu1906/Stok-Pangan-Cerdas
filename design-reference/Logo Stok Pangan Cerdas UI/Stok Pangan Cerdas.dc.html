@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f5f7f3; }
+  * { box-sizing:border-box; }
+  a { color:#14532d; text-decoration:none; }
+  a:hover { color:#86198f; }
+  input, select, button, textarea { font-family:'DM Sans', sans-serif; }
+  input:focus, select:focus { outline:2px solid #14532d; outline-offset:1px; }
+  ::placeholder { color:#9aa89e; }
+  @keyframes riseIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:none;} }
+  @keyframes toastIn { from { opacity:0; transform:translateY(14px);} to { opacity:1; transform:none;} }
+</style>
+</helmet>
+
+<div style="min-height:100vh;font-family:'DM Sans',sans-serif;color:#132018;background:#f5f7f3;-webkit-font-smoothing:antialiased">
+
+<sc-if value="{{ diLogin }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Login" style="min-height:100vh;display:flex;flex-wrap:wrap">
+    <sc-if value="{{ layarLuas }}">
+      <div style="flex:1 1 460px;background:linear-gradient(160deg,#14532d 0%,#0e3a20 60%,#0b2f1a 100%);color:#e8f2ea;padding:56px 52px;display:flex;flex-direction:column;justify-content:space-between;min-height:100vh">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:11px;background:#d9f99d;display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14532d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+          </div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em">Stok Pangan Cerdas</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:26px;max-width:460px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:46px;line-height:1.08;font-weight:600;letter-spacing:-0.03em;text-wrap:pretty">Pantau kesegaran stok sebelum jadi kerugian.</div>
+          <div style="font-size:16px;line-height:1.65;color:#b9d4c2;text-wrap:pretty">Sistem manajemen stok pangan untuk koperasi dan UMKM. Setiap barang dihitung sisa umur simpannya, dan AI memberi saran tindakan sebelum barang terbuang.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-top:8px">
+            <div style="border-left:2px solid #d9f99d;padding-left:12px">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600">2.184</div>
+              <div style="font-size:12px;color:#9dc0a9;margin-top:2px">kg diselamatkan</div>
+            </div>
+            <div style="border-left:2px solid #d9f99d;padding-left:12px">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600">87%</div>
+              <div style="font-size:12px;color:#9dc0a9;margin-top:2px">tingkat penyelamatan</div>
+            </div>
+            <div style="border-left:2px solid #d9f99d;padding-left:12px">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600">36</div>
+              <div style="font-size:12px;color:#9dc0a9;margin-top:2px">barang dipantau</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:12.5px;color:#7ea78d">Koperasi Pangan Nusantara · Gudang Cabang Bandung</div>
+      </div>
+    </sc-if>
+    <div style="flex:1 1 420px;display:flex;align-items:center;justify-content:center;padding:40px 24px;background:#ffffff">
+      <div style="width:100%;max-width:388px;animation:riseIn .5s ease both">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;color:#166534;font-weight:500;margin-bottom:22px">Portal Admin</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:600;letter-spacing:-0.025em;margin-bottom:8px">Masuk ke akun Anda</div>
+        <div style="font-size:14.5px;color:#5d6f63;line-height:1.6;margin-bottom:28px">Gunakan akun admin koperasi untuk mengelola stok.</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Email atau username</div>
+            <input type="text" value="{{ loginUser }}" onChange="{{ ubahUser }}" placeholder="admin@koperasipangan.id" style="width:100%;height:46px;border:1px solid #dbe3dc;border-radius:11px;padding:0 14px;font-size:14.5px;color:#132018;background:#fbfcfa" />
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Kata sandi</div>
+            <input type="password" value="{{ loginPass }}" onChange="{{ ubahPass }}" placeholder="••••••••" style="width:100%;height:46px;border:1px solid #dbe3dc;border-radius:11px;padding:0 14px;font-size:14.5px;color:#132018;background:#fbfcfa" />
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#5d6f63">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" style="accent-color:#14532d;width:15px;height:15px" />Ingat saya</label>
+            <a href="#lupa">Lupa sandi?</a>
+          </div>
+          <button onClick="{{ masuk }}" style="height:48px;border:none;border-radius:11px;background:#14532d;color:#ffffff;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:-0.01em;margin-top:4px" style-hover="background:#0e3a20">Masuk</button>
+          <div style="font-size:12.5px;color:#8a9a8f;text-align:center;line-height:1.6;margin-top:2px">Mode demo — klik Masuk untuk melihat data contoh gudang.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ diApp }}">
+  <div style="display:flex;min-height:100vh;align-items:stretch">
+
+    <sc-if value="{{ layarLuas }}">
+      <div style="width:246px;flex:0 0 246px;background:#ffffff;border-right:1px solid #e6ebe5;padding:22px 16px;display:flex;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px">
+          <div style="width:34px;height:34px;border-radius:10px;background:#14532d;display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d9f99d" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+          </div>
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;letter-spacing:-0.02em;line-height:1.2">Stok Pangan</div>
+            <div style="font-size:11.5px;color:#86988c;letter-spacing:0.04em">CERDAS</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:11px;font-weight:600;color:#9aab9f;letter-spacing:0.09em;padding:0 10px 8px">MENU</div>
+          <div onClick="{{ keDashboard }}" style="{{ navDashboard }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></svg>
+            <span>Dashboard</span>
+          </div>
+          <div onClick="{{ keAi }}" style="{{ navAi }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
+            <span>AI Insight</span>
+            <span style="{{ lencanaAi }}">{{ jumlahRekomendasi }}</span>
+          </div>
+          <div onClick="{{ keForm }}" style="{{ navForm }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+            <span>Tambah Barang</span>
+          </div>
+          <div onClick="{{ keRiwayat }}" style="{{ navRiwayat }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 4v4h4" /><path d="M12 7.5V12l3 1.8" /></svg>
+            <span>Riwayat</span>
+          </div>
+        </div>
+
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+          <div style="background:#f7f9f6;border:1px solid #e6ebe5;border-radius:13px;padding:13px">
+            <div style="font-size:11.5px;font-weight:600;color:#5d6f63;margin-bottom:8px;letter-spacing:0.02em">MODE DEMO</div>
+            <div onClick="{{ togelKosong }}" style="{{ tombolKosong }}">{{ labelKosong }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-top:1px solid #eef2ed">
+            <div style="width:34px;height:34px;border-radius:50%;background:#e7f0e9;color:#14532d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:'Space Grotesk',sans-serif">RA</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;line-height:1.3">Rina Anggraini</div>
+              <div style="font-size:11.5px;color:#8a9a8f">Admin Gudang</div>
+            </div>
+            <div onClick="{{ keluar }}" style="cursor:pointer;color:#8a9a8f;display:flex" style-hover="color:#be123c">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="{{ gayaKonten }}">
+
+      <sc-if value="{{ diDashboard }}">
+        <div data-screen-label="Dashboard" style="display:flex;flex-direction:column;gap:22px;animation:riseIn .35s ease both">
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between">
+            <div>
+              <div style="font-size:13px;color:#7d8f83;margin-bottom:6px">{{ tanggalHariIni }}</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;letter-spacing:-0.025em">Dashboard Stok</div>
+            </div>
+            <button onClick="{{ keForm }}" style="height:44px;padding:0 18px;border:none;border-radius:11px;background:#14532d;color:#fff;font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px" style-hover="background:#0e3a20">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+              Tambah Barang
+            </button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px">
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px 18px 16px">
+              <div style="font-size:12.5px;color:#7d8f83;font-weight:500;letter-spacing:0.01em">Total Barang</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-0.03em;margin-top:8px;line-height:1">{{ kpiTotal }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:8px">{{ kpiTotalStok }}</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px 18px 16px;border-top:3px solid #22c55e">
+              <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span><span style="font-size:12.5px;color:#7d8f83;font-weight:500">Aman</span></div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-0.03em;margin-top:8px;line-height:1;color:#166534">{{ kpiAman }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:8px">Sisa lebih dari {{ ambangRisiko }} hari</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px 18px 16px;border-top:3px solid #f59e0b">
+              <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span><span style="font-size:12.5px;color:#7d8f83;font-weight:500">Berisiko</span></div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-0.03em;margin-top:8px;line-height:1;color:#92400e">{{ kpiRisiko }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:8px">Perlu dijadwalkan tindakan</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px 18px 16px;border-top:3px solid #e11d48">
+              <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:#e11d48;display:inline-block"></span><span style="font-size:12.5px;color:#7d8f83;font-weight:500">Kritis</span></div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-0.03em;margin-top:8px;line-height:1;color:#9f1239">{{ kpiKritis }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:8px">Tindak hari ini juga</div>
+            </div>
+          </div>
+
+          <sc-if value="{{ adaRekomendasi }}">
+            <div onClick="{{ keAi }}" style="background:linear-gradient(100deg,#fdf4ff 0%,#fbf7ff 55%,#ffffff 100%);border:1px solid #f0abfc;border-radius:15px;padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer" style-hover="border-color:#d946ef">
+              <div style="width:36px;height:36px;border-radius:10px;background:#fae8ff;color:#86198f;display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
+              </div>
+              <div style="flex:1 1 240px;min-width:0">
+                <div style="font-size:14.5px;font-weight:600;color:#701a75">{{ ringkasAi }}</div>
+                <div style="font-size:13px;color:#8b6f92;margin-top:3px;line-height:1.55">{{ ringkasAiDetail }}</div>
+              </div>
+              <div style="font-size:13.5px;font-weight:600;color:#86198f;display:flex;align-items:center;gap:6px">Lihat panel AI
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;overflow:hidden">
+            <div style="padding:16px 18px;border-bottom:1px solid #eef2ed;display:flex;flex-direction:column;gap:13px">
+              <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:16.5px;font-weight:600;letter-spacing:-0.015em">Daftar Barang <span style="color:#9aab9f;font-weight:500">· {{ jumlahTampil }}</span></div>
+                <div style="position:relative;flex:1 1 220px;max-width:320px">
+                  <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9aab9f;display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg></div>
+                  <input type="text" value="{{ kataKunci }}" onChange="{{ ubahKataKunci }}" placeholder="Cari nama barang atau pemasok" style="width:100%;height:40px;border:1px solid #e0e7e0;border-radius:10px;padding:0 12px 0 36px;font-size:13.5px;background:#fafbf9" />
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:16px">
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                  <span style="font-size:12px;color:#9aab9f;font-weight:600;letter-spacing:0.05em">KATEGORI</span>
+                  <sc-for list="{{ chipKategori }}" as="c" hint-placeholder-count="5">
+                    <div onClick="{{ c.pilih }}" style="{{ c.gaya }}">{{ c.label }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                  <span style="font-size:12px;color:#9aab9f;font-weight:600;letter-spacing:0.05em">STATUS</span>
+                  <sc-for list="{{ chipStatus }}" as="s" hint-placeholder-count="4">
+                    <div onClick="{{ s.pilih }}" style="{{ s.gaya }}">{{ s.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <sc-if value="{{ dataKosongTampil }}">
+              <div style="padding:64px 24px;display:flex;flex-direction:column;align-items:center;text-align:center">
+                <div style="width:84px;height:84px;border-radius:24px;background:#f2f6f1;border:1px solid #e2e9e1;display:flex;align-items:center;justify-content:center;color:#a9bbae;margin-bottom:22px">
+                  <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5 12 4l8.5 4.5v7L12 20l-8.5-4.5z" /><path d="M3.5 8.5 12 13l8.5-4.5M12 13v7" /></svg>
+                </div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600;letter-spacing:-0.02em;margin-bottom:9px">Belum ada barang di gudang</div>
+                <div style="font-size:14.5px;color:#6b7c71;line-height:1.65;max-width:400px;text-wrap:pretty">Tambahkan barang pertama Anda untuk mulai memantau sisa umur simpan. Setelah data masuk, AI akan otomatis menghitung risiko dan memberi saran tindakan.</div>
+                <button onClick="{{ keForm }}" style="margin-top:24px;height:46px;padding:0 22px;border:none;border-radius:11px;background:#14532d;color:#fff;font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px" style-hover="background:#0e3a20">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                  Tambah Barang Pertama
+                </button>
+                <div style="margin-top:16px;font-size:12.5px;color:#9aab9f">Atau impor data dari berkas CSV gudang Anda</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ tabelTampil }}">
+              <div>
+                <div style="display:grid;grid-template-columns:2.4fr 1fr .9fr 1.1fr 1.2fr 1fr;gap:12px;padding:11px 18px;background:#fafbf9;border-bottom:1px solid #eef2ed;font-size:11.5px;font-weight:600;color:#8a9a8f;letter-spacing:0.06em">
+                  <div>NAMA BARANG</div><div>KATEGORI</div><div>STOK</div><div>KADALUARSA</div><div>SISA HARI</div><div style="text-align:right">STATUS</div>
+                </div>
+                <sc-for list="{{ daftar }}" as="b" hint-placeholder-count="8">
+                  <div onClick="{{ b.buka }}" style="display:grid;grid-template-columns:2.4fr 1fr .9fr 1.1fr 1.2fr 1fr;gap:12px;padding:14px 18px;border-bottom:1px solid #f1f4f0;align-items:center;cursor:pointer" style-hover="background:#fafbf9">
+                    <div style="display:flex;align-items:center;gap:11px;min-width:0">
+                      <span style="{{ b.gayaTitik }}"></span>
+                      <div style="min-width:0">
+                        <div style="font-size:14px;font-weight:500;letter-spacing:-0.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.nama }}</div>
+                        <div style="font-size:12px;color:#93a398;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.pemasok }}</div>
+                      </div>
+                    </div>
+                    <div style="font-size:13px;color:#5d6f63">{{ b.kategori }}</div>
+                    <div style="font-size:13.5px;font-weight:500;font-family:'Space Grotesk',sans-serif">{{ b.stokTeks }}</div>
+                    <div style="font-size:13px;color:#5d6f63">{{ b.tglKadaluarsa }}</div>
+                    <div>
+                      <div style="font-size:13px;font-weight:500;margin-bottom:5px">{{ b.sisaTeks }}</div>
+                      <div style="height:4px;border-radius:99px;background:#eef2ed;overflow:hidden"><div style="{{ b.gayaBar }}"></div></div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end"><span style="{{ b.gayaBadge }}">{{ b.status }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ kartuTampil }}">
+              <div style="padding:12px;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ daftar }}" as="b" hint-placeholder-count="6">
+                  <div onClick="{{ b.buka }}" style="{{ b.gayaKartu }}">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                      <div style="min-width:0">
+                        <div style="font-size:15px;font-weight:600;letter-spacing:-0.01em">{{ b.nama }}</div>
+                        <div style="font-size:12.5px;color:#93a398;margin-top:3px">{{ b.kategori }} · {{ b.pemasok }}</div>
+                      </div>
+                      <span style="{{ b.gayaBadge }}">{{ b.status }}</span>
+                    </div>
+                    <div style="display:flex;gap:20px;margin-top:13px">
+                      <div>
+                        <div style="font-size:11.5px;color:#93a398">Stok</div>
+                        <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin-top:2px">{{ b.stokTeks }}</div>
+                      </div>
+                      <div>
+                        <div style="font-size:11.5px;color:#93a398">Sisa</div>
+                        <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin-top:2px">{{ b.sisaTeks }}</div>
+                      </div>
+                      <div>
+                        <div style="font-size:11.5px;color:#93a398">Kadaluarsa</div>
+                        <div style="font-size:13.5px;font-weight:500;margin-top:4px">{{ b.tglKadaluarsa }}</div>
+                      </div>
+                    </div>
+                    <div style="height:4px;border-radius:99px;background:#eef2ed;overflow:hidden;margin-top:13px"><div style="{{ b.gayaBar }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasilKosong }}">
+              <div style="padding:52px 24px;text-align:center">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin-bottom:7px">Tidak ada barang yang cocok</div>
+                <div style="font-size:14px;color:#7d8f83;line-height:1.6">Coba ubah kata kunci atau atur ulang filter kategori dan status.</div>
+                <div onClick="{{ resetFilter }}" style="display:inline-block;margin-top:18px;padding:10px 18px;border:1px solid #dbe3dc;border-radius:10px;font-size:13.5px;font-weight:500;cursor:pointer;background:#fff" style-hover="border-color:#14532d;color:#14532d">Atur ulang filter</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ diAi }}">
+        <div data-screen-label="AI Insight" style="display:flex;flex-direction:column;gap:20px;animation:riseIn .35s ease both">
+          <div>
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 11px;border-radius:999px;background:#fdf4ff;border:1px solid #f0abfc;font-size:12px;color:#86198f;font-weight:600;margin-bottom:12px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
+              Analisis diperbarui {{ waktuAnalisis }}
+            </div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;letter-spacing:-0.025em">Panel Rekomendasi AI</div>
+            <div style="font-size:14.5px;color:#6b7c71;line-height:1.65;margin-top:8px;max-width:640px;text-wrap:pretty">Setiap rekomendasi dihitung dari sisa umur simpan, jumlah stok, dan rata-rata laju penjualan barang tersebut. Tandai sebagai diterapkan setelah tindakan dijalankan di gudang.</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:14px;padding:15px 16px">
+              <div style="font-size:12.5px;color:#7d8f83">Rekomendasi aktif</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;margin-top:5px;line-height:1">{{ jumlahRekomendasi }}</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:14px;padding:15px 16px">
+              <div style="font-size:12.5px;color:#7d8f83">Potensi terbuang</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;margin-top:5px;line-height:1;color:#9f1239">{{ potensiTerbuang }}</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:14px;padding:15px 16px">
+              <div style="font-size:12.5px;color:#7d8f83">Nilai bisa diselamatkan</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;margin-top:5px;line-height:1;color:#166534">{{ nilaiSelamat }}</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:14px;padding:15px 16px">
+              <div style="font-size:12.5px;color:#7d8f83">Sudah diterapkan</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;margin-top:5px;line-height:1">{{ jumlahDiterapkan }}</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px">
+            <sc-for list="{{ rekomendasi }}" as="r" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:13px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                  <div style="min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span style="{{ r.gayaTitik }}"></span>
+                      <div style="font-size:15.5px;font-weight:600;letter-spacing:-0.01em">{{ r.nama }}</div>
+                    </div>
+                    <div style="font-size:12.5px;color:#93a398;margin-top:4px;margin-left:16px">{{ r.meta }}</div>
+                  </div>
+                  <span style="{{ r.gayaBadge }}">{{ r.status }}</span>
+                </div>
+
+                <div style="background:#fdf4ff;border:1px solid #f5d0fe;border-radius:13px;padding:14px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+                    <span style="{{ r.gayaJenis }}">{{ r.jenis }}</span>
+                    <span style="font-size:12px;color:#a855a8;font-weight:500">Keyakinan {{ r.keyakinan }}</span>
+                  </div>
+                  <div style="font-size:14.5px;font-weight:600;color:#581c67;line-height:1.5;letter-spacing:-0.01em">{{ r.aksi }}</div>
+                  <div style="font-size:13px;color:#7a5c82;line-height:1.6;margin-top:7px;text-wrap:pretty">{{ r.alasan }}</div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div style="background:#fafbf9;border:1px solid #eef2ed;border-radius:11px;padding:10px 12px">
+                    <div style="font-size:11.5px;color:#93a398">Tanpa tindakan</div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;color:#9f1239;margin-top:3px">{{ r.risikoTeks }}</div>
+                  </div>
+                  <div style="background:#fafbf9;border:1px solid #eef2ed;border-radius:11px;padding:10px 12px">
+                    <div style="font-size:11.5px;color:#93a398">Nilai terselamatkan</div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;color:#166534;margin-top:3px">{{ r.nilaiTeks }}</div>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:9px;margin-top:2px">
+                  <div onClick="{{ r.terapkan }}" style="{{ r.gayaTombol }}">{{ r.labelTombol }}</div>
+                  <div onClick="{{ r.buka }}" style="height:40px;padding:0 15px;border:1px solid #dbe3dc;border-radius:10px;display:flex;align-items:center;font-size:13.5px;font-weight:500;cursor:pointer;color:#3c4d42;background:#fff" style-hover="border-color:#14532d;color:#14532d">Detail</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ aiKosong }}">
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:56px 24px;text-align:center">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;margin-bottom:8px">Tidak ada rekomendasi aktif</div>
+              <div style="font-size:14px;color:#7d8f83;line-height:1.65;max-width:420px;margin:0 auto">Semua barang berisiko sudah ditangani. AI akan memunculkan saran baru begitu ada stok yang mendekati batas umur simpan.</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ diForm }}">
+        <div data-screen-label="Form Barang" style="animation:riseIn .35s ease both">
+          <div onClick="{{ kembali }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:#5d6f63;cursor:pointer;margin-bottom:16px" style-hover="color:#14532d">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+            Kembali
+          </div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;letter-spacing:-0.025em">{{ judulForm }}</div>
+          <div style="font-size:14.5px;color:#6b7c71;margin-top:7px">Isi data barang, sistem akan menghitung tanggal kadaluarsa dan statusnya otomatis.</div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start;margin-top:22px">
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:17px">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Nama barang</div>
+                <input type="text" value="{{ fNama }}" onChange="{{ ubahNama }}" placeholder="Contoh: Bayam Hijau Organik" style="width:100%;height:44px;border:1px solid #dbe3dc;border-radius:11px;padding:0 13px;font-size:14px;background:#fbfcfa" />
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:8px">Kategori</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ pilihanKategori }}" as="k" hint-placeholder-count="4">
+                    <div onClick="{{ k.pilih }}" style="{{ k.gaya }}">{{ k.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Tanggal barang masuk</div>
+                  <input type="date" value="{{ fMasuk }}" onChange="{{ ubahMasuk }}" style="width:100%;height:44px;border:1px solid #dbe3dc;border-radius:11px;padding:0 13px;font-size:14px;background:#fbfcfa;color:#132018" />
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Umur simpan (hari)</div>
+                  <input type="number" value="{{ fUmur }}" onChange="{{ ubahUmur }}" placeholder="7" style="width:100%;height:44px;border:1px solid #dbe3dc;border-radius:11px;padding:0 13px;font-size:14px;background:#fbfcfa" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Jumlah stok</div>
+                  <input type="number" value="{{ fStok }}" onChange="{{ ubahStok }}" placeholder="40" style="width:100%;height:44px;border:1px solid #dbe3dc;border-radius:11px;padding:0 13px;font-size:14px;background:#fbfcfa" />
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Satuan</div>
+                  <select value="{{ fSatuan }}" onChange="{{ ubahSatuan }}" style="width:100%;height:44px;border:1px solid #dbe3dc;border-radius:11px;padding:0 10px;font-size:14px;background:#fbfcfa;color:#132018">
+                    <option value="kg">kg</option>
+                    <option value="ikat">ikat</option>
+                    <option value="pack">pack</option>
+                    <option value="botol">botol</option>
+                    <option value="pcs">pcs</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px">Pemasok <span style="color:#9aab9f;font-weight:400">(opsional)</span></div>
+                <input type="text" value="{{ fPemasok }}" onChange="{{ ubahPemasok }}" placeholder="Contoh: Tani Makmur Lembang" style="width:100%;height:44px;border:1px solid #dbe3dc;border-radius:11px;padding:0 13px;font-size:14px;background:#fbfcfa" />
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+                <button onClick="{{ simpan }}" style="height:46px;padding:0 22px;border:none;border-radius:11px;background:#14532d;color:#fff;font-size:14.5px;font-weight:600;cursor:pointer" style-hover="background:#0e3a20">Simpan Barang</button>
+                <button onClick="{{ kembali }}" style="height:46px;padding:0 20px;border:1px solid #dbe3dc;border-radius:11px;background:#fff;color:#3c4d42;font-size:14.5px;font-weight:500;cursor:pointer" style-hover="border-color:#14532d">Batal</button>
+              </div>
+              <sc-if value="{{ adaGalat }}">
+                <div style="background:#fff1f3;border:1px solid #fecdd3;color:#9f1239;border-radius:11px;padding:11px 13px;font-size:13.5px">{{ galat }}</div>
+              </sc-if>
+            </div>
+
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+              <div style="font-size:12px;font-weight:600;color:#9aab9f;letter-spacing:0.07em">PRATINJAU PERHITUNGAN</div>
+              <div style="display:flex;align-items:center;gap:11px">
+                <span style="{{ pvTitik }}"></span>
+                <div>
+                  <div style="font-size:16px;font-weight:600;letter-spacing:-0.01em">{{ pvNama }}</div>
+                  <div style="font-size:12.5px;color:#93a398;margin-top:2px">{{ pvKategori }}</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+                <div style="background:#fafbf9;border:1px solid #eef2ed;border-radius:11px;padding:12px">
+                  <div style="font-size:11.5px;color:#93a398">Tanggal kadaluarsa</div>
+                  <div style="font-size:14px;font-weight:600;margin-top:4px">{{ pvKadaluarsa }}</div>
+                </div>
+                <div style="background:#fafbf9;border:1px solid #eef2ed;border-radius:11px;padding:12px">
+                  <div style="font-size:11.5px;color:#93a398">Sisa hari</div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;margin-top:4px">{{ pvSisa }}</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:11px;background:#fafbf9;border:1px solid #eef2ed">
+                <span style="font-size:12.5px;color:#93a398">Status awal</span>
+                <span style="{{ pvBadge }}">{{ pvStatus }}</span>
+              </div>
+              <div style="background:#fdf4ff;border:1px solid #f5d0fe;border-radius:12px;padding:13px">
+                <div style="font-size:12px;font-weight:600;color:#86198f;margin-bottom:6px">CATATAN AI</div>
+                <div style="font-size:13px;color:#7a5c82;line-height:1.6;text-wrap:pretty">{{ pvCatatan }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ diDetail }}">
+        <div data-screen-label="Detail Barang" style="animation:riseIn .35s ease both">
+          <div onClick="{{ kembali }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:#5d6f63;cursor:pointer;margin-bottom:16px" style-hover="color:#14532d">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+            Kembali ke daftar
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:22px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;justify-content:space-between">
+            <div style="min-width:0">
+              <div style="display:flex;align-items:center;gap:11px;flex-wrap:wrap">
+                <span style="{{ dTitik }}"></span>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.025em">{{ dNama }}</div>
+                <span style="{{ dBadge }}">{{ dStatus }}</span>
+              </div>
+              <div style="font-size:13.5px;color:#7d8f83;margin-top:8px">{{ dSub }}</div>
+            </div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap">
+              <div onClick="{{ editBarang }}" style="height:42px;padding:0 17px;border:1px solid #dbe3dc;border-radius:10px;display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;cursor:pointer;background:#fff;color:#3c4d42" style-hover="border-color:#14532d;color:#14532d">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
+                Edit
+              </div>
+              <div onClick="{{ keAi }}" style="height:42px;padding:0 17px;border:none;border-radius:10px;display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;cursor:pointer;background:#86198f;color:#fff" style-hover="background:#701a75">Lihat Panel AI</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:20px">
+                <div style="font-size:12px;font-weight:600;color:#9aab9f;letter-spacing:0.07em;margin-bottom:15px">INFORMASI BARANG</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:15px">
+                  <sc-for list="{{ dInfo }}" as="i" hint-placeholder-count="8">
+                    <div>
+                      <div style="font-size:12px;color:#93a398">{{ i.label }}</div>
+                      <div style="font-size:14.5px;font-weight:500;margin-top:4px;letter-spacing:-0.005em">{{ i.nilai }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="margin-top:20px">
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#7d8f83;margin-bottom:7px">
+                    <span>Umur simpan terpakai</span><span>{{ dPersen }}</span>
+                  </div>
+                  <div style="height:8px;border-radius:99px;background:#eef2ed;overflow:hidden"><div style="{{ dGayaBar }}"></div></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;color:#93a398;margin-top:7px">
+                    <span>{{ dTglMasuk }}</span><span>{{ dTglKadaluarsa }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:20px">
+                <div style="font-size:12px;font-weight:600;color:#9aab9f;letter-spacing:0.07em;margin-bottom:14px">PERGERAKAN STOK</div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ dMutasi }}" as="m" hint-placeholder-count="3">
+                    <div style="display:flex;gap:12px;align-items:flex-start">
+                      <div style="width:7px;height:7px;border-radius:50%;background:#c9d6cd;margin-top:6px;flex:0 0 auto"></div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:13.5px;font-weight:500">{{ m.judul }}</div>
+                        <div style="font-size:12.5px;color:#93a398;margin-top:2px">{{ m.waktu }}</div>
+                      </div>
+                      <div style="font-size:13.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:#3c4d42">{{ m.jumlah }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:20px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <div style="width:26px;height:26px;border-radius:8px;background:#fae8ff;color:#86198f;display:flex;align-items:center;justify-content:center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.4" /><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /></svg>
+                </div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.015em">Riwayat Rekomendasi AI</div>
+              </div>
+              <div style="font-size:13px;color:#7d8f83;line-height:1.6;margin-bottom:16px">Saran yang pernah diberikan untuk barang ini.</div>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ dRekomendasi }}" as="r" hint-placeholder-count="3">
+                  <div style="{{ r.gayaKartu }}">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                      <span style="{{ r.gayaJenis }}">{{ r.jenis }}</span>
+                      <span style="font-size:12px;color:#93a398">{{ r.waktu }}</span>
+                    </div>
+                    <div style="font-size:14px;font-weight:600;margin-top:9px;letter-spacing:-0.01em;line-height:1.45">{{ r.aksi }}</div>
+                    <div style="font-size:12.5px;color:#6b7c71;line-height:1.6;margin-top:6px;text-wrap:pretty">{{ r.alasan }}</div>
+                    <div style="margin-top:10px"><span style="{{ r.gayaStatus }}">{{ r.status }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ diRiwayat }}">
+        <div data-screen-label="Riwayat" style="display:flex;flex-direction:column;gap:20px;animation:riseIn .35s ease both">
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:600;letter-spacing:-0.025em">Riwayat &amp; Penyelamatan</div>
+            <div style="font-size:14.5px;color:#6b7c71;margin-top:8px;max-width:600px;line-height:1.65">Catatan tindakan yang sudah dijalankan beserta jumlah barang yang berhasil diselamatkan dari pembuangan.</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px">
+            <div style="background:#14532d;border-radius:15px;padding:18px;color:#e8f2ea">
+              <div style="font-size:12.5px;color:#a8c9b4">Barang diselamatkan</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:600;margin-top:7px;line-height:1">{{ stTerselamatkan }}</div>
+              <div style="font-size:12.5px;color:#a8c9b4;margin-top:7px">6 bulan terakhir</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px">
+              <div style="font-size:12.5px;color:#7d8f83">Nilai terselamatkan</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:600;margin-top:7px;line-height:1;color:#166534">{{ stNilai }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:7px">Dari diskon &amp; distribusi</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px">
+              <div style="font-size:12.5px;color:#7d8f83">Tingkat penyelamatan</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:600;margin-top:7px;line-height:1">{{ stPersen }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:7px">Naik 6 poin dari semester lalu</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e6ebe5;border-radius:15px;padding:18px">
+              <div style="font-size:12.5px;color:#7d8f83">Terbuang</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:600;margin-top:7px;line-height:1;color:#9f1239">{{ stTerbuang }}</div>
+              <div style="font-size:12.5px;color:#8a9a8f;margin-top:7px">Turun dari 486 kg</div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;padding:20px">
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:22px">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:16.5px;font-weight:600;letter-spacing:-0.015em">Tren Penyelamatan Barang</div>
+              <div style="display:flex;gap:16px;font-size:12.5px;color:#5d6f63">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#14532d;display:inline-block"></span>Diselamatkan</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#fecdd3;display:inline-block"></span>Terbuang</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px;height:200px">
+              <sc-for list="{{ grafik }}" as="g" hint-placeholder-count="6">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;height:100%;justify-content:flex-end">
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:600;color:#3c4d42">{{ g.nilai }}</div>
+                  <div style="width:100%;display:flex;gap:4px;align-items:flex-end;justify-content:center;height:100%">
+                    <div style="{{ g.gayaSelamat }}"></div>
+                    <div style="{{ g.gayaBuang }}"></div>
+                  </div>
+                  <div style="font-size:12px;color:#8a9a8f">{{ g.bulan }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6ebe5;border-radius:16px;overflow:hidden">
+            <div style="padding:16px 18px;border-bottom:1px solid #eef2ed;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:16.5px;font-weight:600;letter-spacing:-0.015em">Catatan Tindakan</div>
+              <div style="font-size:13px;color:#8a9a8f">{{ jumlahCatatan }}</div>
+            </div>
+            <sc-if value="{{ layarLuas }}">
+              <div>
+                <div style="display:grid;grid-template-columns:1.1fr 2fr 1.1fr .9fr 1.2fr;gap:12px;padding:11px 18px;background:#fafbf9;border-bottom:1px solid #eef2ed;font-size:11.5px;font-weight:600;color:#8a9a8f;letter-spacing:0.06em">
+                  <div>TANGGAL</div><div>BARANG</div><div>TINDAKAN</div><div>JUMLAH</div><div>KETERANGAN</div>
+                </div>
+                <sc-for list="{{ catatan }}" as="c" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:1.1fr 2fr 1.1fr .9fr 1.2fr;gap:12px;padding:13px 18px;border-bottom:1px solid #f1f4f0;align-items:center;font-size:13.5px">
+                    <div style="color:#5d6f63">{{ c.tanggal }}</div>
+                    <div style="font-weight:500">{{ c.barang }}</div>
+                    <div><span style="{{ c.gayaAksi }}">{{ c.aksi }}</span></div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600">{{ c.jumlah }}</div>
+                    <div style="color:#7d8f83;font-size:12.5px">{{ c.catatan }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ layarSempit }}">
+              <div style="padding:12px;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ catatan }}" as="c" hint-placeholder-count="5">
+                  <div style="border:1px solid #eef2ed;border-radius:13px;padding:14px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                      <div style="font-size:14.5px;font-weight:600">{{ c.barang }}</div>
+                      <span style="{{ c.gayaAksi }}">{{ c.aksi }}</span>
+                    </div>
+                    <div style="display:flex;gap:16px;margin-top:10px;font-size:12.5px;color:#7d8f83">
+                      <span>{{ c.tanggal }}</span><span style="font-weight:600;color:#3c4d42">{{ c.jumlah }}</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#93a398;margin-top:7px;line-height:1.55">{{ c.catatan }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+
+    <sc-if value="{{ layarSempit }}">
+      <div style="position:fixed;left:0;right:0;bottom:0;background:#ffffff;border-top:1px solid #e6ebe5;display:flex;padding:8px 6px 10px;z-index:40">
+        <div onClick="{{ keDashboard }}" style="{{ tabDashboard }}">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></svg>
+          <span style="font-size:11px;font-weight:500">Dashboard</span>
+        </div>
+        <div onClick="{{ keAi }}" style="{{ tabAi }}">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.4" /><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /></svg>
+          <span style="font-size:11px;font-weight:500">AI Insight</span>
+        </div>
+        <div onClick="{{ keForm }}" style="{{ tabForm }}">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+          <span style="font-size:11px;font-weight:500">Tambah</span>
+        </div>
+        <div onClick="{{ keRiwayat }}" style="{{ tabRiwayat }}">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 4v4h4" /><path d="M12 7.5V12l3 1.8" /></svg>
+          <span style="font-size:11px;font-weight:500">Riwayat</span>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ adaToast }}">
+  <div style="position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:#132018;color:#eef5ef;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 12px 30px rgba(19,32,24,.28);z-index:80;animation:toastIn .28s ease both;max-width:88vw;text-align:center">{{ toast }}</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;dataKosong&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Data&quot;},&quot;ambangKritis&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:5,&quot;unit&quot;:&quot;hari&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ambang Status&quot;},&quot;ambangRisiko&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;min&quot;:3,&quot;max&quot;:14,&quot;unit&quot;:&quot;hari&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ambang Status&quot;}}">
+const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN_PANJANG = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const HIJAU = '#14532d';
+const ST = {
+  kritis: { label:'Kritis', fg:'#9f1239', bg:'#fff1f3', bd:'#fecdd3', dot:'#e11d48' },
+  risiko: { label:'Berisiko', fg:'#92400e', bg:'#fffbeb', bd:'#fde68a', dot:'#f59e0b' },
+  aman:   { label:'Aman', fg:'#166534', bg:'#f0fdf4', bd:'#bbf7d0', dot:'#22c55e' }
+};
+const hariMs = 86400000;
+const fmt = (d) => d.getDate() + ' ' + BULAN[d.getMonth()] + ' ' + d.getFullYear();
+const rp = (n) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+const iso = (d) => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+
+// nama, kategori, satuan, stok, umurSimpan, hariSejakMasuk, lajuJual/hari, hargaSatuan, pemasok
+const DATA = [
+  ['Bayam Hijau','Sayur','ikat',48,4,3,9,4500,'Tani Makmur Lembang'],
+  ['Kangkung Segar','Sayur','ikat',62,4,2,14,4000,'Tani Makmur Lembang'],
+  ['Sawi Putih','Sayur','kg',36,6,5,5,9000,'Kebun Sejahtera'],
+  ['Wortel Berastagi','Sayur','kg',85,14,4,7,12000,'Kebun Sejahtera'],
+  ['Brokoli Hijau','Sayur','kg',24,8,6,3,26000,'Tani Makmur Lembang'],
+  ['Kentang Granola','Sayur','kg',140,30,9,10,14000,'Gapoktan Pangalengan'],
+  ['Tomat Merah','Sayur','kg',54,7,5,8,11000,'Gapoktan Pangalengan'],
+  ['Cabai Rawit Merah','Sayur','kg',18,10,3,4,48000,'Pasar Induk Caringin'],
+  ['Buncis Muda','Sayur','kg',30,7,6,4,15000,'Kebun Sejahtera'],
+  ['Timun Lokal','Sayur','kg',44,9,4,6,8000,'Gapoktan Pangalengan'],
+  ['Terong Ungu','Sayur','kg',28,8,5,3,9500,'Kebun Sejahtera'],
+  ['Selada Keriting','Sayur','kg',20,5,4,5,18000,'Hidroponik Cisarua'],
+  ['Pisang Cavendish','Buah','kg',72,7,5,12,16000,'CV Buah Segar'],
+  ['Jeruk Baby Pacitan','Buah','kg',95,14,6,9,19000,'CV Buah Segar'],
+  ['Apel Malang','Buah','kg',60,21,8,6,28000,'Agro Batu Mandiri'],
+  ['Pepaya California','Buah','kg',48,8,6,7,12000,'CV Buah Segar'],
+  ['Mangga Harum Manis','Buah','kg',66,10,7,8,24000,'Kelompok Tani Probolinggo'],
+  ['Semangka Merah','Buah','kg',120,12,4,14,9000,'CV Buah Segar'],
+  ['Melon Golden','Buah','kg',55,10,7,6,21000,'Agro Batu Mandiri'],
+  ['Alpukat Mentega','Buah','kg',38,9,7,5,32000,'Kelompok Tani Probolinggo'],
+  ['Stroberi Ciwidey','Buah','pack',42,5,4,9,25000,'Hidroponik Cisarua'],
+  ['Salak Pondoh','Buah','kg',50,12,5,6,17000,'Koperasi Tani Sleman'],
+  ['Susu Pasteurisasi 1L','Olahan Susu','botol',96,7,5,18,18000,'Koperasi Susu Lembang'],
+  ['Yogurt Plain 500ml','Olahan Susu','botol',64,14,11,8,22000,'Koperasi Susu Lembang'],
+  ['Keju Cheddar Blok','Olahan Susu','pack',40,45,20,3,58000,'Dairy Nusantara'],
+  ['Mentega Tawar 200g','Olahan Susu','pack',52,60,32,4,26000,'Dairy Nusantara'],
+  ['Susu UHT Cokelat','Olahan Susu','pack',180,90,40,15,9500,'Dairy Nusantara'],
+  ['Krim Kental 250ml','Olahan Susu','botol',34,21,17,4,31000,'Koperasi Susu Lembang'],
+  ['Yogurt Stroberi Cup','Olahan Susu','pcs',110,12,9,16,7500,'Koperasi Susu Lembang'],
+  ['Keju Mozzarella','Olahan Susu','pack',28,30,25,3,64000,'Dairy Nusantara'],
+  ['Roti Tawar Gandum','Roti','pack',56,5,4,14,17000,'Bakery Mitra Sejahtera'],
+  ['Roti Manis Cokelat','Roti','pcs',80,3,2,26,6000,'Bakery Mitra Sejahtera'],
+  ['Donat Gula Halus','Roti','pcs',72,2,1,30,5000,'Bakery Mitra Sejahtera'],
+  ['Croissant Butter','Roti','pcs',45,3,2,15,12000,'Roti Rumahan Dago'],
+  ['Roti Sobek Keju','Roti','pcs',60,4,3,18,15000,'Bakery Mitra Sejahtera'],
+  ['Bagel Wijen','Roti','pcs',36,4,2,9,11000,'Roti Rumahan Dago']
+];
+
+const CATATAN = [
+  [1,'Roti Manis Cokelat','Diskon','40 pcs','Diskon 30% terjual habis 4 jam'],
+  [1,'Bayam Hijau','Distribusi','25 ikat','Dikirim ke Dapur Umum Cicendo'],
+  [2,'Susu Pasteurisasi 1L','Diskon','36 botol','Bundling dengan roti tawar'],
+  [3,'Stroberi Ciwidey','Distribusi','18 pack','Mitra kafe Jl. Riau'],
+  [3,'Selada Keriting','Dibuang','6 kg','Layu, tidak layak jual'],
+  [4,'Donat Gula Halus','Diskon','54 pcs','Promo sore hari 50%'],
+  [5,'Pepaya California','Distribusi','30 kg','Bank Pangan Bandung'],
+  [6,'Croissant Butter','Diskon','28 pcs','Paket sarapan pagi'],
+  [7,'Yogurt Stroberi Cup','Bundling','60 pcs','Paket hemat 3 cup'],
+  [8,'Tomat Merah','Dibuang','9 kg','Busuk saat penyimpanan'],
+  [9,'Kangkung Segar','Distribusi','40 ikat','Warung mitra binaan'],
+  [10,'Roti Sobek Keju','Diskon','32 pcs','Diskon 25% menjelang tutup']
+];
+
+const GRAFIK = [
+  { bulan:'Mar', selamat:248, buang:86 },
+  { bulan:'Apr', selamat:302, buang:74 },
+  { bulan:'Mei', selamat:356, buang:69 },
+  { bulan:'Jun', selamat:388, buang:52 },
+  { bulan:'Jul', selamat:421, buang:48 },
+  { bulan:'Agu', selamat:469, buang:39 }
+];
+
+const AKSI_WARNA = {
+  'Diskon': { fg:'#92400e', bg:'#fffbeb', bd:'#fde68a' },
+  'Distribusi': { fg:'#166534', bg:'#f0fdf4', bd:'#bbf7d0' },
+  'Bundling': { fg:'#86198f', bg:'#fdf4ff', bd:'#f5d0fe' },
+  'Dibuang': { fg:'#9f1239', bg:'#fff1f3', bd:'#fecdd3' }
+};
+
+const badge = (s) => 'display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;color:' + s.fg + ';background:' + s.bg + ';border:1px solid ' + s.bd;
+const chip = (aktif) => 'padding:6px 13px;border-radius:999px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid ' + (aktif ? HIJAU : '#e0e7e0') + ';background:' + (aktif ? HIJAU : '#fff') + ';color:' + (aktif ? '#fff' : '#5d6f63');
+
+class Component extends DCLogic {
+  state = {
+    halaman: 'login',
+    user: 'admin@koperasipangan.id',
+    pass: 'rahasia123',
+    kategori: 'Semua',
+    status: 'Semua',
+    q: '',
+    pilih: null,
+    kosong: false,
+    toast: '',
+    galat: '',
+    diterapkan: {},
+    tambahan: [],
+    lebar: typeof window !== 'undefined' ? window.innerWidth : 1280,
+    form: { nama:'', kategori:'Sayur', masuk:'', umur:'', stok:'', satuan:'kg', pemasok:'' }
+  };
+
+  componentDidMount() {
+    this._r = () => this.setState({ lebar: window.innerWidth });
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+
+  hariIni() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+
+  ambang() {
+    return {
+      kritis: Number(this.props.ambangKritis ?? 2),
+      risiko: Number(this.props.ambangRisiko ?? 6)
+    };
+  }
+
+  statusDari(sisa) {
+    const a = this.ambang();
+    if (sisa <= a.kritis) return 'kritis';
+    if (sisa <= a.risiko) return 'risiko';
+    return 'aman';
+  }
+
+  semuaBarang() {
+    const t = this.hariIni();
+    const dasar = DATA.map((d, i) => {
+      const masuk = new Date(t.getTime() - d[5] * hariMs);
+      return { id:'b'+i, nama:d[0], kategori:d[1], satuan:d[2], stok:d[3], umur:d[4], lalu:d[5], laju:d[6], harga:d[7], pemasok:d[8], masuk };
+    });
+    const t2 = dasar.concat(this.state.tambahan);
+    return t2.map(b => {
+      const kadaluarsa = new Date(b.masuk.getTime() + b.umur * hariMs);
+      const sisa = Math.round((kadaluarsa - t) / hariMs);
+      const st = this.statusDari(sisa);
+      return Object.assign({}, b, { kadaluarsa, sisa, st });
+    });
+  }
+
+  rekomendasiUntuk(b) {
+    const terjual = Math.max(0, b.laju * Math.max(b.sisa, 0));
+    const sisaStok = Math.max(0, b.stok - terjual);
+    const nilai = sisaStok * b.harga;
+    let jenis, aksi, alasan, keyakinan;
+    const habis = b.laju > 0 ? Math.ceil(b.stok / b.laju) : 99;
+    if (b.sisa <= 1) {
+      jenis = 'Distribusi';
+      aksi = 'Distribusikan ' + Math.round(sisaStok) + ' ' + b.satuan + ' ke mitra penyalur hari ini';
+      alasan = 'Sisa umur simpan tinggal ' + b.sisa + ' hari, sementara stok ' + b.stok + ' ' + b.satuan + ' butuh ' + habis + ' hari untuk habis pada laju jual ' + b.laju + ' ' + b.satuan + '/hari. Diskon saja tidak cukup cepat, jadi penyaluran ke mitra lebih aman.';
+      keyakinan = '94%';
+    } else if (b.sisa <= this.ambang().kritis) {
+      jenis = 'Diskon';
+      aksi = 'Turunkan harga 30% mulai hari ini';
+      alasan = 'Dengan sisa ' + b.sisa + ' hari, laju jual normal hanya menghabiskan ' + Math.round(b.laju * b.sisa) + ' dari ' + b.stok + ' ' + b.satuan + '. Diskon 30% pada kategori ' + b.kategori.toLowerCase() + ' historisnya menaikkan penjualan sekitar 2,4 kali lipat.';
+      keyakinan = '91%';
+    } else if (b.sisa <= 4) {
+      jenis = 'Diskon';
+      aksi = 'Jadwalkan diskon 15% pada H-2 kadaluarsa';
+      alasan = 'Stok ' + b.stok + ' ' + b.satuan + ' diperkirakan tersisa ' + Math.round(sisaStok) + ' ' + b.satuan + ' saat kadaluarsa. Diskon ringan sudah cukup menutup selisih tanpa menekan margin.';
+      keyakinan = '86%';
+    } else {
+      jenis = 'Bundling';
+      aksi = 'Bundling dengan produk cepat laku dari kategori lain';
+      alasan = 'Laju jual ' + b.laju + ' ' + b.satuan + '/hari membuat stok baru habis dalam ' + habis + ' hari, dua hari melewati batas kadaluarsa. Bundling menaikkan volume tanpa memotong harga satuan.';
+      keyakinan = '78%';
+    }
+    return { jenis, aksi, alasan, keyakinan, sisaStok, nilai };
+  }
+
+  toast(t) {
+    this.setState({ toast: t });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+
+  ke(h) { this.setState({ halaman: h, galat: '' }); if (typeof window !== 'undefined') window.scrollTo(0, 0); }
+
+  renderVals() {
+    const s = this.state;
+    const luas = s.lebar >= 900;
+    const kosong = (this.props.dataKosong ?? false) || s.kosong;
+    const semua = kosong ? [] : this.semuaBarang();
+    const t = this.hariIni();
+
+    const kpi = { total: semua.length, aman:0, risiko:0, kritis:0 };
+    let totalStok = 0;
+    semua.forEach(b => { kpi[b.st === 'risiko' ? 'risiko' : b.st]++; totalStok += b.stok; });
+
+    const cocok = semua.filter(b => {
+      if (s.kategori !== 'Semua' && b.kategori !== s.kategori) return false;
+      if (s.status !== 'Semua' && ST[b.st].label !== s.status) return false;
+      if (s.q) { const q = s.q.toLowerCase(); if (!(b.nama.toLowerCase().includes(q) || b.pemasok.toLowerCase().includes(q))) return false; }
+      return true;
+    }).sort((a, b) => a.sisa - b.sisa);
+
+    const daftar = cocok.map(b => {
+      const st = ST[b.st];
+      const pakai = Math.min(100, Math.max(4, Math.round(((b.umur - Math.max(b.sisa, 0)) / b.umur) * 100)));
+      return {
+        nama: b.nama, kategori: b.kategori, pemasok: b.pemasok,
+        stokTeks: b.stok + ' ' + b.satuan,
+        tglKadaluarsa: fmt(b.kadaluarsa),
+        sisaTeks: b.sisa <= 0 ? 'Lewat batas' : b.sisa + ' hari',
+        status: st.label,
+        gayaTitik: 'width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:' + st.dot,
+        gayaBadge: badge(st),
+        gayaBar: 'height:100%;width:' + pakai + '%;border-radius:99px;background:' + st.dot,
+        gayaKartu: 'border:1px solid #eef2ed;border-left:3px solid ' + st.dot + ';border-radius:13px;padding:14px;cursor:pointer;background:#fff',
+        buka: () => this.setState({ pilih: b.id, halaman: 'detail' })
+      };
+    });
+
+    const berisiko = semua.filter(b => b.st !== 'aman').sort((a, b) => a.sisa - b.sisa);
+    const rek = berisiko.map(b => {
+      const r = this.rekomendasiUntuk(b);
+      const sudah = !!s.diterapkan[b.id];
+      const st = ST[b.st];
+      const w = AKSI_WARNA[r.jenis];
+      return {
+        nama: b.nama, meta: b.kategori + ' · ' + b.stok + ' ' + b.satuan + ' · sisa ' + (b.sisa <= 0 ? 'lewat batas' : b.sisa + ' hari'),
+        status: st.label, jenis: r.jenis, aksi: r.aksi, alasan: r.alasan, keyakinan: r.keyakinan,
+        risikoTeks: Math.round(r.sisaStok) + ' ' + b.satuan + ' terbuang',
+        nilaiTeks: rp(r.nilai),
+        gayaTitik: 'width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:' + st.dot,
+        gayaBadge: badge(st),
+        gayaJenis: badge(w),
+        labelTombol: sudah ? 'Sudah diterapkan' : 'Tandai diterapkan',
+        gayaTombol: 'flex:1;height:40px;padding:0 15px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;cursor:pointer;' + (sudah ? 'background:#f0fdf4;color:#166534;border:1px solid #bbf7d0' : 'background:#86198f;color:#fff;border:1px solid #86198f'),
+        terapkan: () => {
+          if (s.diterapkan[b.id]) return;
+          this.setState(p => ({ diterapkan: Object.assign({}, p.diterapkan, { [b.id]: r.jenis }) }));
+          this.toast(r.jenis + ' untuk ' + b.nama + ' ditandai diterapkan');
+        },
+        buka: () => this.setState({ pilih: b.id, halaman: 'detail' })
+      };
+    });
+    const aktif = rek.filter((r, i) => !s.diterapkan[berisiko[i].id]);
+    const potensi = berisiko.reduce((a, b) => a + this.rekomendasiUntuk(b).sisaStok, 0);
+    const nilaiSelamat = berisiko.reduce((a, b) => a + this.rekomendasiUntuk(b).nilai, 0);
+
+    // form + pratinjau
+    const f = s.form;
+    const umur = Number(f.umur) || 0;
+    const masukD = f.masuk ? new Date(f.masuk + 'T00:00:00') : t;
+    const kadD = new Date(masukD.getTime() + umur * hariMs);
+    const pvSisa = umur > 0 ? Math.round((kadD - t) / hariMs) : 0;
+    const pvSt = ST[this.statusDari(umur > 0 ? pvSisa : 99)];
+    const pvCatatan = umur === 0
+      ? 'Isi umur simpan untuk melihat estimasi status dan saran tindakan dari AI.'
+      : pvSisa <= this.ambang().kritis
+        ? 'Barang ini langsung masuk kategori kritis. AI akan menyarankan diskon atau distribusi begitu data disimpan.'
+        : pvSisa <= this.ambang().risiko
+          ? 'Barang akan masuk pantauan berisiko. AI menjadwalkan pengingat tindakan dua hari sebelum kadaluarsa.'
+          : 'Barang berada di zona aman. Pemantauan otomatis berjalan setiap hari sampai sisa umur simpan menyentuh ' + this.ambang().risiko + ' hari.';
+
+    // detail
+    const d = semua.find(b => b.id === s.pilih) || semua[0] || null;
+    let dv = {};
+    if (d) {
+      const st = ST[d.st];
+      const r = this.rekomendasiUntuk(d);
+      const pakai = Math.min(100, Math.max(4, Math.round(((d.umur - Math.max(d.sisa, 0)) / d.umur) * 100)));
+      const jenisLalu = d.st === 'kritis' ? 'Diskon' : 'Bundling';
+      dv = {
+        dNama: d.nama, dStatus: st.label, dBadge: badge(st),
+        dTitik: 'width:11px;height:11px;border-radius:50%;flex:0 0 auto;background:' + st.dot,
+        dSub: d.kategori + ' · ' + d.pemasok + ' · Rak ' + (d.kategori === 'Roti' ? 'B-2' : d.kategori === 'Olahan Susu' ? 'C-1 (pendingin)' : 'A-4'),
+        dPersen: pakai + '% terpakai',
+        dGayaBar: 'height:100%;width:' + pakai + '%;border-radius:99px;background:' + st.dot,
+        dTglMasuk: 'Masuk ' + fmt(d.masuk),
+        dTglKadaluarsa: 'Kadaluarsa ' + fmt(d.kadaluarsa),
+        dInfo: [
+          { label:'Jumlah stok', nilai: d.stok + ' ' + d.satuan },
+          { label:'Kategori', nilai: d.kategori },
+          { label:'Umur simpan', nilai: d.umur + ' hari' },
+          { label:'Sisa hari', nilai: d.sisa <= 0 ? 'Lewat batas' : d.sisa + ' hari' },
+          { label:'Laju jual', nilai: d.laju + ' ' + d.satuan + '/hari' },
+          { label:'Harga satuan', nilai: rp(d.harga) },
+          { label:'Nilai stok', nilai: rp(d.harga * d.stok) },
+          { label:'Pemasok', nilai: d.pemasok }
+        ],
+        dMutasi: [
+          { judul:'Barang masuk dari ' + d.pemasok, waktu: fmt(d.masuk) + ' · 07.20', jumlah:'+' + Math.round(d.stok * 1.4) + ' ' + d.satuan },
+          { judul:'Penjualan harian', waktu:'Rata-rata ' + d.laju + ' ' + d.satuan + '/hari', jumlah:'−' + Math.round(d.stok * 0.4) + ' ' + d.satuan },
+          { judul:'Penyesuaian stok opname', waktu: fmt(new Date(t.getTime() - hariMs)) + ' · 16.45', jumlah: d.stok + ' ' + d.satuan }
+        ],
+        dRekomendasi: [
+          {
+            jenis: r.jenis, aksi: r.aksi, alasan: r.alasan, waktu: 'Hari ini · 06.00',
+            status: s.diterapkan[d.id] ? 'Sudah diterapkan' : 'Menunggu tindakan',
+            gayaKartu: 'border:1px solid #f5d0fe;background:#fdf4ff;border-radius:13px;padding:14px',
+            gayaJenis: badge(AKSI_WARNA[r.jenis]),
+            gayaStatus: badge(s.diterapkan[d.id] ? AKSI_WARNA['Distribusi'] : ST.risiko)
+          },
+          {
+            jenis: jenisLalu, aksi: 'Diskon 15% pada jam ramai sore', alasan: 'Tiga hari lalu stok bergerak lebih lambat dari rata-rata kategori. Diskon terbatas dipilih agar margin tetap terjaga.', waktu: fmt(new Date(t.getTime() - 3 * hariMs)),
+            status: 'Diterapkan · efektif',
+            gayaKartu: 'border:1px solid #eef2ed;background:#fff;border-radius:13px;padding:14px',
+            gayaJenis: badge(AKSI_WARNA[jenisLalu]),
+            gayaStatus: badge(AKSI_WARNA['Distribusi'])
+          },
+          {
+            jenis: 'Distribusi', aksi: 'Alihkan sebagian stok ke gerai cabang Cimahi', alasan: 'Permintaan di cabang Cimahi saat itu 1,8 kali lebih tinggi untuk kategori ' + d.kategori.toLowerCase() + ', sehingga pemindahan stok menurunkan risiko sisa.', waktu: fmt(new Date(t.getTime() - 9 * hariMs)),
+            status: 'Diterapkan · efektif',
+            gayaKartu: 'border:1px solid #eef2ed;background:#fff;border-radius:13px;padding:14px',
+            gayaJenis: badge(AKSI_WARNA['Distribusi']),
+            gayaStatus: badge(AKSI_WARNA['Distribusi'])
+          }
+        ]
+      };
+    }
+
+    const catatanBaru = Object.keys(s.diterapkan).map(id => {
+      const b = semua.find(x => x.id === id);
+      if (!b) return null;
+      const j = s.diterapkan[id];
+      return { tanggal:'Hari ini', barang:b.nama, aksi:j, jumlah: Math.round(this.rekomendasiUntuk(b).sisaStok) + ' ' + b.satuan, catatan:'Dari rekomendasi AI', gayaAksi: badge(AKSI_WARNA[j]) };
+    }).filter(Boolean);
+
+    const catatan = catatanBaru.concat(CATATAN.map(c => ({
+      tanggal: fmt(new Date(t.getTime() - c[0] * hariMs)),
+      barang: c[1], aksi: c[2], jumlah: c[3], catatan: c[4],
+      gayaAksi: badge(AKSI_WARNA[c[2]])
+    })));
+
+    const maks = Math.max.apply(null, GRAFIK.map(g => g.selamat));
+    const grafik = GRAFIK.map(g => ({
+      bulan: g.bulan, nilai: g.selamat,
+      gayaSelamat: 'width:22px;border-radius:6px 6px 0 0;background:' + HIJAU + ';height:' + Math.round((g.selamat / maks) * 100) + '%',
+      gayaBuang: 'width:12px;border-radius:6px 6px 0 0;background:#fecdd3;height:' + Math.round((g.buang / maks) * 100) + '%'
+    }));
+
+    const nav = (h) => 'display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;font-size:14px;font-weight:500;cursor:pointer;' + (s.halaman === h || (h === 'dashboard' && s.halaman === 'detail') ? 'background:#f0f5ef;color:' + HIJAU + ';font-weight:600' : 'color:#5d6f63;background:transparent');
+    const tab = (h) => 'flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 2px;cursor:pointer;border-radius:10px;color:' + (s.halaman === h || (h === 'dashboard' && s.halaman === 'detail') ? HIJAU : '#93a398');
+
+    const hi = new Date();
+    const tanggalHariIni = HARI[hi.getDay()] + ', ' + hi.getDate() + ' ' + BULAN_PANJANG[hi.getMonth()] + ' ' + hi.getFullYear();
+
+    const set = (k) => (e) => this.setState(p => ({ form: Object.assign({}, p.form, { [k]: e.target.value }) }));
+
+    return {
+      diLogin: s.halaman === 'login', diApp: s.halaman !== 'login',
+      diDashboard: s.halaman === 'dashboard', diAi: s.halaman === 'ai',
+      diForm: s.halaman === 'form', diRiwayat: s.halaman === 'riwayat', diDetail: s.halaman === 'detail' && !!d,
+      layarLuas: luas, layarSempit: !luas,
+      gayaKonten: 'flex:1;min-width:0;padding:' + (luas ? '30px 34px 48px' : '20px 16px 96px'),
+      tanggalHariIni,
+
+      loginUser: s.user, loginPass: s.pass,
+      ubahUser: (e) => this.setState({ user: e.target.value }),
+      ubahPass: (e) => this.setState({ pass: e.target.value }),
+      masuk: () => { this.setState({ halaman: 'dashboard' }); this.toast('Selamat datang kembali, Rina'); },
+      keluar: () => this.setState({ halaman: 'login' }),
+
+      keDashboard: () => this.ke('dashboard'),
+      keAi: () => this.ke('ai'),
+      keRiwayat: () => this.ke('riwayat'),
+      keForm: () => { this.setState({ form: { nama:'', kategori:'Sayur', masuk: iso(t), umur:'', stok:'', satuan:'kg', pemasok:'' } }); this.ke('form'); },
+      editBarang: () => { if (d) this.setState({ form: { nama:d.nama, kategori:d.kategori, masuk: iso(d.masuk), umur:String(d.umur), stok:String(d.stok), satuan:d.satuan, pemasok:d.pemasok } }); this.ke('form'); },
+      kembali: () => this.ke('dashboard'),
+
+      navDashboard: nav('dashboard'), navAi: nav('ai'), navForm: nav('form'), navRiwayat: nav('riwayat'),
+      tabDashboard: tab('dashboard'), tabAi: tab('ai'), tabForm: tab('form'), tabRiwayat: tab('riwayat'),
+      lencanaAi: 'margin-left:auto;background:' + (aktif.length ? '#fae8ff' : '#eef2ed') + ';color:' + (aktif.length ? '#86198f' : '#93a398') + ';font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px',
+
+      kpiTotal: kpi.total, kpiAman: kpi.aman, kpiRisiko: kpi.risiko, kpiKritis: kpi.kritis,
+      kpiTotalStok: totalStok.toLocaleString('id-ID') + ' unit stok tercatat',
+      ambangRisiko: this.ambang().risiko,
+
+      adaRekomendasi: aktif.length > 0 && !kosong,
+      ringkasAi: aktif.length + ' rekomendasi AI menunggu tindakan',
+      ringkasAiDetail: 'Potensi ' + Math.round(potensi).toLocaleString('id-ID') + ' unit senilai ' + rp(nilaiSelamat) + ' bisa diselamatkan minggu ini.',
+
+      chipKategori: ['Semua','Sayur','Buah','Olahan Susu','Roti'].map(k => ({ label:k, gaya: chip(s.kategori === k), pilih: () => this.setState({ kategori: k }) })),
+      chipStatus: ['Semua','Aman','Berisiko','Kritis'].map(k => ({ label:k, gaya: chip(s.status === k), pilih: () => this.setState({ status: k }) })),
+      kataKunci: s.q, ubahKataKunci: (e) => this.setState({ q: e.target.value }),
+      resetFilter: () => this.setState({ kategori:'Semua', status:'Semua', q:'' }),
+      jumlahTampil: daftar.length + ' barang',
+      daftar,
+      dataKosongTampil: kosong,
+      tabelTampil: !kosong && luas && daftar.length > 0,
+      kartuTampil: !kosong && !luas && daftar.length > 0,
+      hasilKosong: !kosong && daftar.length === 0,
+
+      rekomendasi: rek, aiKosong: rek.length === 0,
+      jumlahRekomendasi: aktif.length,
+      jumlahDiterapkan: Object.keys(s.diterapkan).length,
+      potensiTerbuang: Math.round(potensi).toLocaleString('id-ID') + ' unit',
+      nilaiSelamat: rp(nilaiSelamat),
+      waktuAnalisis: 'hari ini pukul 06.00',
+
+      judulForm: s.form.nama ? 'Edit Barang' : 'Tambah Barang Baru',
+      fNama: f.nama, fMasuk: f.masuk || iso(t), fUmur: f.umur, fStok: f.stok, fSatuan: f.satuan, fPemasok: f.pemasok,
+      ubahNama: set('nama'), ubahMasuk: set('masuk'), ubahUmur: set('umur'), ubahStok: set('stok'), ubahSatuan: set('satuan'), ubahPemasok: set('pemasok'),
+      pilihanKategori: ['Sayur','Buah','Olahan Susu','Roti'].map(k => ({ label:k, gaya: chip(f.kategori === k), pilih: () => this.setState(p => ({ form: Object.assign({}, p.form, { kategori:k }) })) })),
+      pvNama: f.nama || 'Nama barang belum diisi',
+      pvKategori: f.kategori,
+      pvKadaluarsa: umur > 0 ? fmt(kadD) : '—',
+      pvSisa: umur > 0 ? (pvSisa <= 0 ? 'Lewat batas' : pvSisa + ' hari') : '—',
+      pvStatus: umur > 0 ? pvSt.label : 'Belum dihitung',
+      pvBadge: badge(umur > 0 ? pvSt : { fg:'#5d6f63', bg:'#f2f6f1', bd:'#e0e7e0' }),
+      pvTitik: 'width:11px;height:11px;border-radius:50%;flex:0 0 auto;background:' + (umur > 0 ? pvSt.dot : '#c9d6cd'),
+      pvCatatan,
+      galat: s.galat, adaGalat: !!s.galat,
+      simpan: () => {
+        if (!f.nama.trim()) return this.setState({ galat: 'Nama barang wajib diisi.' });
+        if (!Number(f.umur)) return this.setState({ galat: 'Umur simpan harus lebih dari 0 hari.' });
+        if (!Number(f.stok)) return this.setState({ galat: 'Jumlah stok harus lebih dari 0.' });
+        const baru = {
+          id: 'n' + Date.now(), nama: f.nama.trim(), kategori: f.kategori, satuan: f.satuan,
+          stok: Number(f.stok), umur: Number(f.umur), laju: Math.max(1, Math.round(Number(f.stok) / Number(f.umur))),
+          harga: 15000, pemasok: f.pemasok.trim() || 'Belum dicatat',
+          masuk: f.masuk ? new Date(f.masuk + 'T00:00:00') : t
+        };
+        this.setState(p => ({ tambahan: p.tambahan.concat([baru]), kosong: false, galat: '', halaman: 'dashboard' }));
+        this.toast(baru.nama + ' berhasil disimpan');
+      },
+
+      stTerselamatkan: '2.184 kg', stNilai: rp(48750000), stPersen: '87%', stTerbuang: '368 kg',
+      grafik, catatan, jumlahCatatan: catatan.length + ' catatan',
+
+      togelKosong: () => this.setState(p => ({ kosong: !p.kosong, halaman: 'dashboard' })),
+      labelKosong: kosong ? 'Kembalikan data contoh' : 'Lihat kondisi kosong',
+      tombolKosong: 'padding:8px 11px;border-radius:9px;font-size:12.5px;font-weight:500;cursor:pointer;text-align:center;border:1px solid ' + (kosong ? HIJAU : '#dbe3dc') + ';background:' + (kosong ? HIJAU : '#fff') + ';color:' + (kosong ? '#fff' : '#3c4d42'),
+
+      toast: s.toast, adaToast: !!s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
