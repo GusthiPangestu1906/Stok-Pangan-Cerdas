@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Item;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -39,28 +41,53 @@ class GeminiInsightService
             ? ['Pemusnahan']
             : ['Diskon', 'Distribusi', 'Bundling'];
 
-        $response = Http::timeout(30)
-            ->withHeader('x-goog-api-key', $this->apiKey)
-            ->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent", [
-                'contents' => [
-                    ['parts' => [['text' => $prompt]]],
-                ],
-                'generationConfig' => [
-                    'temperature' => 0.4,
-                    'responseMimeType' => 'application/json',
-                    'responseSchema' => [
-                        'type' => 'OBJECT',
-                        'properties' => [
-                            'jenis_saran' => [
-                                'type' => 'STRING',
-                                'enum' => $enumSaran,
-                            ],
-                            'isi_saran' => ['type' => 'STRING'],
-                        ],
-                        'required' => ['jenis_saran', 'isi_saran'],
+        $retryableStatusCodes = [429, 500, 503];
+
+        try {
+            $response = Http::timeout(12)
+                ->withHeader('x-goog-api-key', $this->apiKey)
+                ->retry([1000, 2000], when: function ($exception, $request) use ($retryableStatusCodes, $item) {
+                    $bolehRetry = $exception instanceof ConnectionException
+                        || ($exception instanceof RequestException
+                            && in_array($exception->response->status(), $retryableStatusCodes, true));
+
+                    if ($bolehRetry) {
+                        Log::warning('Gemini API request gagal, mencoba ulang', [
+                            'item_id' => $item->id,
+                            'status' => $exception instanceof RequestException ? $exception->response->status() : 'connection_error',
+                        ]);
+                    }
+
+                    return $bolehRetry;
+                }, throw: false)
+                ->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent", [
+                    'contents' => [
+                        ['parts' => [['text' => $prompt]]],
                     ],
-                ],
+                    'generationConfig' => [
+                        'temperature' => 0.4,
+                        'responseMimeType' => 'application/json',
+                        'responseSchema' => [
+                            'type' => 'OBJECT',
+                            'properties' => [
+                                'jenis_saran' => [
+                                    'type' => 'STRING',
+                                    'enum' => $enumSaran,
+                                ],
+                                'isi_saran' => ['type' => 'STRING'],
+                            ],
+                            'required' => ['jenis_saran', 'isi_saran'],
+                        ],
+                    ],
+                ]);
+        } catch (ConnectionException $e) {
+            Log::error('Gemini API tidak dapat dihubungi setelah beberapa percobaan', [
+                'item_id' => $item->id,
+                'error' => $e->getMessage(),
             ]);
+
+            throw new RuntimeException('Layanan AI sedang tidak dapat dihubungi. Coba lagi beberapa saat.');
+        }
 
         if ($response->failed()) {
             Log::error('Gemini API request failed', [
