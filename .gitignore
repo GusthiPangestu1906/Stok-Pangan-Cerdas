@@ -32,3 +32,6 @@ Thumbs.db
 CLAUDE.md
 .mcp.json
 .claude.json
+
+# Design reference (local only, not for repo)
+design-reference/
