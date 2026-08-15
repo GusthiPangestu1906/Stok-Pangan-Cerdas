@@ -41,7 +41,11 @@ class GeminiInsightService
             ? ['Pemusnahan']
             : ['Diskon', 'Distribusi', 'Bundling'];
 
-        $retryableStatusCodes = [429, 500, 503];
+        // 429 (kuota habis) sengaja TIDAK di-retry: kalau yang habis adalah
+        // kuota HARIAN (bukan per-menit), jeda beberapa detik tidak akan
+        // memulihkannya — kuota baru pulih besok. Mengulang percobaan hanya
+        // membuang waktu dan menunda pesan yang seharusnya cepat muncul.
+        $retryableStatusCodes = [500, 503];
 
         try {
             $response = Http::timeout(12)
@@ -87,6 +91,15 @@ class GeminiInsightService
             ]);
 
             throw new RuntimeException('Layanan AI sedang tidak dapat dihubungi. Coba lagi beberapa saat.');
+        }
+
+        if ($response->status() === 429) {
+            Log::error('Gemini API kuota habis', [
+                'item_id' => $item->id,
+                'body' => $response->body(),
+            ]);
+
+            throw new RuntimeException('Kuota harian layanan AI sudah habis. Fitur rekomendasi akan tersedia kembali besok.');
         }
 
         if ($response->failed()) {

@@ -133,14 +133,29 @@ berubah, status ikut berubah otomatis tanpa perlu proses tambahan.
   karena API key yang tersedia saat pengembangan tidak memiliki akses ke
   model versi tetap (mis. `gemini-2.5-flash`).
 - **Model konkret yang benar-benar di-resolve** (dicek lewat field
-  `modelVersion` pada respons `generateContent`, per 13 Agustus 2026):
-  **`gemini-3.6-flash`**. Karena ini alias, Google bisa mengubah resolusinya
-  kapan saja tanpa pemberitahuan — cek ulang sebelum presentasi final kalau
-  butuh kepastian model yang sedang aktif.
+  `modelVersion` pada respons `generateContent`, per 14 Agustus 2026):
+  **`gemini-3.7-flash`**. Model ini sudah berubah dua kali selama
+  pengembangan (dari `gemini-3.6-flash` beberapa hari sebelumnya) — bukti
+  nyata bahwa alias ini memang bergerak. Karena ini alias, Google bisa
+  mengubah resolusinya kapan saja tanpa pemberitahuan — cek ulang sebelum
+  presentasi final kalau butuh kepastian model yang sedang aktif.
 - **Tujuan pemakaian:** AI generatif **hanya** dipakai di satu tempat — AI
   Insight Panel, untuk menghasilkan rekomendasi tindakan (bahasa Indonesia)
   atas barang yang berstatus Berisiko atau Kritis.
 - **Kode:** `backend/app/Services/GeminiInsightService.php`.
+- **Batasan kuota (free tier):** akun Gemini yang dipakai selama
+  pengembangan berada di tingkat gratis, dengan batas **20 permintaan
+  `generateContent` per hari per model**. Batas ini dibagi bersama oleh
+  semua orang yang memakai key yang sama — admin yang login, siapa pun
+  yang mencoba aplikasi, dan juri saat menilai, semuanya menarik dari
+  kuota harian yang sama. Kalau kuota habis, Gemini membalas dengan HTTP
+  429 (`RESOURCE_EXHAUSTED`), dan aplikasi menampilkan pesan yang jujur:
+  *"Kuota harian layanan AI sudah habis. Fitur rekomendasi akan tersedia
+  kembali besok."* — bukan pesan error generik yang terkesan aplikasinya
+  rusak. Kuota harian pulih otomatis keesokan harinya (waktu Pasifik,
+  sesuai zona waktu Google), bukan setelah jeda beberapa menit. Untuk
+  deployment produksi jangka panjang, ini perlu di-upgrade ke tingkat
+  berbayar Gemini API atau diberi kuota yang lebih besar.
 
 ### Bagian mana rule-based, bagian mana AI generatif
 
@@ -215,6 +230,15 @@ satu dari nilai yang diizinkan, `isi_saran` harus string). Hasilnya:
   barang di masa sekarang — riwayat tetap akurat walau data barangnya terus
   berubah, bahkan kalau barangnya sudah dihapus sekalipun (kolom `item_id`
   di tabel rekomendasi memakai `nullOnDelete`, bukan `cascadeOnDelete`).
+- **Retry otomatis untuk gangguan sementara, tanpa mengulang kegagalan
+  permanen.** Panggilan ke Gemini API memakai `Http::retry()` — mengulang
+  otomatis (maksimal 3 kali percobaan, jeda 1 detik lalu 2 detik) khusus
+  untuk status 500/503 dan kegagalan koneksi, karena kegagalan semacam itu
+  biasanya sementara. Status 429 (kuota habis) sengaja **tidak** diulang,
+  karena kalau yang habis adalah kuota harian, mengulang tidak akan
+  menolong — kuota baru pulih besok, bukan dalam hitungan detik. Membedakan
+  dua jenis kegagalan ini penting: mengulang kegagalan permanen cuma
+  membuang waktu dan menunda pesan error yang seharusnya cepat muncul.
 
 Catatan mengenai skema data: satu barang boleh punya lebih dari satu
 riwayat tindakan seiring waktu (misalnya sebagian stoknya didiskon lebih
