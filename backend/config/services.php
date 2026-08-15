@@ -38,6 +38,13 @@ return [
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-flash-latest'),
+        // Rantai model cadangan, dicoba berurutan HANYA saat model utama (dan
+        // cadangan sebelumnya) membalas 429 (kuota habis). Urutan dari yang
+        // kualitasnya paling mendekati model utama ke yang paling sederhana.
+        'model_fallbacks' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', env('GEMINI_MODEL_FALLBACKS', 'gemini-3.6-flash,gemini-3.5-flash,gemini-3.5-flash-lite'))
+        ))),
     ],
 
 ];

@@ -15,14 +15,27 @@ class GeminiInsightService
 
     private readonly string $model;
 
-    public function __construct(?string $apiKey = null, ?string $model = null)
+    /** @var list<string> */
+    private readonly array $modelFallbacks;
+
+    /**
+     * @param  list<string>|null  $modelFallbacks
+     */
+    public function __construct(?string $apiKey = null, ?string $model = null, ?array $modelFallbacks = null)
     {
         $this->apiKey = $apiKey ?: (string) config('services.gemini.key');
         $this->model = $model ?: (string) config('services.gemini.model');
+        $this->modelFallbacks = $modelFallbacks ?? (array) config('services.gemini.model_fallbacks', []);
     }
 
     /**
      * Minta rekomendasi tindakan dari Gemini untuk satu barang berisiko/kritis.
+     *
+     * Kuota gratis Gemini dibatasi PER MODEL, bukan digabung. Kalau model
+     * utama kena 429 (kuota habis), dicoba berurutan ke rantai model
+     * cadangan yang kuotanya masing-masing terpisah — dari kualitas output
+     * paling mendekati model utama ke yang paling sederhana — sebelum
+     * benar-benar menyerah dan memberi tahu user bahwa kuota habis.
      *
      * @return array{jenis_saran: string, isi_saran: string}
      */
@@ -37,6 +50,37 @@ class GeminiInsightService
         $sudahKadaluarsa = $item->sisa_hari < 0;
         $prompt = $this->buildPrompt($item, $sudahKadaluarsa);
 
+        // Rantai model yang dicoba untuk kasus 429, tanpa duplikat (model
+        // utama tidak diulang lagi kalau kebetulan juga ada di daftar
+        // fallback, dan tiap model cadangan hanya dicoba sekali).
+        $rantaiModel = array_values(array_unique([$this->model, ...$this->modelFallbacks]));
+
+        $modelSebelumnya = null;
+        $response = null;
+
+        foreach ($rantaiModel as $model) {
+            if ($modelSebelumnya !== null) {
+                Log::warning('Gemini API kuota habis, berpindah ke model berikutnya dalam rantai', [
+                    'item_id' => $item->id,
+                    'model_gagal' => $modelSebelumnya,
+                    'model_berikutnya' => $model,
+                ]);
+            }
+
+            $response = $this->kirimKeGemini($model, $prompt, $sudahKadaluarsa, $item);
+
+            if ($response->status() !== 429) {
+                break;
+            }
+
+            $modelSebelumnya = $model;
+        }
+
+        return $this->parseResponse($response, $item, $rantaiModel);
+    }
+
+    private function kirimKeGemini(string $model, string $prompt, bool $sudahKadaluarsa, Item $item)
+    {
         $enumSaran = $sudahKadaluarsa
             ? ['Pemusnahan']
             : ['Diskon', 'Distribusi', 'Bundling'];
@@ -44,13 +88,14 @@ class GeminiInsightService
         // 429 (kuota habis) sengaja TIDAK di-retry: kalau yang habis adalah
         // kuota HARIAN (bukan per-menit), jeda beberapa detik tidak akan
         // memulihkannya — kuota baru pulih besok. Mengulang percobaan hanya
-        // membuang waktu dan menunda pesan yang seharusnya cepat muncul.
+        // membuang waktu dan menunda pesan/fallback yang seharusnya cepat
+        // terjadi.
         $retryableStatusCodes = [500, 503];
 
         try {
-            $response = Http::timeout(12)
+            return Http::timeout(12)
                 ->withHeader('x-goog-api-key', $this->apiKey)
-                ->retry([1000, 2000], when: function ($exception, $request) use ($retryableStatusCodes, $item) {
+                ->retry([1000, 2000], when: function ($exception, $request) use ($retryableStatusCodes, $item, $model) {
                     $bolehRetry = $exception instanceof ConnectionException
                         || ($exception instanceof RequestException
                             && in_array($exception->response->status(), $retryableStatusCodes, true));
@@ -58,13 +103,14 @@ class GeminiInsightService
                     if ($bolehRetry) {
                         Log::warning('Gemini API request gagal, mencoba ulang', [
                             'item_id' => $item->id,
+                            'model' => $model,
                             'status' => $exception instanceof RequestException ? $exception->response->status() : 'connection_error',
                         ]);
                     }
 
                     return $bolehRetry;
                 }, throw: false)
-                ->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent", [
+                ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
                     'contents' => [
                         ['parts' => [['text' => $prompt]]],
                     ],
@@ -87,15 +133,23 @@ class GeminiInsightService
         } catch (ConnectionException $e) {
             Log::error('Gemini API tidak dapat dihubungi setelah beberapa percobaan', [
                 'item_id' => $item->id,
+                'model' => $model,
                 'error' => $e->getMessage(),
             ]);
 
             throw new RuntimeException('Layanan AI sedang tidak dapat dihubungi. Coba lagi beberapa saat.');
         }
+    }
 
+    /**
+     * @param  list<string>  $rantaiModel
+     */
+    private function parseResponse($response, Item $item, array $rantaiModel = []): array
+    {
         if ($response->status() === 429) {
-            Log::error('Gemini API kuota habis', [
+            Log::error('Gemini API kuota habis di semua model yang dicoba', [
                 'item_id' => $item->id,
+                'rantai_model' => $rantaiModel,
                 'body' => $response->body(),
             ]);
 

@@ -128,7 +128,7 @@ berubah, status ikut berubah otomatis tanpa perlu proses tambahan.
 ## AI generatif
 
 - **Provider:** Google Gemini API.
-- **Model yang dikonfigurasi:** alias `gemini-flash-latest` (lihat
+- **Model utama yang dikonfigurasi:** alias `gemini-flash-latest` (lihat
   `GEMINI_MODEL` di `.env` / `config/services.php`). Alias ini dipakai
   karena API key yang tersedia saat pengembangan tidak memiliki akses ke
   model versi tetap (mis. `gemini-2.5-flash`).
@@ -139,23 +139,108 @@ berubah, status ikut berubah otomatis tanpa perlu proses tambahan.
   nyata bahwa alias ini memang bergerak. Karena ini alias, Google bisa
   mengubah resolusinya kapan saja tanpa pemberitahuan — cek ulang sebelum
   presentasi final kalau butuh kepastian model yang sedang aktif.
+- **Rantai model cadangan:** `GEMINI_MODEL_FALLBACKS` di `.env` /
+  `config/services.php`, daftar model dipisah koma yang dicoba
+  **berurutan** hanya saat model sebelumnya kena HTTP 429 (kuota habis).
+  Urutan default: `gemini-3.6-flash` → `gemini-3.5-flash` →
+  `gemini-3.5-flash-lite`. Lihat bagian
+  [Rantai fallback model & ketahanan terhadap keterbatasan kuota](#rantai-fallback-model--ketahanan-terhadap-keterbatasan-kuota)
+  di bawah untuk alasan urutan ini dan cara kerjanya.
 - **Tujuan pemakaian:** AI generatif **hanya** dipakai di satu tempat — AI
   Insight Panel, untuk menghasilkan rekomendasi tindakan (bahasa Indonesia)
   atas barang yang berstatus Berisiko atau Kritis.
 - **Kode:** `backend/app/Services/GeminiInsightService.php`.
 - **Batasan kuota (free tier):** akun Gemini yang dipakai selama
   pengembangan berada di tingkat gratis, dengan batas **20 permintaan
-  `generateContent` per hari per model**. Batas ini dibagi bersama oleh
-  semua orang yang memakai key yang sama — admin yang login, siapa pun
-  yang mencoba aplikasi, dan juri saat menilai, semuanya menarik dari
-  kuota harian yang sama. Kalau kuota habis, Gemini membalas dengan HTTP
-  429 (`RESOURCE_EXHAUSTED`), dan aplikasi menampilkan pesan yang jujur:
-  *"Kuota harian layanan AI sudah habis. Fitur rekomendasi akan tersedia
-  kembali besok."* — bukan pesan error generik yang terkesan aplikasinya
-  rusak. Kuota harian pulih otomatis keesokan harinya (waktu Pasifik,
-  sesuai zona waktu Google), bukan setelah jeda beberapa menit. Untuk
-  deployment produksi jangka panjang, ini perlu di-upgrade ke tingkat
-  berbayar Gemini API atau diberi kuota yang lebih besar.
+  `generateContent` per hari per model konkret**. Karena setiap model
+  dalam rantai (model utama + 3 cadangan) adalah model konkret yang
+  berbeda, total kuota gabungan yang tersedia untuk fitur AI Insight
+  adalah **sekitar 80 permintaan per hari**, bukan 20. Kuota ini dibagi
+  bersama oleh semua orang yang memakai key yang sama — admin yang login,
+  siapa pun yang mencoba aplikasi, dan juri saat menilai, semuanya menarik
+  dari kuota harian yang sama. Kuota harian pulih otomatis keesokan
+  harinya (waktu Pasifik, sesuai zona waktu Google), bukan setelah jeda
+  beberapa menit. Untuk deployment produksi jangka panjang, ini perlu
+  di-upgrade ke tingkat berbayar Gemini API atau diberi kuota yang lebih
+  besar.
+
+### Rantai fallback model & ketahanan terhadap keterbatasan kuota
+
+Karena kuota free tier Gemini terpisah per model, `GeminiInsightService`
+mencoba **rantai model secara berurutan** supaya satu model kehabisan
+kuota tidak langsung mematikan fitur AI Insight:
+
+1. **Permintaan pertama** selalu ke model utama (`GEMINI_MODEL`,
+   `gemini-flash-latest`).
+2. **Kalau model itu membalas 429** (kuota habis), aplikasi **langsung**
+   (tanpa jeda tambahan, karena 429 memang tidak di-retry — lihat tabel
+   di bawah) mencoba model berikutnya dalam `GEMINI_MODEL_FALLBACKS`.
+3. **Proses ini berulang** sampai salah satu model berhasil, atau seluruh
+   rantai habis dicoba.
+4. **Kalau semua model dalam rantai membalas 429**, barulah aplikasi
+   menyerah dan menampilkan pesan kuota habis ke user.
+
+**Kenapa urutan rantainya seperti ini** (`gemini-3.6-flash` →
+`gemini-3.5-flash` → `gemini-3.5-flash-lite`): diuji langsung dengan
+prompt yang sama persis untuk barang Tomat Segar (8 unit, sisa 1 hari).
+`gemini-3.6-flash` dan `gemini-3.5-flash` sama-sama menghasilkan
+rekomendasi yang spesifik dan memakai data barang (menyebut "8 unit
+Tomat Segar", tanggal kadaluarsa). `gemini-3.5-flash-lite` menghasilkan
+rekomendasi yang lebih generik (cuma menyebut "tomat" tanpa jumlah unit,
+dan sesekali agak rancu antara `jenis_saran` dan isi sarannya) — tetap
+masuk akal dan berbahasa Indonesia yang benar, tapi kualitasnya di bawah
+dua model sebelumnya. Karena itu model dengan kualitas terbaik selalu
+dicoba lebih dulu, dan model paling sederhana jadi upaya terakhir sebelum
+benar-benar menampilkan pesan kuota habis — lebih baik rekomendasi yang
+agak generik daripada tidak ada rekomendasi sama sekali.
+
+**Kenapa `gemini-flash-lite-latest` dan `gemini-3.1-flash-lite` sengaja
+TIDAK dimasukkan ke rantai:** `gemini-flash-lite-latest` ternyata adalah
+**alias yang resolve ke model konkret yang sama** dengan
+`gemini-3.5-flash-lite` yang sudah ada di rantai — karena kuota dihitung
+per model konkret (bukan per nama/alias yang dipakai memanggilnya),
+memasukkan keduanya tidak menambah kuota sama sekali, cuma alias ganda
+untuk kuota yang sama. `gemini-3.1-flash-lite` adalah generasi lebih lama
+yang kualitas outputnya diperkirakan di bawah `gemini-3.5-flash-lite`,
+jadi tidak menambah nilai sebagai upaya terakhir dalam rantai.
+
+Strategi retry dan fallback ini sengaja dipisah berdasarkan jenis
+kegagalan, karena masing-masing butuh respons yang berbeda:
+
+| Status | Perlakuan | Alasan |
+|---|---|---|
+| 500, 503, kegagalan koneksi | Retry ke **model yang sama**, maksimal 3 percobaan, jeda 1 detik lalu 2 detik | Biasanya gangguan sementara di sisi Google yang pulih sendiri dalam hitungan detik |
+| 429 (kuota habis) | **Tidak** di-retry di model yang sama; langsung dicoba ke **model berikutnya dalam rantai** | Kalau yang habis adalah kuota harian, menunggu beberapa detik tidak menolong — kuota baru pulih besok. Tapi model lain punya kuota terpisah, jadi ada peluang nyata untuk berhasil |
+| 400, 401, 403, 404 | Gagal cepat, tidak ada retry maupun fallback | Masalah permintaan atau kredensial yang tidak akan berubah walau modelnya diganti |
+
+Rantai model dibersihkan dari duplikat sebelum dicoba (`array_unique`) —
+kalau model utama juga tercantum di `GEMINI_MODEL_FALLBACKS`, atau ada
+nama model yang berulang di daftar cadangan, model itu hanya dicoba
+sekali. Nilai kosong akibat koma berlebih di `.env` juga dilewati.
+
+Setiap kali rantai berpindah model, tercatat `Log::warning()` dengan
+`item_id`, model yang gagal, dan model berikutnya yang dicoba — supaya
+bisa dipantau seberapa sering tiap model kehabisan kuota di pemakaian
+nyata.
+
+**Perkiraan waktu tunggu terburuk:** kalau seluruh rantai (4 model) kena
+429 secara berurutan, itu tidak menambah waktu berarti karena 429 tidak
+pernah di-retry — murni 4 kali panggilan cepat. Kasus yang benar-benar
+paling lambat adalah kombinasi: beberapa model di awal rantai kena 429
+(cepat), lalu satu model mengalami gangguan 503 dan menghabiskan seluruh
+jatah retry-nya (3 percobaan × timeout 12 detik + jeda 1s+2s = maksimal
+~39 detik) sebelum akhirnya berhasil atau gagal total di model itu.
+Skenario ekstrem teoretis (3 model kena 429 dengan request lambat,
+ditambah 1 model kena 503 penuh) bisa mendekati ~75 detik, meski ini
+sangat tidak mungkin terjadi dalam praktik karena 429 biasanya dibalas
+instan oleh Google, bukan mendekati batas timeout.
+
+Ini bagian dari jawaban untuk pertanyaan skalabilitas/ketahanan: aplikasi
+tidak bergantung pada satu titik kegagalan Gemini API, atau bahkan satu
+model. Gangguan sementara ditangani lewat retry ke model yang sama, dan
+keterbatasan kuota free tier ditangani lewat rantai fallback ke model
+lain dengan kuota terpisah — dua mekanisme berbeda untuk dua jenis
+masalah yang berbeda pula.
 
 ### Bagian mana rule-based, bagian mana AI generatif
 
@@ -230,15 +315,19 @@ satu dari nilai yang diizinkan, `isi_saran` harus string). Hasilnya:
   barang di masa sekarang — riwayat tetap akurat walau data barangnya terus
   berubah, bahkan kalau barangnya sudah dihapus sekalipun (kolom `item_id`
   di tabel rekomendasi memakai `nullOnDelete`, bukan `cascadeOnDelete`).
-- **Retry otomatis untuk gangguan sementara, tanpa mengulang kegagalan
-  permanen.** Panggilan ke Gemini API memakai `Http::retry()` — mengulang
-  otomatis (maksimal 3 kali percobaan, jeda 1 detik lalu 2 detik) khusus
-  untuk status 500/503 dan kegagalan koneksi, karena kegagalan semacam itu
-  biasanya sementara. Status 429 (kuota habis) sengaja **tidak** diulang,
-  karena kalau yang habis adalah kuota harian, mengulang tidak akan
-  menolong — kuota baru pulih besok, bukan dalam hitungan detik. Membedakan
-  dua jenis kegagalan ini penting: mengulang kegagalan permanen cuma
-  membuang waktu dan menunda pesan error yang seharusnya cepat muncul.
+- **Retry otomatis untuk gangguan sementara, dan rantai fallback model
+  untuk keterbatasan kuota — dua mekanisme berbeda untuk dua jenis
+  kegagalan.** Panggilan ke Gemini API memakai `Http::retry()` —
+  mengulang otomatis (maksimal 3 kali percobaan, jeda 1 detik lalu 2
+  detik) ke model yang sama khusus untuk status 500/503 dan kegagalan
+  koneksi, karena kegagalan semacam itu biasanya sementara. Status 429
+  (kuota habis) sengaja **tidak** diulang di model yang sama — kuota
+  harian baru pulih besok, bukan dalam hitungan detik — tapi karena kuota
+  free tier Gemini ternyata terpisah per model, aplikasi langsung mencoba
+  model berikutnya dalam rantai (total 4 model, ~80 permintaan/hari
+  gabungan) yang kuotanya belum tentu ikut habis. Detail lengkap strategi
+  ini ada di bagian
+  [Rantai fallback model & ketahanan terhadap keterbatasan kuota](#rantai-fallback-model--ketahanan-terhadap-keterbatasan-kuota).
 
 Catatan mengenai skema data: satu barang boleh punya lebih dari satu
 riwayat tindakan seiring waktu (misalnya sebagian stoknya didiskon lebih
