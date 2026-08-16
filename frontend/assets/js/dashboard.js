@@ -20,8 +20,7 @@ let generatingItemId = null;
 const el = {
   tanggalHariIni: document.getElementById('tanggal-hari-ini'),
   jumlahTampil: document.getElementById('jumlah-tampil'),
-  chipKategori: document.getElementById('chip-kategori'),
-  chipStatus: document.getElementById('chip-status'),
+  chipFilters: document.getElementById('chip-filters'),
   cari: document.getElementById('filter-cari'),
   resetFilter: document.getElementById('reset-filter'),
   loading: document.getElementById('state-loading'),
@@ -36,6 +35,7 @@ const el = {
   summaryBerisiko: document.getElementById('summary-berisiko'),
   summaryKritis: document.getElementById('summary-kritis'),
   btnTambah: document.getElementById('btn-tambah'),
+  btnTambahFab: document.getElementById('btn-tambah-fab'),
   modalForm: document.getElementById('modal-form'),
   modalFormTitle: document.getElementById('modal-form-title'),
   modalFormClose: document.getElementById('modal-form-close'),
@@ -116,7 +116,7 @@ function hasRekomendasiAktif(itemId) {
   return allRekomendasi.some((r) => r.item_id === itemId && !r.diterapkan);
 }
 
-function renderActionButtons(item) {
+function renderActionButtons(item, isMobile = false) {
   const template = document.getElementById('tmpl-action-buttons');
   const clone = template.content.cloneNode(true);
 
@@ -132,16 +132,38 @@ function renderActionButtons(item) {
     btnAi.dataset.id = item.id;
     if (sudahAdaRekomendasi) {
       btnAi.disabled = true;
-      btnAi.className = 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed';
+      btnAi.className = isMobile
+        ? 'btn btn-outline border-subtle text-light text-xs h-8 px-3 rounded-lg cursor-not-allowed flex items-center gap-1.5 font-medium'
+        : 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed';
       btnAi.title = 'Sudah ada rekomendasi aktif untuk barang ini';
     } else {
-      btnAi.className = 'btn btn-outline btn-icon border-ai-subtle text-ai hover:bg-ai cursor-pointer';
+      btnAi.className = isMobile
+        ? 'btn bg-purple-50 text-purple-700 border border-purple-200/80 hover:bg-purple-100 cursor-pointer text-xs h-8 px-3 rounded-lg flex items-center gap-1.5 font-semibold'
+        : 'btn btn-outline btn-icon border-ai-subtle text-ai hover:bg-ai cursor-pointer';
       btnAi.title = 'Minta Saran AI';
+    }
+    if (isMobile) {
+      const labelSpan = document.createElement('span');
+      labelSpan.textContent = 'Minta Saran AI';
+      btnAi.appendChild(labelSpan);
     }
   }
 
   btnEdit.dataset.id = item.id;
   btnHapus.dataset.id = item.id;
+
+  if (isMobile) {
+    // Tombol Edit dan Hapus berbentuk icon-only square button di kanan agar rapi & lega
+    btnEdit.className = 'btn btn-outline btn-icon';
+    btnHapus.className = 'btn btn-outline btn-icon hover:!border-danger hover:!text-danger';
+
+    // Bungkus Edit dan Hapus di kontainer flex kanan
+    const rightActions = document.createElement('div');
+    rightActions.className = 'flex items-center gap-1.5 ml-auto';
+    btnEdit.parentNode.insertBefore(rightActions, btnEdit);
+    rightActions.appendChild(btnEdit);
+    rightActions.appendChild(btnHapus);
+  }
 
   return clone;
 }
@@ -166,7 +188,7 @@ function renderTableRow(item) {
   badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
   badge.classList.add(`badge-${item.status}`);
 
-  clone.querySelector('.js-actions').appendChild(renderActionButtons(item));
+  clone.querySelector('.js-actions').appendChild(renderActionButtons(item, false));
 
   return clone;
 }
@@ -190,7 +212,7 @@ function renderCard(item) {
   badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
   badge.classList.add(`badge-${item.status}`);
 
-  clone.querySelector('.js-actions').appendChild(renderActionButtons(item));
+  clone.querySelector('.js-actions').appendChild(renderActionButtons(item, true));
 
   return clone;
 }
@@ -212,50 +234,95 @@ function renderItems(items) {
   el.cards.appendChild(cardFragment);
 }
 
-function renderChipKategori() {
-  const kategoriList = ['Semua', ...new Set(allItems.map((item) => item.kategori))];
-  el.chipKategori.innerHTML = '';
-  kategoriList.forEach((kategori) => {
-    const chip = document.createElement('div');
-    chip.textContent = kategori;
-    chip.className = 'chip';
-    if (activeKategori === kategori) chip.classList.add('chip-active');
-    chip.addEventListener('click', () => {
-      activeKategori = kategori;
-      renderChipKategori();
-      applyFilters();
-    });
-    el.chipKategori.appendChild(chip);
-  });
+function renderFilters() {
+  if (!el.chipFilters) return;
+  el.chipFilters.innerHTML = '';
 
-  el.daftarKategori.innerHTML = '';
-  kategoriList.filter(k => k !== 'Semua').forEach(k => {
-    const opt = document.createElement('option');
-    opt.value = k;
-    el.daftarKategori.appendChild(opt);
+  // 1. Chip "Semua"
+  const chipSemua = document.createElement('div');
+  chipSemua.className = 'chip';
+  chipSemua.textContent = 'Semua';
+  if (activeKategori === 'Semua' && activeStatus === 'Semua') {
+    chipSemua.classList.add('chip-active');
+  }
+  chipSemua.addEventListener('click', () => {
+    activeKategori = 'Semua';
+    activeStatus = 'Semua';
+    renderFilters();
+    applyFilters();
   });
-}
+  el.chipFilters.appendChild(chipSemua);
 
-function renderChipStatus() {
-  const statusList = [
-    { key: 'Semua', label: 'Semua' },
-    { key: 'aman', label: 'Aman' },
-    { key: 'berisiko', label: 'Berisiko' },
+  // 2. Status Chips (Kritis, Berisiko, Aman)
+  const statusItems = [
     { key: 'kritis', label: 'Kritis' },
+    { key: 'berisiko', label: 'Berisiko' },
+    { key: 'aman', label: 'Aman' },
   ];
-  el.chipStatus.innerHTML = '';
-  statusList.forEach(({ key, label }) => {
+
+  statusItems.forEach(({ key, label }) => {
     const chip = document.createElement('div');
-    chip.textContent = label;
-    chip.className = 'chip';
-    if (activeStatus === key) chip.classList.add('chip-active');
-    chip.addEventListener('click', () => {
-      activeStatus = key;
-      renderChipStatus();
+    chip.className = `chip chip-status-${key}`;
+
+    const dot = document.createElement('span');
+    dot.className = `dot dot-${key} mr-1.5 shrink-0`;
+    chip.appendChild(dot);
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = label;
+    chip.appendChild(textSpan);
+
+    if (activeStatus === key) {
+      chip.classList.add('chip-active');
+      setTimeout(() => chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }), 50);
+    }
+
+    chip.addEventListener('click', (e) => {
+      if (activeStatus === key) {
+        activeStatus = 'Semua';
+      } else {
+        activeStatus = key;
+        activeKategori = 'Semua'; // Reset Kategori saat memilih Status agar tidak menghasilkan 0 barang
+      }
+      renderFilters();
       applyFilters();
     });
-    el.chipStatus.appendChild(chip);
+    el.chipFilters.appendChild(chip);
   });
+
+  // 3. Category Chips
+  const categories = [...new Set(allItems.map((item) => item.kategori))];
+  categories.forEach((kategori) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = kategori;
+    if (activeKategori === kategori) {
+      chip.classList.add('chip-active');
+      setTimeout(() => chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }), 50);
+    }
+
+    chip.addEventListener('click', () => {
+      if (activeKategori === kategori) {
+        activeKategori = 'Semua';
+      } else {
+        activeKategori = kategori;
+        activeStatus = 'Semua'; // Reset Status saat memilih Kategori agar tidak menghasilkan 0 barang
+      }
+      renderFilters();
+      applyFilters();
+    });
+    el.chipFilters.appendChild(chip);
+  });
+
+  // Datalist options for modal form
+  if (el.daftarKategori) {
+    el.daftarKategori.innerHTML = '';
+    categories.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      el.daftarKategori.appendChild(opt);
+    });
+  }
 }
 
 function applyFilters() {
@@ -279,8 +346,7 @@ async function loadItems() {
 
   try {
     allItems = await fetchItems();
-    renderChipKategori();
-    renderChipStatus();
+    renderFilters();
     applyFilters();
   } catch (err) {
     el.error.textContent = err.message || 'Terjadi kesalahan saat memuat data.';
@@ -317,6 +383,7 @@ function closeFormModal() {
 }
 
 el.btnTambah.addEventListener('click', () => openFormModal());
+if (el.btnTambahFab) el.btnTambahFab.addEventListener('click', () => openFormModal());
 el.modalFormClose.addEventListener('click', closeFormModal);
 el.formCancel.addEventListener('click', closeFormModal);
 el.modalForm.addEventListener('click', (e) => {
@@ -542,8 +609,7 @@ el.resetFilter.addEventListener('click', () => {
   activeKategori = 'Semua';
   activeStatus = 'Semua';
   el.cari.value = '';
-  renderChipKategori();
-  renderChipStatus();
+  renderFilters();
   applyFilters();
 });
 
@@ -595,8 +661,7 @@ async function init() {
     }
   }
 
-  renderChipKategori();
-  renderChipStatus();
+  renderFilters();
   applyFilters();
   renderRekomendasi();
 

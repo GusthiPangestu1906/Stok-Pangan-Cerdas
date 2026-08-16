@@ -16,9 +16,9 @@
 
   <!-- Header -->
   <header class="bg-surface border-b border-default sticky top-0 z-10">
-    <div class="container py-4 flex items-center justify-between gap-3 flex-wrap">
+    <div class="container py-3.5 flex items-center justify-between gap-3">
       <!-- Logo: adaptasi dari design-reference/Logo Stok Pangan Cerdas UI/Logo Stok Pangan Cerdas.dc.html -->
-      <div class="logo-container">
+      <div class="logo-container shrink-0">
         <div class="logo-icon">
           <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
             <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
@@ -27,98 +27,110 @@
           </svg>
         </div>
         <div>
-          <div class="font-heading font-bold text-[14.5px] tracking-tight leading-tight text-primary">Stok Pangan</div>
-          <div class="text-[11.5px] text-subtitle tracking-wide uppercase">CERDAS</div>
+          <div class="font-heading font-bold text-[14px] sm:text-[14.5px] tracking-tight leading-tight text-primary">Stok Pangan</div>
+          <div class="text-[10.5px] sm:text-[11.5px] text-subtitle tracking-wide uppercase">CERDAS</div>
         </div>
       </div>
-      <nav class="nav-pills">
+      
+      <!-- Nav Pills (Desktop) -->
+      <nav class="nav-pills hidden sm:flex">
         <a href="index.html" class="nav-link active">Dashboard</a>
         <a href="riwayat.html" class="nav-link">Riwayat</a>
       </nav>
-      <div class="flex items-center gap-3">
-        <!-- Sumber: [akan diisi] -->
-        <span class="flex items-center gap-1.5 text-xs font-semibold text-muted border border-strong rounded-full pl-1.5 pr-3 py-1">
-          <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026" class="h-[22px] w-[22px] rounded-full" />
-          TCC 2026
+
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <span class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted border border-strong rounded-full px-2.5 py-1">
+          <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026" class="h-[18px] w-[18px] sm:h-[22px] sm:w-[22px] rounded-full" />
+          <span>TCC 2026</span>
         </span>
-        <div class="flex items-center gap-2.5 pl-3 border-l border-default">
+        <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-default">
           <span id="user-name" class="text-[13px] font-medium text-secondary hidden sm:inline"></span>
-          <button id="btn-logout" class="text-[13px] font-medium text-light hover:text-danger transition cursor-pointer">Keluar</button>
+          <button id="btn-logout" class="text-[12.5px] sm:text-[13px] font-medium text-light hover:text-danger transition cursor-pointer p-1">Keluar</button>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="container py-6 sm:py-8 flex flex-col gap-5 rise-in">
+  <!-- Mobile Bottom App Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <a href="index.html" class="mobile-nav-item active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14532d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="riwayat.html" class="mobile-nav-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7d8f83" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+
+  <!-- Mobile Floating Action Button (FAB) -->
+  <button id="btn-tambah-fab" class="fab-btn" title="Tambah Barang" aria-label="Tambah Barang">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+  </button>
+
+  <main class="container py-5 sm:py-8 flex flex-col gap-5 rise-in">
 
     <!-- Page title -->
-    <div class="flex flex-wrap gap-3.5 items-end justify-between">
+    <div class="flex items-end justify-between gap-3">
       <div>
-        <p id="tanggal-hari-ini" class="text-[13px] text-soft mb-1.5"></p>
-        <h1 class="font-heading text-[22px] sm:text-[27px] font-semibold tracking-tight text-primary">Dashboard Stok</h1>
+        <p id="tanggal-hari-ini" class="text-[12.5px] sm:text-[13px] text-soft mb-1"></p>
+        <h1 class="font-heading text-[20px] sm:text-[27px] font-semibold tracking-tight text-primary">Dashboard Stok</h1>
       </div>
-      <button id="btn-tambah" class="btn btn-primary h-11 px-[18px]">
+      <button id="btn-tambah" class="btn btn-primary h-11 px-[18px] text-sm shrink-0 hidden sm:inline-flex">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
-        Tambah Barang
+        <span>Tambah Barang</span>
       </button>
     </div>
 
     <!-- Ringkasan Stok (KPI cards) -->
     <section aria-label="Ringkasan Stok" class="stats-grid">
-      <div class="card p-4 sm:px-[18px]">
-        <p class="text-[12.5px] text-soft font-medium">Total Barang</p>
-        <p id="summary-total" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-primary">–</p>
-        <p id="summary-total-stok" class="text-[12.5px] text-light mt-2">–</p>
+      <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Total Barang</p>
+        <p id="summary-total" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
+        <p id="summary-total-stok" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
       </div>
-      <div class="card p-4 sm:px-[18px] border-t-[3px] border-success">
+      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-success/80 shadow-sm">
         <div class="flex items-center gap-[7px]">
           <span class="dot dot-aman"></span>
-          <span class="text-[12.5px] text-soft font-medium">Aman</span>
+          <span class="text-[12.5px] sm:text-[13px] text-soft font-medium">Aman</span>
         </div>
-        <p id="summary-aman" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-success">–</p>
-        <p class="text-[12.5px] text-light mt-2">Sisa lebih dari 5 hari</p>
+        <p id="summary-aman" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">–</p>
+        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Sisa > 5 hari</p>
       </div>
-      <div class="card p-4 sm:px-[18px] border-t-[3px] border-warning">
+      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-warning/80 shadow-sm">
         <div class="flex items-center gap-[7px]">
           <span class="dot dot-berisiko"></span>
-          <span class="text-[12.5px] text-soft font-medium">Berisiko</span>
+          <span class="text-[12.5px] sm:text-[13px] text-soft font-medium">Berisiko</span>
         </div>
-        <p id="summary-berisiko" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-berisiko">–</p>
-        <p class="text-[12.5px] text-light mt-2">Perlu dijadwalkan tindakan</p>
+        <p id="summary-berisiko" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-berisiko">–</p>
+        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Perlu tindakan</p>
       </div>
-      <div class="card p-4 sm:px-[18px] border-t-[3px] border-danger">
+      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-danger/80 shadow-sm">
         <div class="flex items-center gap-[7px]">
           <span class="dot dot-kritis"></span>
-          <span class="text-[12.5px] text-soft font-medium">Kritis</span>
+          <span class="text-[12.5px] sm:text-[13px] text-soft font-medium">Kritis</span>
         </div>
-        <p id="summary-kritis" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-danger">–</p>
-        <p class="text-[12.5px] text-light mt-2">Tindak hari ini juga</p>
+        <p id="summary-kritis" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">–</p>
+        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Tindak hari ini</p>
       </div>
     </section>
 
     <!-- Daftar Barang -->
     <section class="card">
       <div class="card-header flex flex-col gap-3">
-        <div class="flex flex-wrap gap-3 items-center justify-between">
-          <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+          <div class="font-heading text-[15.5px] sm:text-[16.5px] font-semibold tracking-tight text-primary">
             Daftar Barang <span id="jumlah-tampil" class="text-caption font-medium"></span>
           </div>
-          <div class="relative flex-1 min-w-[220px] max-w-[320px]">
-            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex">
+          <div class="relative w-full sm:max-w-[320px]">
+            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex pointer-events-none">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
             </div>
-            <input id="filter-cari" type="text" placeholder="Cari nama barang" class="input-field pl-9 bg-hover" />
+            <input id="filter-cari" type="text" placeholder="Cari nama barang..." class="input-field pl-9 bg-hover text-sm" />
           </div>
         </div>
-        <div class="flex flex-wrap gap-4">
-          <div class="flex items-center gap-[7px] flex-wrap">
-            <span class="text-xs text-caption font-semibold tracking-wide uppercase">KATEGORI</span>
-            <div id="chip-kategori" class="flex items-center gap-[7px] flex-wrap"></div>
-          </div>
-          <div class="flex items-center gap-[7px] flex-wrap">
-            <span class="text-xs text-caption font-semibold tracking-wide uppercase">STATUS</span>
-            <div id="chip-status" class="flex items-center gap-[7px] flex-wrap"></div>
-          </div>
+        <div class="pt-2 border-t border-subtle">
+          <div id="chip-filters" class="chips-scroll scrollbar-none"></div>
         </div>
       </div>
 
@@ -126,10 +138,10 @@
       <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat data stok...</div>
       <div id="state-error" class="hidden text-center py-16 text-danger text-sm"></div>
 
-      <div id="state-empty" class="hidden py-13 text-center px-6">
+      <div id="state-empty" class="hidden py-10 sm:py-14 text-center px-6">
         <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Tidak ada barang yang cocok</div>
         <div class="text-sm text-soft">Coba ubah kata kunci atau atur ulang filter kategori dan status.</div>
-        <button id="reset-filter" class="btn btn-outline mt-4">Atur ulang filter</button>
+        <button id="reset-filter" class="btn btn-outline mt-5 mb-2 px-5 h-10 text-sm">Atur ulang filter</button>
       </div>
 
       <div id="items-container" class="hidden">
@@ -142,7 +154,7 @@
         </div>
 
         <!-- Mobile/tablet cards -->
-        <div id="items-cards" class="lg:hidden p-3 flex flex-col gap-2.5"></div>
+        <div id="items-cards" class="lg:hidden p-3 flex flex-col gap-3 pb-8"></div>
       </div>
     </section>
 
@@ -161,7 +173,7 @@
 
       <div id="ai-loading" class="hidden text-center py-16 text-light text-sm">Memuat rekomendasi...</div>
       <div id="ai-error" class="hidden text-center py-10 text-danger text-sm px-6"></div>
-      <div id="ai-empty" class="hidden py-13 text-center px-6">
+      <div id="ai-empty" class="hidden py-10 sm:py-14 text-center px-6">
         <div class="font-heading text-[16px] font-semibold mb-1.5 text-primary">Belum ada rekomendasi</div>
         <div class="text-sm text-soft">Klik "Minta Saran AI" pada barang berisiko atau kritis di daftar barang.</div>
       </div>
@@ -269,32 +281,29 @@
   </template>
 
   <template id="tmpl-card">
-    <article class="card p-4">
-      <div class="flex items-start justify-between gap-2.5">
+    <article class="card p-4 flex flex-col gap-3 shadow-xs hover:shadow-sm transition rounded-xl">
+      <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
-          <div class="js-nama text-[15px] font-semibold tracking-tight text-primary"></div>
-          <div class="js-kategori text-[12.5px] text-light mt-1"></div>
+          <div class="js-nama text-[15.5px] font-bold tracking-tight text-primary truncate font-heading"></div>
+          <div class="js-kategori text-[12.5px] text-soft mt-0.5"></div>
         </div>
-        <span class="js-status-badge badge"></span>
+        <span class="js-status-badge badge shrink-0"></span>
       </div>
-      <div class="flex gap-5 mt-3.5">
-        <div>
-          <div class="text-[11.5px] text-light">Stok</div>
-          <div class="js-stok font-heading text-[15px] font-semibold mt-0.5 text-primary"></div>
+
+      <div class="flex flex-col gap-1.5 py-1">
+        <div class="flex items-center justify-between text-[13px]">
+          <span class="text-muted">Stok: <strong class="js-stok text-primary font-semibold"></strong></span>
+          <span class="js-sisa-text font-medium text-secondary"></span>
         </div>
-        <div>
-          <div class="text-[11.5px] text-light">Sisa</div>
-          <div class="js-sisa-text font-heading text-[15px] font-semibold mt-0.5 text-primary"></div>
+        <div class="h-1.5 rounded-full bg-subtle overflow-hidden">
+          <div class="js-progress-bar progress-bar"></div>
         </div>
-        <div>
-          <div class="text-[11.5px] text-light">Kadaluarsa</div>
-          <div class="js-kadaluarsa text-[13.5px] font-medium mt-1 text-secondary"></div>
+        <div class="text-[12px] text-light flex items-center justify-between mt-0.5">
+          <span>Kadaluarsa: <span class="js-kadaluarsa font-medium text-secondary"></span></span>
         </div>
       </div>
-      <div class="h-1 rounded-full bg-subtle overflow-hidden mt-3.5">
-        <div class="js-progress-bar progress-bar"></div>
-      </div>
-      <div class="js-actions mt-3.5 pt-3.5 border-t border-subtle"></div>
+
+      <div class="js-actions pt-2.5 border-t border-subtle flex items-center justify-between gap-2 w-full" data-actions></div>
     </article>
   </template>
 

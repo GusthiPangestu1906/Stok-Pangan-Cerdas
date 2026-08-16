@@ -56,19 +56,62 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 
 /* Interaction Chips */
 .chip {
-  padding: 6px 13px;
-  border-radius: 999px;
-  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.375rem;
+  padding: 0 1rem;
+  border-radius: 9999px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid #e0e7e0;
-  background: #fff;
-  color: #5d6f63;
+  border: 1px solid #dbe3dc;
+  background: #ffffff;
+  color: #3c4d42;
   transition: all 0.2s ease;
+  user-select: none;
 }
 .chip:hover { border-color: #14532d; color: #14532d; }
-.chip-active { border-color: #14532d; background: #14532d; color: #fff; }
-.chip-active:hover { color: #fff; }
+.chip:active { transform: scale(0.96); }
+.chip-active { border-color: #14532d; background: #14532d; color: #ffffff; font-weight: 600; box-shadow: 0 2px 6px rgba(20, 83, 45, 0.2); }
+.chip-active:hover { color: #ffffff; }
+
+/* Status Filter Chips Specific Tokens */
+.chip-status-aman {
+  border-color: #bbf7d0;
+  background-color: #f0fdf4;
+  color: #166534;
+}
+.chip-status-aman.chip-active {
+  background-color: #166534;
+  color: #ffffff;
+  border-color: #166534;
+  box-shadow: 0 2px 6px rgba(22, 101, 52, 0.25);
+}
+
+.chip-status-berisiko {
+  border-color: #fde68a;
+  background-color: #fffbeb;
+  color: #92400e;
+}
+.chip-status-berisiko.chip-active {
+  background-color: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+}
+
+.chip-status-kritis {
+  border-color: #fecdd3;
+  background-color: #fff1f3;
+  color: #9f1239;
+}
+.chip-status-kritis.chip-active {
+  background-color: #e11d48;
+  color: #ffffff;
+  border-color: #e11d48;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
+}
 
 /* Buttons */
 .btn {
@@ -236,5 +279,130 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
   justify-content: center;
   flex-shrink: 0;
 }
+
+/* Mobile Responsiveness Utilities & Bottom Navigation */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.chips-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.chips-scroll .chip {
+  flex-shrink: 0;
+}
+
+/* Mobile Bottom Bar Nav */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3.8rem;
+  background: #ffffff;
+  border-top: 1px solid #e6ebe5;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 40;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-col: column;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #7d8f83;
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+.mobile-nav-item.active {
+  color: #14532d;
+  font-weight: 600;
+}
+.mobile-nav-item svg {
+  transition: stroke 0.2s ease;
+}
+.mobile-nav-item.active svg {
+  stroke: #14532d;
+}
+
+/* Floating Action Button for Mobile */
+.fab-btn {
+  position: fixed;
+  bottom: 4.8rem;
+  right: 1.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background: #14532d;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(20, 83, 45, 0.35);
+  z-index: 35;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.fab-btn:active {
+  transform: scale(0.92);
+}
+
+@media (min-width: 640px) {
+  .mobile-bottom-nav, .fab-btn {
+    display: none !important;
+  }
+}
+
+/* Touch friendly button sizes & mobile card layout */
+.card-accent-aman {
+  border-left: 4px solid #22c55e !important;
+}
+.card-accent-berisiko {
+  border-left: 4px solid #f59e0b !important;
+}
+.card-accent-kritis {
+  border-left: 4px solid #e11d48 !important;
+}
+
+@media (max-width: 639px) {
+  .btn-mobile-full {
+    width: 100%;
+  }
+  .inventory-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .inventory-card-actions .btn {
+    flex: 1;
+    height: 2.5rem;
+    font-size: 13px;
+  }
+  /* Bottom padding for main container on mobile so sticky bottom nav doesn't cover footer/content */
+  body {
+    padding-bottom: 4rem;
+  }
+}
+
 
 

@@ -15,9 +15,9 @@
 
   <!-- Header -->
   <header class="bg-surface border-b border-default sticky top-0 z-10">
-    <div class="container py-4 flex items-center justify-between gap-3 flex-wrap">
+    <div class="container py-3.5 flex items-center justify-between gap-3">
       <!-- Logo -->
-      <div class="logo-container">
+      <div class="logo-container shrink-0">
         <div class="logo-icon">
           <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
             <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
@@ -26,28 +26,43 @@
           </svg>
         </div>
         <div>
-          <div class="font-heading font-bold text-[14.5px] tracking-tight leading-tight text-primary">Stok Pangan</div>
-          <div class="text-[11.5px] text-subtitle tracking-wide uppercase">Cerdas</div>
+          <div class="font-heading font-bold text-[14px] sm:text-[14.5px] tracking-tight leading-tight text-primary">Stok Pangan</div>
+          <div class="text-[10.5px] sm:text-[11.5px] text-subtitle tracking-wide uppercase">CERDAS</div>
         </div>
       </div>
-      <nav class="nav-pills">
+
+      <!-- Nav Pills (Desktop) -->
+      <nav class="nav-pills hidden sm:flex">
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="riwayat.html" class="nav-link active">Riwayat</a>
       </nav>
-      <div class="flex items-center gap-3">
-        <span class="flex items-center gap-1.5 text-xs font-semibold text-muted border border-strong rounded-full pl-1.5 pr-3 py-1">
-          <img src="assets/img/logo-tcc-2026.png" alt="TCC 2026" class="h-[22px] w-[22px] rounded-full" />
-          TCC 2026
+
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <span class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted border border-strong rounded-full px-2.5 py-1">
+          <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026" class="h-[18px] w-[18px] sm:h-[22px] sm:w-[22px] rounded-full" />
+          <span>TCC 2026</span>
         </span>
-        <div class="flex items-center gap-2.5 pl-3 border-l border-default">
+        <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-default">
           <span id="user-name" class="text-[13px] font-medium text-secondary hidden sm:inline"></span>
-          <button id="btn-logout" class="text-[13px] font-medium text-light hover:text-danger transition cursor-pointer">Keluar</button>
+          <button id="btn-logout" class="text-[12.5px] sm:text-[13px] font-medium text-light hover:text-danger transition cursor-pointer p-1">Keluar</button>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="container py-6 sm:py-8 flex flex-col gap-5 rise-in">
+  <!-- Mobile Bottom App Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <a href="index.html" class="mobile-nav-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7d8f83" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="riwayat.html" class="mobile-nav-item active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14532d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+
+  <main class="container py-5 sm:py-8 flex flex-col gap-5 rise-in">
 
     <div class="page-header">
       <h1 class="section-title">Riwayat & Statistik</h1>
@@ -56,31 +71,31 @@
 
     <!-- Statistik -->
     <section aria-label="Statistik" class="stats-grid">
-      <div class="card p-4 sm:px-[18px]">
-        <p class="text-[12.5px] text-soft font-medium">Total Tindakan</p>
-        <p id="stat-total" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-primary">–</p>
+      <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Total Tindakan</p>
+        <p id="stat-total" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
       </div>
-      <div class="card p-4 sm:px-[18px] border-t-[3px] border-success">
-        <p class="text-[12.5px] text-soft font-medium">Barang Terselamatkan</p>
-        <p id="stat-selamat" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-success">–</p>
-        <p id="stat-selamat-unit" class="text-[12.5px] text-light mt-2">–</p>
+      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-success/80 shadow-sm">
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Barang Terselamatkan</p>
+        <p id="stat-selamat" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">–</p>
+        <p id="stat-selamat-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
       </div>
-      <div class="card p-4 sm:px-[18px] border-t-[3px] border-danger">
-        <p class="text-[12.5px] text-soft font-medium">Barang Terbuang</p>
-        <p id="stat-buang" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-danger">–</p>
-        <p id="stat-buang-unit" class="text-[12.5px] text-light mt-2">–</p>
+      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-danger/80 shadow-sm">
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Barang Terbuang</p>
+        <p id="stat-buang" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">–</p>
+        <p id="stat-buang-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
       </div>
-      <div class="card p-4 sm:px-[18px]">
-        <p class="text-[12.5px] text-soft font-medium">Tingkat Penyelamatan</p>
-        <p id="stat-persen" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-primary">–</p>
+      <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Tingkat Penyelamatan</p>
+        <p id="stat-persen" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
       </div>
     </section>
 
     <!-- Rincian per jenis tindakan -->
     <div id="per-jenis-wrap" class="hidden">
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-xs font-semibold text-caption tracking-wide uppercase">Rincian Jenis Tindakan</span>
-        <div id="per-jenis-chips" class="flex items-center gap-2 flex-wrap"></div>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[11px] font-semibold text-caption tracking-wider uppercase">Rincian Jenis Tindakan</span>
+        <div id="per-jenis-chips" class="chips-scroll scrollbar-none"></div>
       </div>
     </div>
 
@@ -92,7 +107,7 @@
 
       <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat riwayat...</div>
       <div id="state-error" class="hidden text-center py-16 text-danger text-sm"></div>
-      <div id="state-empty" class="hidden py-13 text-center px-6">
+      <div id="state-empty" class="hidden py-10 sm:py-14 text-center px-6">
         <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Belum ada riwayat tindakan</div>
         <div class="text-sm text-soft">Tandai rekomendasi AI di dashboard sebagai "Diterapkan" untuk mulai mencatat riwayat.</div>
       </div>
@@ -107,7 +122,7 @@
         </div>
 
         <!-- Mobile/tablet cards -->
-        <div id="riwayat-cards" class="lg:hidden p-3 flex flex-col gap-2.5"></div>
+        <div id="riwayat-cards" class="lg:hidden p-3 flex flex-col gap-3 pb-8"></div>
       </div>
     </section>
 
