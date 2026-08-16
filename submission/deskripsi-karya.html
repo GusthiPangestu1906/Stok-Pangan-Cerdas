@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Deskripsi Karya — Stok Pangan Cerdas</title>
+<style>
+  @page { size: A4; margin: 22mm 20mm; }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Georgia", "Cambria", serif;
+    color: #132018;
+    line-height: 1.7;
+    font-size: 11.5pt;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 2.5px solid #14532d;
+    margin-bottom: 22px;
+  }
+
+  .mark {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: #14532d;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  h1 {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    font-size: 19pt;
+    letter-spacing: -0.4px;
+    margin: 0 0 3px;
+    color: #132018;
+  }
+
+  .sub {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    font-size: 9.5pt;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #6b7c71;
+  }
+
+  table.meta {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    font-size: 10pt;
+  }
+
+  table.meta td {
+    padding: 5px 0;
+    vertical-align: top;
+  }
+
+  table.meta td.k {
+    width: 33%;
+    color: #6b7c71;
+    padding-right: 12px;
+  }
+
+  table.meta td.v {
+    color: #132018;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    font-size: 10pt;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #14532d;
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #dbe3dc;
+  }
+
+  p { margin: 0 0 12px; text-align: justify; }
+  p:last-of-type { margin-bottom: 0; }
+
+  .foot {
+    margin-top: 26px;
+    padding-top: 12px;
+    border-top: 1px solid #dbe3dc;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    font-size: 8.5pt;
+    color: #8a9a8f;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .foot a { color: #14532d; text-decoration: none; }
+</style>
+</head>
+<body>
+
+  <div class="head">
+    <div class="mark">
+      <svg width="27" height="27" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
+        <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d" />
+        <path d="M17.6 30.4 30.4 17.6" stroke="#14532d" stroke-width="2.6" stroke-linecap="round" />
+      </svg>
+    </div>
+    <div>
+      <h1>Stok Pangan Cerdas</h1>
+      <div class="sub">Deskripsi Karya &middot; Vibe Code &middot; TCC 2026</div>
+    </div>
+  </div>
+
+  <table class="meta">
+    <tr><td class="k">Judul Karya</td><td class="v">Stok Pangan Cerdas</td></tr>
+    <tr><td class="k">Cabang Lomba</td><td class="v">Vibe Code — Web Application Development</td></tr>
+    <tr><td class="k">Ketua Tim</td><td class="v">Gusthi Pangestu (3124600098)</td></tr>
+    <tr><td class="k">Anggota Tim</td><td class="v">Hammam Hidayatullah (3124600096)</td></tr>
+    <tr><td class="k">Asal Instansi</td><td class="v">Politeknik Elektronika Negeri Surabaya (PENS)</td></tr>
+  </table>
+
+  <h2>Deskripsi Singkat</h2>
+
+  <p>
+    Koperasi dan UMKM pangan sering merugi karena sayur, buah, olahan susu, dan
+    roti terlambat diketahui mendekati kadaluarsa, sehingga terbuang alih-alih
+    diselamatkan.
+  </p>
+
+  <p>
+    Stok Pangan Cerdas menjawabnya dengan dua lapis. Pertama, deteksi risiko
+    <em>rule-based</em> yang menghitung sisa umur simpan setiap barang secara
+    real-time dari tanggal masuk dan estimasi umur simpan, lalu menandainya
+    Aman, Berisiko, atau Kritis dengan kode warna. Kedua, AI Insight Panel
+    bertenaga Gemini API yang memberi rekomendasi tindakan konkret berbahasa
+    Indonesia untuk barang berisiko: diskon, distribusi, bundling, atau
+    pemusnahan bila sudah kadaluarsa.
+  </p>
+
+  <p>
+    Aplikasi dibangun dari nol: backend Laravel sebagai REST API murni,
+    frontend Vanilla JavaScript dan Tailwind CSS, database PostgreSQL,
+    autentikasi token Sanctum. Admin dapat mengelola stok, meminta saran AI,
+    menandai tindakan yang diterapkan, lalu melihat rekapnya di halaman Riwayat
+    beserta statistik barang terselamatkan.
+  </p>
+
+  <p>
+    Keandalan dijaga lewat retry otomatis dan rantai model cadangan saat
+    layanan AI terganggu atau kuota habis.
+  </p>
+
+  <div class="foot">
+    <span>Aplikasi: <a href="https://stok-pangan-cerdas.vercel.app">stok-pangan-cerdas.vercel.app</a></span>
+    <span>Repositori: <a href="https://github.com/HammamFais/Stok-Pangan-Cerdas">github.com/HammamFais/Stok-Pangan-Cerdas</a></span>
+  </div>
+
+</body>
+</html>

@@ -4,6 +4,69 @@ Sistem manajemen stok pangan untuk koperasi/UMKM dengan fitur AI Expiry &
 Spoilage Predictor. Dibuat untuk Trunodjoyo Creative Competition (TCC) 2026,
 cabang Vibe Code.
 
+## Coba langsung
+
+| | |
+|---|---|
+| **Aplikasi (frontend)** | https://stok-pangan-cerdas.vercel.app |
+| **API (backend)** | https://stok-pangan-cerdas-production.up.railway.app/api |
+| **Repositori** | https://github.com/HammamFais/Stok-Pangan-Cerdas |
+
+**Akun admin demo:**
+
+```
+Email    : admin@koperasipangan.id
+Password : admin123
+```
+
+Seluruh halaman berada di balik login — tidak ada endpoint API yang bisa
+diakses tanpa token, kecuali `/api/login` itu sendiri.
+
+> **Catatan tentang fitur AI:** rekomendasi AI memakai Gemini API tingkat
+> gratis, dengan kuota gabungan sekitar 80 permintaan per hari (lihat
+> [Rantai fallback model](#rantai-fallback-model--ketahanan-terhadap-keterbatasan-kuota)).
+> Kalau muncul pesan *"Kuota harian layanan AI sudah habis"*, itu perilaku
+> yang memang dirancang — bukan kerusakan — dan kuotanya pulih keesokan
+> harinya. Fitur lain (CRUD, filter, riwayat, statistik) tetap berjalan
+> normal tanpa bergantung pada kuota tersebut.
+
+## Identitas peserta
+
+| | |
+|---|---|
+| **Kompetisi** | Trunodjoyo Creative Competition (TCC) 2026 |
+| **Cabang lomba** | Vibe Code |
+| **Sub tema** | Web Application Development |
+| **Kategori** | Tim |
+| **Ketua tim** | Gusthi Pangestu (3124600098) |
+| **Anggota** | Hammam Hidayatullah (3124600096) |
+| **Asal instansi** | Politeknik Elektronika Negeri Surabaya (PENS) |
+| **Judul karya** | Stok Pangan Cerdas |
+
+## Daftar isi
+
+- [Coba langsung](#coba-langsung)
+- [Identitas peserta](#identitas-peserta)
+- [Masalah yang diselesaikan](#masalah-yang-diselesaikan)
+- [Alur penggunaan aplikasi](#alur-penggunaan-aplikasi)
+- [Arsitektur](#arsitektur)
+  - [Teknologi & versi](#teknologi--versi)
+  - [Struktur folder](#struktur-folder)
+- [Deteksi risiko rule-based](#deteksi-risiko-rule-based)
+- [AI generatif](#ai-generatif)
+  - [Rantai fallback model & ketahanan terhadap keterbatasan kuota](#rantai-fallback-model--ketahanan-terhadap-keterbatasan-kuota)
+  - [Bagian mana rule-based, bagian mana AI generatif](#bagian-mana-rule-based-bagian-mana-ai-generatif)
+  - [Prompt utama AI Insight Panel](#prompt-utama-ai-insight-panel)
+  - [Kenapa pakai Structured Output](#kenapa-pakai-structured-output-responseschema-bukan-parsing-teks-bebas)
+- [Perhitungan skalabilitas](#perhitungan-skalabilitas)
+- [Menjalankan project (lokal)](#menjalankan-project-lokal)
+- [Kredensial admin demo](#kredensial-admin-demo)
+- [Daftar endpoint API](#daftar-endpoint-api)
+- [Struktur fitur per fase](#struktur-fitur-per-fase)
+- [Batasan yang diketahui](#batasan-yang-diketahui)
+- [Tentang folder `design-reference/`](#tentang-folder-design-reference)
+- [Catatan keamanan](#catatan-keamanan)
+
 ## Masalah yang diselesaikan
 
 Koperasi dan UMKM pangan skala kecil-menengah sering merugi karena barang
@@ -434,6 +497,33 @@ bawah wajib header `Authorization: Bearer <token>` (login wall penuh).
 - **Fase 2** — CRUD barang, AI Insight Panel.
 - **Fase 3** — Riwayat & statistik barang terselamatkan, autentikasi admin
   (Sanctum token-based).
+
+## Batasan yang diketahui
+
+Batasan berikut disebutkan secara terbuka karena semuanya adalah
+konsekuensi sadar dari keputusan teknis yang diambil, bukan hal yang
+terlewat.
+
+- **Kuota AI terbatas (±80 permintaan/hari).** Gemini API tingkat gratis
+  membatasi 20 permintaan per hari per model. Aplikasi menyiasatinya dengan
+  rantai empat model sehingga total menjadi sekitar 80, tapi tetap ada
+  batasnya. Untuk pemakaian produksi sesungguhnya, ini perlu di-upgrade ke
+  tingkat berbayar. Fitur non-AI tidak terpengaruh sama sekali.
+- **Deployment memakai tingkat gratis.** Backend (Railway) dan database
+  PostgreSQL berjalan di paket percobaan dengan batas kredit dan waktu
+  aktif. Aplikasi bisa berhenti melayani permintaan kalau kredit habis.
+- **Belum ada pengujian otomatis.** Seluruh verifikasi dilakukan manual —
+  lewat pengujian langsung di browser dan pemanggilan endpoint API
+  satu per satu, termasuk simulasi kegagalan Gemini memakai `Http::fake()`
+  untuk membuktikan perilaku retry dan fallback. Menambahkan *feature test*
+  Laravel adalah langkah lanjutan yang wajar untuk project ini.
+- **Satu peran pengguna saja.** Aplikasi dirancang untuk satu admin
+  koperasi. Belum ada pembedaan hak akses (misalnya admin vs staf gudang),
+  karena kebutuhan itu tidak ada dalam lingkup kompetisi ini.
+- **Estimasi umur simpan diisi manual.** Angka umur simpan tiap barang
+  dimasukkan admin, bukan diprediksi sistem. Ini keputusan yang disengaja:
+  batasan lomba melarang penggunaan machine learning custom, dan admin
+  koperasi umumnya sudah mengetahui angka ini dari pemasok.
 
 ## Tentang folder `design-reference/`
 
