@@ -408,9 +408,19 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Isi kredensial database PostgreSQL di `.env` (`DB_DATABASE`, `DB_USERNAME`,
-`DB_PASSWORD`), lalu isi `GEMINI_API_KEY` (lihat bagian [AI generatif](#ai-generatif)
-di atas).
+**Sebelum lanjut, pastikan PostgreSQL sudah terpasang dan sebuah database
+kosong bernama `stok_pangan_cerdas` sudah dibuat** (lewat pgAdmin atau
+`createdb stok_pangan_cerdas`). Laravel tidak membuatkan database itu
+sendiri — hanya mengisi tabel di dalamnya.
+
+`.env.example` sudah berisi kerangka koneksi PostgreSQL yang benar
+(`DB_CONNECTION=pgsql`, dst.). Yang **wajib** kamu sesuaikan sendiri di
+`.env` hanyalah `DB_PASSWORD` (isi dengan password akun PostgreSQL
+lokalmu — defaultnya kosong, ganti kalau instalasimu memberi password),
+dan `GEMINI_API_KEY` (lihat bagian [AI generatif](#ai-generatif) di atas)
+kalau ingin mencoba fitur AI. Kalau nama database, host, atau username
+PostgreSQL lokalmu berbeda dari default, sesuaikan juga
+`DB_DATABASE`/`DB_HOST`/`DB_USERNAME`.
 
 ```bash
 php artisan migrate:fresh --seed
