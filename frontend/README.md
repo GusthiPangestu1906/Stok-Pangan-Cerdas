@@ -1,31 +1,35 @@
-# Stok Pangan Cerdas — Frontend
+# Stok Pangan Cerdas — Frontend (Clean Architecture)
 
-Bagian frontend dari project **Stok Pangan Cerdas** (TCC 2026, cabang Vibe
-Code). Dibangun dengan **Vanilla JavaScript + Tailwind CSS** (lewat CDN) —
-file statis murni yang memanggil backend Laravel di `../backend/` lewat
-`fetch()`. Tidak ada proses build atau bundler.
+Bagian frontend dari project **Stok Pangan Cerdas** (TCC 2026, cabang Vibe Code). 
+Telah direfaktor menggunakan prinsip **Clean Architecture** untuk memisahkan struktur, gaya, dan logika secara modular.
 
-## Halaman
+## 🛡️ Security & Deployment
+- **Hybrid Demo Mode**: Menggunakan logika `SHOULD_USE_DEMO`. Aplikasi otomatis masuk Mode Demo jika dijalankan di `localhost` (untuk audit UI tanpa database), namun **wajib login** secara ketat jika di-deploy ke production.
+- **Safe API Handling**: Data sensitif hanya diakses melalui header `Authorization` yang valid melalui `api.js`.
 
-- `login.html` — Login admin.
-- `index.html` — Dashboard Stok: ringkasan, filter, CRUD barang, AI
-  Insight Panel.
-- `riwayat.html` — Riwayat tindakan & statistik barang terselamatkan.
+## 🚀 Quality & Architecture
+- **Separation of Concerns**: 
+  - **Struktur**: HTML5 murni dengan `<template>` tags.
+  - **Gaya**: CSS terpusat di `assets/css/main.css` menggunakan Semantic Design System.
+  - **Logika**: Vanilla JS modular di `assets/js/`.
+- **Semantic Design System**: UI konsisten menggunakan utility classes seperti `.text-primary`, `.bg-surface`, `.card`, dan `.btn`.
+- **Template-Based Rendering**: Menggunakan `cloneNode()` standar untuk rendering dinamis yang bersih, menggantikan injeksi string HTML di JavaScript.
+- **Global Branding Sync**: Logo dan Footer disinkronkan di seluruh halaman (`index.html`, `login.html`, `riwayat.html`).
 
-Logika tiap halaman ada di `assets/js/` (`login.js`, `dashboard.js`,
-`riwayat.js`), sementara `assets/js/api.js` jadi klien HTTP bersama yang
-juga menangani penyimpanan token autentikasi.
+## 📂 Struktur Folder
+- `index.html` & `riwayat.html`: Menggunakan HTML5 Templates untuk rendering.
+- `assets/css/main.css`: Definisi komponen dan utility classes (Design System).
+- `assets/js/dashboard.js` & `riwayat.js`: Logika aplikasi dengan dukungan Hybrid Mode.
+- `assets/js/api.js`: Klien HTTP dan manajemen autentikasi.
 
-## Menjalankan singkat
+## 🛠️ Menjalankan Lokal (Mode Demo)
+Anda dapat langsung melihat UI dan fungsionalitas tanpa backend dengan menjalankan server statis:
 
 ```bash
 python -m http.server 5500
 ```
+Lalu buka `http://127.0.0.1:5500/index.html`.
 
-Lalu buka `http://127.0.0.1:5500/login.html`. Pastikan backend sudah
-berjalan di `http://127.0.0.1:8000` (lihat `../backend/README.md`).
-
-## Dokumentasi lengkap
-
-Alur penggunaan aplikasi, kredensial admin demo, dan seluruh dokumentasi
-lainnya ada di **README di root project** (`../README.md`) — bukan di sini.
+---
+**Branch:** `refactor-frontend-clean-architecture`  
+**Status:** Refactor Complete & Verified.
