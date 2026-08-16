@@ -1,8 +1,10 @@
-/*
-if (!getToken()) {
+// Deteksi mode demo: Aktif jika di localhost dan belum ada token
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const SHOULD_USE_DEMO = IS_LOCAL && !getToken();
+
+if (!SHOULD_USE_DEMO && !getToken()) {
   window.location.href = 'login.html';
 }
-*/
 
 const BULAN_PANJANG = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -561,63 +563,37 @@ el.btnLogout.addEventListener('click', async () => {
 async function init() {
   renderTanggalHariIni();
 
-  // Data Mock untuk mencoba tampilan tanpa backend
-  el.userName.textContent = "Admin Demo (Offline Mode)";
+  if (SHOULD_USE_DEMO) {
+    console.warn("Dashboard berjalan dalam MODE DEMO (Offline).");
+    el.userName.textContent = "Admin Demo (Offline)";
 
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const fourDaysLater = new Date(today);
-  fourDaysLater.setDate(today.getDate() + 4);
-  const fifteenDaysLater = new Date(today);
-  fifteenDaysLater.setDate(today.getDate() + 15);
+    const today = new Date();
+    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+    const fourDaysLater = new Date(today); fourDaysLater.setDate(today.getDate() + 4);
 
-  allItems = [
-    {
-      id: 1,
-      nama: 'Tomat Segar',
-      kategori: 'Sayur',
-      jumlah_stok: 45,
-      tanggal_masuk: today.toISOString(),
-      tanggal_kadaluarsa: tomorrow.toISOString(),
-      estimasi_umur_simpan_hari: 5,
-      sisa_hari: 1,
-      status: 'kritis'
-    },
-    {
-      id: 2,
-      nama: 'Apel Fuji',
-      kategori: 'Buah',
-      jumlah_stok: 20,
-      tanggal_masuk: today.toISOString(),
-      tanggal_kadaluarsa: fourDaysLater.toISOString(),
-      estimasi_umur_simpan_hari: 10,
-      sisa_hari: 4,
-      status: 'berisiko'
-    },
-    {
-      id: 3,
-      nama: 'Susu UHT',
-      kategori: 'Olahan Susu',
-      jumlah_stok: 12,
-      tanggal_masuk: today.toISOString(),
-      tanggal_kadaluarsa: fifteenDaysLater.toISOString(),
-      estimasi_umur_simpan_hari: 30,
-      sisa_hari: 15,
-      status: 'aman'
+    allItems = [
+      { id: 1, nama: 'Tomat Segar', kategori: 'Sayur', jumlah_stok: 45, tanggal_masuk: today.toISOString(), tanggal_kadaluarsa: tomorrow.toISOString(), estimasi_umur_simpan_hari: 5, sisa_hari: 1, status: 'kritis' },
+      { id: 2, nama: 'Apel Fuji', kategori: 'Buah', jumlah_stok: 20, tanggal_masuk: today.toISOString(), tanggal_kadaluarsa: fourDaysLater.toISOString(), estimasi_umur_simpan_hari: 10, sisa_hari: 4, status: 'berisiko' },
+      { id: 3, nama: 'Susu UHT', kategori: 'Olahan Susu', jumlah_stok: 12, tanggal_masuk: today.toISOString(), tanggal_kadaluarsa: today.toISOString(), estimasi_umur_simpan_hari: 30, sisa_hari: 15, status: 'aman' }
+    ];
+
+    allRekomendasi = [
+      { id: 1, item_id: 1, item: allItems[0], jenis_saran: 'Diskon', isi_saran: 'Berikan diskon 50% untuk Tomat Segar karena akan kadaluarsa dalam 1 hari.', diterapkan: false }
+    ];
+  } else {
+    // Mode Production: Ambil data asli
+    el.loading.classList.remove('hidden');
+    try {
+      const [me, items, rekomendasi] = await Promise.all([fetchMe(), fetchItems(), fetchRekomendasi()]);
+      el.userName.textContent = me.name;
+      allItems = items;
+      allRekomendasi = rekomendasi;
+    } catch (err) {
+      el.error.textContent = err.message || 'Gagal memuat data dari server.';
+      el.error.classList.remove('hidden');
+      return;
     }
-  ];
-
-  allRekomendasi = [
-    {
-      id: 1,
-      item_id: 1,
-      item: allItems[0],
-      jenis_saran: 'Diskon',
-      isi_saran: 'Berikan diskon 50% untuk Tomat Segar karena akan kadaluarsa dalam 1 hari.',
-      diterapkan: false
-    }
-  ];
+  }
 
   renderChipKategori();
   renderChipStatus();

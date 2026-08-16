@@ -14,28 +14,27 @@
 <body class="min-h-screen flex items-center justify-center p-4">
 
   <div class="w-full max-w-sm">
-    <!-- Logo -->
-    <div class="logo-container justify-center mb-8">
-      <div class="logo-icon">
+    <!-- Logo & Branding -->
+    <div class="logo-container justify-center mb-9">
+      <div class="logo-icon shadow-sm">
         <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
           <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
-          <path d="M14.5 33.5C14.5%2022.7%2022.7%2014.5%2033.5%2014.5C33.5%2025.3%2025.3%2033.5%2014.5%2033.5Z" fill="#d9f99d" />
-          <path d="M17.6%2030.4%2030.4%2017.6" stroke="#14532d" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d" />
+          <path d="M17.6 30.4 30.4 17.6" stroke="#14532d" stroke-width="2.6" stroke-linecap="round" />
         </svg>
       </div>
-      <div class="text-center">
-        <div class="font-heading font-bold text-[15px] tracking-tight leading-tight text-primary">Stok Pangan Cerdas</div>
-      </div>
+      <div class="font-heading font-bold text-[16px] tracking-tight text-primary">Stok Pangan Cerdas</div>
     </div>
 
-    <div class="card p-6 sm:p-7 rise-in">
-      <div class="badge badge-aman mb-5">
-        Portal Admin
+    <div class="card p-7 sm:p-8 rise-in shadow-sm">
+      <div class="flex justify-between items-start mb-6">
+        <div class="badge badge-aman">Portal Admin</div>
       </div>
-      <h1 class="section-title text-[24px] mb-1.5">Masuk ke akun Anda</h1>
-      <p class="text-[14px] text-muted leading-relaxed mb-6">Gunakan akun admin koperasi untuk mengelola stok.</p>
 
-      <form id="form-login" class="flex flex-col gap-4">
+      <h1 class="section-title text-[24px] mb-2">Masuk ke akun Anda</h1>
+      <p class="text-[14px] text-muted leading-relaxed mb-8">Gunakan akun admin koperasi untuk mengelola stok secara cerdas.</p>
+
+      <form id="form-login" class="flex flex-col gap-5">
         <div id="login-error" class="hidden alert-error"></div>
         <div>
           <label for="input-email" class="form-label">Email</label>
