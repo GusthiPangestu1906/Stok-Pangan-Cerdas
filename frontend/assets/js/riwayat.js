@@ -2,29 +2,6 @@ if (!getToken()) {
   window.location.href = 'login.html';
 }
 
-const JENIS_WARNA = {
-  Diskon: { fg: '#92400e', bg: '#fffbeb', bd: '#fde68a' },
-  Distribusi: { fg: '#166534', bg: '#f0fdf4', bd: '#bbf7d0' },
-  Bundling: { fg: '#86198f', bg: '#fdf4ff', bd: '#f5d0fe' },
-  Pemusnahan: { fg: '#9f1239', bg: '#fff1f3', bd: '#fecdd3' },
-};
-const JENIS_WARNA_DEFAULT = { fg: '#5d6f63', bg: '#fafbf9', bd: '#e0e7e0' };
-
-function esc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  }[char]));
-}
-
-function jenisBadgeStyle(jenis) {
-  const w = JENIS_WARNA[jenis] || JENIS_WARNA_DEFAULT;
-  return `display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;color:${w.fg};background:${w.bg};border:1px solid ${w.bd}`;
-}
-
 function formatTanggalWaktu(dateString) {
   const d = new Date(dateString);
   const tanggal = `${d.getDate()} ${['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][d.getMonth()]} ${d.getFullYear()}`;
@@ -69,41 +46,57 @@ function renderStatistik(statistik) {
 function renderPerJenis(perJenis) {
   const entries = Object.entries(perJenis || {});
   el.perJenisWrap.classList.toggle('hidden', entries.length === 0);
-  el.perJenisChips.innerHTML = entries
-    .map(([jenis, jumlah]) => `<span style="${jenisBadgeStyle(jenis)}">${esc(jenis)} ${jumlah}</span>`)
-    .join('');
+  el.perJenisChips.innerHTML = '';
+  entries.forEach(([jenis, jumlah]) => {
+    const chip = document.createElement('span');
+    chip.textContent = `${jenis} ${jumlah}`;
+    chip.classList.add('badge', `badge-${jenis.toLowerCase()}`);
+    el.perJenisChips.appendChild(chip);
+  });
 }
 
 function renderRiwayatRow(r) {
   const item = r.item;
-  const row = document.createElement('div');
-  row.className = 'grid grid-cols-[1.1fr_2fr_1.1fr_1fr_1.4fr] gap-3 px-[18px] py-3.5 border-b border-[#f1f4f0] items-center';
-  row.innerHTML = `
-    <div class="text-[13px] text-[#5d6f63]">${esc(formatTanggalWaktu(r.diterapkan_at))}</div>
-    <div class="text-sm font-medium text-[#132018] truncate">${esc(item?.nama ?? '(barang dihapus)')}</div>
-    <div><span style="${jenisBadgeStyle(r.jenis_saran)}">${esc(r.jenis_saran)}</span></div>
-    <div class="text-[13.5px] font-medium font-heading">${item ? item.jumlah_stok : '–'}</div>
-    <div class="text-[13px] text-[#7d8f83] truncate" title="${esc(r.isi_saran)}">${esc(r.isi_saran)}</div>
-  `;
-  return row;
+  const template = document.getElementById('tmpl-riwayat-row');
+  const clone = template.content.cloneNode(true);
+
+  clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
+  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+
+  const badge = clone.querySelector('.js-jenis-badge');
+  badge.textContent = r.jenis_saran;
+  badge.classList.add('badge', `badge-${r.jenis_saran.toLowerCase()}`);
+
+  clone.querySelector('.js-stok').textContent = item ? item.jumlah_stok : '–';
+
+  const keterangan = clone.querySelector('.js-keterangan');
+  keterangan.textContent = r.isi_saran;
+  keterangan.title = r.isi_saran;
+
+  return clone;
 }
 
 function renderRiwayatCard(r) {
   const item = r.item;
-  const card = document.createElement('article');
-  card.className = 'bg-white border border-[#eef2ed] rounded-[14px] p-4';
-  card.innerHTML = `
-    <div class="flex items-start justify-between gap-2.5">
-      <div class="min-w-0">
-        <div class="text-[15px] font-semibold tracking-tight text-[#132018]">${esc(item?.nama ?? '(barang dihapus)')}</div>
-        <div class="text-[12.5px] text-[#93a398] mt-1">${esc(formatTanggalWaktu(r.diterapkan_at))}</div>
-      </div>
-      <span style="${jenisBadgeStyle(r.jenis_saran)}">${esc(r.jenis_saran)}</span>
-    </div>
-    <p class="text-[13px] text-[#6b7c71] leading-relaxed mt-3">${esc(r.isi_saran)}</p>
-    ${item ? `<div class="text-[12.5px] text-[#93a398] mt-3 pt-3 border-t border-[#eef2ed]">Stok saat ini: <span class="font-medium text-[#3c4d42]">${item.jumlah_stok}</span></div>` : ''}
-  `;
-  return card;
+  const template = document.getElementById('tmpl-riwayat-card');
+  const clone = template.content.cloneNode(true);
+
+  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+  clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
+
+  const badge = clone.querySelector('.js-jenis-badge');
+  badge.textContent = r.jenis_saran;
+  badge.classList.add('badge', `badge-${r.jenis_saran.toLowerCase()}`);
+
+  clone.querySelector('.js-keterangan').textContent = r.isi_saran;
+
+  if (item) {
+    clone.querySelector('.js-stok').textContent = item.jumlah_stok;
+  } else {
+    clone.querySelector('.js-stok-wrap').remove();
+  }
+
+  return clone;
 }
 
 function renderRiwayat(daftar) {

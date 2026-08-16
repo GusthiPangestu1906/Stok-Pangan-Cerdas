@@ -1,22 +1,8 @@
+/*
 if (!getToken()) {
   window.location.href = 'login.html';
 }
-
-const HIJAU = '#14532d';
-
-const ST = {
-  kritis: { label: 'Kritis', fg: '#9f1239', bg: '#fff1f3', bd: '#fecdd3', dot: '#e11d48' },
-  berisiko: { label: 'Berisiko', fg: '#92400e', bg: '#fffbeb', bd: '#fde68a', dot: '#f59e0b' },
-  aman: { label: 'Aman', fg: '#166534', bg: '#f0fdf4', bd: '#bbf7d0', dot: '#22c55e' },
-};
-
-const JENIS_WARNA = {
-  Diskon: { fg: '#92400e', bg: '#fffbeb', bd: '#fde68a' },
-  Distribusi: { fg: '#166534', bg: '#f0fdf4', bd: '#bbf7d0' },
-  Bundling: { fg: '#86198f', bg: '#fdf4ff', bd: '#f5d0fe' },
-  Pemusnahan: { fg: '#9f1239', bg: '#fff1f3', bd: '#fecdd3' },
-};
-const JENIS_WARNA_DEFAULT = { fg: '#5d6f63', bg: '#fafbf9', bd: '#e0e7e0' };
+*/
 
 const BULAN_PANJANG = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -85,20 +71,6 @@ function esc(value) {
   }[char]));
 }
 
-function badgeStyle(status) {
-  const s = ST[status];
-  return `display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;color:${s.fg};background:${s.bg};border:1px solid ${s.bd}`;
-}
-
-function jenisBadgeStyle(jenis) {
-  const w = JENIS_WARNA[jenis] || JENIS_WARNA_DEFAULT;
-  return `display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;color:${w.fg};background:${w.bg};border:1px solid ${w.bd}`;
-}
-
-function chipStyle(aktif) {
-  return `padding:6px 13px;border-radius:999px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid ${aktif ? HIJAU : '#e0e7e0'};background:${aktif ? HIJAU : '#fff'};color:${aktif ? '#fff' : '#5d6f63'}`;
-}
-
 function formatTanggal(dateString) {
   const d = new Date(dateString);
   return `${d.getDate()} ${['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][d.getMonth()]} ${d.getFullYear()}`;
@@ -142,84 +114,83 @@ function hasRekomendasiAktif(itemId) {
   return allRekomendasi.some((r) => r.item_id === itemId && !r.diterapkan);
 }
 
-function actionButtonsHtml(item) {
+function renderActionButtons(item) {
+  const template = document.getElementById('tmpl-action-buttons');
+  const clone = template.content.cloneNode(true);
+
+  const btnAi = clone.querySelector('[data-action="ai"]');
+  const btnEdit = clone.querySelector('[data-action="edit"]');
+  const btnHapus = clone.querySelector('[data-action="hapus"]');
+
   const bisaAi = item.status !== 'aman';
   const sudahAdaRekomendasi = bisaAi && hasRekomendasiAktif(item.id);
-  return `
-    <div class="flex justify-end gap-1.5" data-actions>
-      ${bisaAi ? `<button type="button" data-action="ai" data-id="${item.id}" ${sudahAdaRekomendasi ? 'disabled' : ''} class="w-8 h-8 flex items-center justify-center rounded-[8px] border transition ${sudahAdaRekomendasi ? 'border-[#eef2ed] text-[#c3cec6] cursor-not-allowed' : 'border-[#f5d0fe] text-[#86198f] hover:bg-[#fdf4ff] cursor-pointer'}" title="${sudahAdaRekomendasi ? 'Sudah ada rekomendasi aktif untuk barang ini' : 'Minta Saran AI'}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
-      </button>` : ''}
-      <button type="button" data-action="edit" data-id="${item.id}" class="w-8 h-8 flex items-center justify-center rounded-[8px] border border-[#dbe3dc] text-[#3c4d42] hover:border-[#14532d] hover:text-[#14532d] transition" title="Edit">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
-      </button>
-      <button type="button" data-action="hapus" data-id="${item.id}" class="w-8 h-8 flex items-center justify-center rounded-[8px] border border-[#dbe3dc] text-[#3c4d42] hover:border-[#e11d48] hover:text-[#e11d48] transition" title="Hapus">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z" /></svg>
-      </button>
-    </div>
-  `;
+
+  if (bisaAi) {
+    btnAi.classList.remove('hidden');
+    btnAi.dataset.id = item.id;
+    if (sudahAdaRekomendasi) {
+      btnAi.disabled = true;
+      btnAi.className = 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed';
+      btnAi.title = 'Sudah ada rekomendasi aktif untuk barang ini';
+    } else {
+      btnAi.className = 'btn btn-outline btn-icon border-ai-subtle text-ai hover:bg-ai cursor-pointer';
+      btnAi.title = 'Minta Saran AI';
+    }
+  }
+
+  btnEdit.dataset.id = item.id;
+  btnHapus.dataset.id = item.id;
+
+  return clone;
 }
 
 function renderTableRow(item) {
-  const s = ST[item.status];
   const pct = progressPercent(item);
-  const row = document.createElement('div');
-  row.className = 'grid grid-cols-[2.2fr_.9fr_.8fr_1fr_1.1fr_.9fr_.9fr] gap-3 px-[18px] py-3.5 border-b border-[#f1f4f0] items-center hover:bg-[#fafbf9] transition';
-  row.innerHTML = `
-    <div class="flex items-center gap-[11px] min-w-0">
-      <span style="width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:${s.dot}"></span>
-      <div class="min-w-0">
-        <div class="text-sm font-medium truncate text-[#132018]">${esc(item.nama)}</div>
-      </div>
-    </div>
-    <div class="text-[13px] text-[#5d6f63]">${esc(item.kategori)}</div>
-    <div class="text-[13.5px] font-medium font-heading">${item.jumlah_stok}</div>
-    <div class="text-[13px] text-[#5d6f63]">${formatTanggal(item.tanggal_kadaluarsa)}</div>
-    <div>
-      <div class="text-[13px] font-medium mb-1">${sisaHariText(item.sisa_hari)}</div>
-      <div class="h-1 rounded-full bg-[#eef2ed] overflow-hidden">
-        <div style="height:100%;width:${pct}%;border-radius:99px;background:${s.dot}"></div>
-      </div>
-    </div>
-    <div><span style="${badgeStyle(item.status)}">${s.label}</span></div>
-    ${actionButtonsHtml(item)}
-  `;
-  return row;
+  const template = document.getElementById('tmpl-table-row');
+  const clone = template.content.cloneNode(true);
+
+  clone.querySelector('.js-dot').classList.add(`dot-${item.status}`);
+  clone.querySelector('.js-nama').textContent = item.nama;
+  clone.querySelector('.js-kategori').textContent = item.kategori;
+  clone.querySelector('.js-stok').textContent = item.jumlah_stok;
+  clone.querySelector('.js-kadaluarsa').textContent = formatTanggal(item.tanggal_kadaluarsa);
+  clone.querySelector('.js-sisa-text').textContent = sisaHariText(item.sisa_hari);
+
+  const progressBar = clone.querySelector('.js-progress-bar');
+  progressBar.style.width = `${pct}%`;
+  progressBar.classList.add(`progress-${item.status}`);
+
+  const badge = clone.querySelector('.js-status-badge');
+  badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+  badge.classList.add(`badge-${item.status}`);
+
+  clone.querySelector('.js-actions').appendChild(renderActionButtons(item));
+
+  return clone;
 }
 
 function renderCard(item) {
-  const s = ST[item.status];
   const pct = progressPercent(item);
-  const card = document.createElement('article');
-  card.className = 'bg-white border border-[#eef2ed] rounded-[14px] p-4';
-  card.innerHTML = `
-    <div class="flex items-start justify-between gap-2.5">
-      <div class="min-w-0">
-        <div class="text-[15px] font-semibold tracking-tight text-[#132018]">${esc(item.nama)}</div>
-        <div class="text-[12.5px] text-[#93a398] mt-1">${esc(item.kategori)}</div>
-      </div>
-      <span style="${badgeStyle(item.status)}">${s.label}</span>
-    </div>
-    <div class="flex gap-5 mt-3.5">
-      <div>
-        <div class="text-[11.5px] text-[#93a398]">Stok</div>
-        <div class="font-heading text-[15px] font-semibold mt-0.5">${item.jumlah_stok}</div>
-      </div>
-      <div>
-        <div class="text-[11.5px] text-[#93a398]">Sisa</div>
-        <div class="font-heading text-[15px] font-semibold mt-0.5">${sisaHariText(item.sisa_hari)}</div>
-      </div>
-      <div>
-        <div class="text-[11.5px] text-[#93a398]">Kadaluarsa</div>
-        <div class="text-[13.5px] font-medium mt-1">${formatTanggal(item.tanggal_kadaluarsa)}</div>
-      </div>
-    </div>
-    <div class="h-1 rounded-full bg-[#eef2ed] overflow-hidden mt-3.5">
-      <div style="height:100%;width:${pct}%;border-radius:99px;background:${s.dot}"></div>
-    </div>
-    <div class="mt-3.5 pt-3.5 border-t border-[#eef2ed]">${actionButtonsHtml(item)}</div>
-  `;
-  return card;
+  const template = document.getElementById('tmpl-card');
+  const clone = template.content.cloneNode(true);
+
+  clone.querySelector('.js-nama').textContent = item.nama;
+  clone.querySelector('.js-kategori').textContent = item.kategori;
+  clone.querySelector('.js-stok').textContent = item.jumlah_stok;
+  clone.querySelector('.js-sisa-text').textContent = sisaHariText(item.sisa_hari);
+  clone.querySelector('.js-kadaluarsa').textContent = formatTanggal(item.tanggal_kadaluarsa);
+
+  const progressBar = clone.querySelector('.js-progress-bar');
+  progressBar.style.width = `${pct}%`;
+  progressBar.classList.add(`progress-${item.status}`);
+
+  const badge = clone.querySelector('.js-status-badge');
+  badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+  badge.classList.add(`badge-${item.status}`);
+
+  clone.querySelector('.js-actions').appendChild(renderActionButtons(item));
+
+  return clone;
 }
 
 function renderItems(items) {
@@ -245,7 +216,8 @@ function renderChipKategori() {
   kategoriList.forEach((kategori) => {
     const chip = document.createElement('div');
     chip.textContent = kategori;
-    chip.setAttribute('style', chipStyle(activeKategori === kategori));
+    chip.className = 'chip';
+    if (activeKategori === kategori) chip.classList.add('chip-active');
     chip.addEventListener('click', () => {
       activeKategori = kategori;
       renderChipKategori();
@@ -254,10 +226,12 @@ function renderChipKategori() {
     el.chipKategori.appendChild(chip);
   });
 
-  el.daftarKategori.innerHTML = kategoriList
-    .filter((k) => k !== 'Semua')
-    .map((k) => `<option value="${esc(k)}"></option>`)
-    .join('');
+  el.daftarKategori.innerHTML = '';
+  kategoriList.filter(k => k !== 'Semua').forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k;
+    el.daftarKategori.appendChild(opt);
+  });
 }
 
 function renderChipStatus() {
@@ -271,7 +245,8 @@ function renderChipStatus() {
   statusList.forEach(({ key, label }) => {
     const chip = document.createElement('div');
     chip.textContent = label;
-    chip.setAttribute('style', chipStyle(activeStatus === key));
+    chip.className = 'chip';
+    if (activeStatus === key) chip.classList.add('chip-active');
     chip.addEventListener('click', () => {
       activeStatus = key;
       renderChipStatus();
@@ -434,33 +409,44 @@ el.cards.addEventListener('click', handleActionClick);
 
 function renderAiCard(rekomendasi) {
   const item = rekomendasi.item;
-  const s = ST[item.status];
-  const card = document.createElement('article');
-  card.className = rekomendasi.diterapkan
-    ? 'bg-[#fafbf9] border border-[#eef2ed] rounded-[14px] p-4 flex flex-col gap-3 opacity-70'
-    : 'bg-white border border-[#eef2ed] rounded-[14px] p-4 flex flex-col gap-3';
-  card.innerHTML = `
-    <div class="flex items-start justify-between gap-2.5">
-      <div class="flex items-center gap-2 min-w-0">
-        <span style="width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:${s.dot}"></span>
-        <div class="text-[15px] font-semibold tracking-tight truncate">${esc(item.nama)}</div>
-      </div>
-      <span style="${badgeStyle(item.status)}">${s.label}</span>
-    </div>
-    <div class="bg-[#fdf4ff] border border-[#f5d0fe] rounded-[12px] p-3.5">
-      <span style="${jenisBadgeStyle(rekomendasi.jenis_saran)}">${esc(rekomendasi.jenis_saran)}</span>
-      <div class="text-[13.5px] text-[#581c67] leading-relaxed mt-2.5">${esc(rekomendasi.isi_saran)}</div>
-    </div>
-    <div class="flex gap-2">
-      ${rekomendasi.diterapkan
-        ? `<span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#166534]">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-            Sudah diterapkan
-          </span>`
-        : `<button type="button" data-terapkan="${rekomendasi.id}" class="h-9 px-3.5 rounded-[9px] bg-[#14532d] text-white text-[13px] font-semibold cursor-pointer hover:bg-[#0e3a20] transition">Tandai Diterapkan</button>`}
-    </div>
-  `;
-  return card;
+  const template = document.getElementById('tmpl-ai-card');
+  const clone = template.content.cloneNode(true);
+
+  const container = clone.querySelector('.js-container');
+  if (rekomendasi.diterapkan) {
+    container.classList.remove('bg-white');
+    container.classList.add('bg-hover', 'opacity-70');
+  }
+
+  clone.querySelector('.js-dot').classList.add(`dot-${item.status}`);
+  clone.querySelector('.js-nama').textContent = item.nama;
+
+  const statusBadge = clone.querySelector('.js-status-badge');
+  statusBadge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+  statusBadge.classList.add(`badge-${item.status}`);
+
+  const jenisBadge = clone.querySelector('.js-jenis-badge');
+  jenisBadge.textContent = rekomendasi.jenis_saran;
+  jenisBadge.classList.add(`badge-${rekomendasi.jenis_saran.toLowerCase()}`);
+
+  clone.querySelector('.js-saran').textContent = rekomendasi.isi_saran;
+
+  const actions = clone.querySelector('.js-actions');
+  if (rekomendasi.diterapkan) {
+    const span = document.createElement('span');
+    span.className = 'inline-flex items-center gap-1.5 text-[13px] font-medium text-success';
+    span.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Sudah diterapkan`;
+    actions.appendChild(span);
+  } else {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.terapkan = rekomendasi.id;
+    btn.className = 'btn btn-primary h-9 px-3.5 text-[13px]';
+    btn.textContent = 'Tandai Diterapkan';
+    actions.appendChild(btn);
+  }
+
+  return clone;
 }
 
 function renderAiGroup(judul, daftarRekomendasi) {
@@ -468,7 +454,11 @@ function renderAiGroup(judul, daftarRekomendasi) {
 
   const group = document.createElement('div');
   group.className = 'flex flex-col gap-2.5';
-  group.innerHTML = `<div class="text-xs font-semibold text-[#9aab9f] tracking-wide px-1">${esc(judul)} · ${daftarRekomendasi.length}</div>`;
+
+  const header = document.createElement('div');
+  header.className = 'text-xs font-semibold text-caption tracking-wide px-1';
+  header.textContent = `${judul} · ${daftarRekomendasi.length}`;
+  group.appendChild(header);
 
   daftarRekomendasi.forEach((r) => group.appendChild(renderAiCard(r)));
   return group;
@@ -570,31 +560,74 @@ el.btnLogout.addEventListener('click', async () => {
 
 async function init() {
   renderTanggalHariIni();
-  el.loading.classList.remove('hidden');
-  el.aiLoading.classList.remove('hidden');
-  el.error.classList.add('hidden');
-  el.aiError.classList.add('hidden');
-  el.itemsContainer.classList.add('hidden');
-  el.empty.classList.add('hidden');
-  el.aiEmpty.classList.add('hidden');
-  el.aiContainer.classList.add('hidden');
 
-  try {
-    const [me, items, rekomendasi] = await Promise.all([fetchMe(), fetchItems(), fetchRekomendasi()]);
-    el.userName.textContent = me.name;
-    allItems = items;
-    allRekomendasi = rekomendasi;
-    renderChipKategori();
-    renderChipStatus();
-    applyFilters();
-    renderRekomendasi();
-  } catch (err) {
-    el.error.textContent = err.message || 'Terjadi kesalahan saat memuat data.';
-    el.error.classList.remove('hidden');
-  } finally {
-    el.loading.classList.add('hidden');
-    el.aiLoading.classList.add('hidden');
-  }
+  // Data Mock untuk mencoba tampilan tanpa backend
+  el.userName.textContent = "Admin Demo (Offline Mode)";
+
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const fourDaysLater = new Date(today);
+  fourDaysLater.setDate(today.getDate() + 4);
+  const fifteenDaysLater = new Date(today);
+  fifteenDaysLater.setDate(today.getDate() + 15);
+
+  allItems = [
+    {
+      id: 1,
+      nama: 'Tomat Segar',
+      kategori: 'Sayur',
+      jumlah_stok: 45,
+      tanggal_masuk: today.toISOString(),
+      tanggal_kadaluarsa: tomorrow.toISOString(),
+      estimasi_umur_simpan_hari: 5,
+      sisa_hari: 1,
+      status: 'kritis'
+    },
+    {
+      id: 2,
+      nama: 'Apel Fuji',
+      kategori: 'Buah',
+      jumlah_stok: 20,
+      tanggal_masuk: today.toISOString(),
+      tanggal_kadaluarsa: fourDaysLater.toISOString(),
+      estimasi_umur_simpan_hari: 10,
+      sisa_hari: 4,
+      status: 'berisiko'
+    },
+    {
+      id: 3,
+      nama: 'Susu UHT',
+      kategori: 'Olahan Susu',
+      jumlah_stok: 12,
+      tanggal_masuk: today.toISOString(),
+      tanggal_kadaluarsa: fifteenDaysLater.toISOString(),
+      estimasi_umur_simpan_hari: 30,
+      sisa_hari: 15,
+      status: 'aman'
+    }
+  ];
+
+  allRekomendasi = [
+    {
+      id: 1,
+      item_id: 1,
+      item: allItems[0],
+      jenis_saran: 'Diskon',
+      isi_saran: 'Berikan diskon 50% untuk Tomat Segar karena akan kadaluarsa dalam 1 hari.',
+      diterapkan: false
+    }
+  ];
+
+  renderChipKategori();
+  renderChipStatus();
+  applyFilters();
+  renderRekomendasi();
+
+  el.loading.classList.add('hidden');
+  el.aiLoading.classList.add('hidden');
+  el.itemsContainer.classList.remove('hidden');
+  el.aiContainer.classList.remove('hidden');
 }
 
 init();

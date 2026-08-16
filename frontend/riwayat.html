@@ -3,29 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stok Pangan Cerdas — Riwayat</title>
-  <!-- Favicon: adaptasi ikon aplikasi ukuran kecil dari design-reference/Logo Stok Pangan Cerdas UI/Logo Stok Pangan Cerdas.dc.html -->
+  <title>Riwayat — Stok Pangan Cerdas</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2212%22%20fill%3D%22%2314532d%22%2F%3E%3Cpath%20d%3D%22M14.5%2033.5C14.5%2022.7%2022.7%2014.5%2033.5%2014.5C33.5%2025.3%2025.3%2033.5%2014.5%2033.5Z%22%20fill%3D%22%23d9f99d%22%2F%3E%3Cpath%20d%3D%22M17.6%2030.4%2030.4%2017.6%22%20stroke%3D%22%2314532d%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
-  <style>
-    html, body { margin: 0; padding: 0; background: #f5f7f3; }
-    body { font-family: 'DM Sans', sans-serif; color: #132018; -webkit-font-smoothing: antialiased; }
-    .font-heading { font-family: 'Space Grotesk', sans-serif; }
-    @keyframes riseIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-    .rise-in { animation: riseIn .35s ease both; }
-  </style>
+  <link rel="stylesheet" href="assets/css/main.css" />
 </head>
 <body>
 
   <!-- Header -->
-  <header class="bg-white border-b border-[#e6ebe5] sticky top-0 z-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-3 flex-wrap">
-      <!-- Logo: adaptasi dari design-reference/Logo Stok Pangan Cerdas UI/Logo Stok Pangan Cerdas.dc.html -->
-      <div class="flex items-center gap-2.5">
-        <div class="w-[34px] h-[34px] rounded-full bg-[#14532d] flex items-center justify-center shrink-0">
+  <header class="bg-surface border-b border-default sticky top-0 z-10">
+    <div class="container py-4 flex items-center justify-between gap-3 flex-wrap">
+      <!-- Logo -->
+      <div class="logo-container">
+        <div class="logo-icon">
           <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
             <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
             <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d" />
@@ -33,82 +26,81 @@
           </svg>
         </div>
         <div>
-          <div class="font-heading font-bold text-[14.5px] tracking-tight leading-tight text-[#132018]">Stok Pangan</div>
-          <div class="text-[11.5px] text-[#86988c] tracking-wide">CERDAS</div>
+          <div class="font-heading font-bold text-[14.5px] tracking-tight leading-tight text-primary">Stok Pangan</div>
+          <div class="text-[11.5px] text-subtitle tracking-wide uppercase">Cerdas</div>
         </div>
       </div>
-      <nav class="flex items-center gap-1 bg-[#f5f7f3] rounded-full p-1">
-        <a href="index.html" class="px-4 py-1.5 rounded-full text-[13.5px] font-medium text-[#5d6f63] hover:text-[#132018] transition">Dashboard</a>
-        <a href="riwayat.html" class="px-4 py-1.5 rounded-full text-[13.5px] font-semibold bg-[#14532d] text-white">Riwayat</a>
+      <nav class="nav-pills">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="riwayat.html" class="nav-link active">Riwayat</a>
       </nav>
       <div class="flex items-center gap-3">
-        <!-- Sumber: [akan diisi] -->
-        <span class="flex items-center gap-1.5 text-xs font-semibold text-[#5d6f63] border border-[#dbe3dc] rounded-full pl-1.5 pr-3 py-1">
-          <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026" class="h-[22px] w-[22px] rounded-full" />
+        <span class="flex items-center gap-1.5 text-xs font-semibold text-muted border border-strong rounded-full pl-1.5 pr-3 py-1">
+          <img src="assets/img/logo-tcc-2026.png" alt="TCC 2026" class="h-[22px] w-[22px] rounded-full" />
           TCC 2026
         </span>
-        <div class="flex items-center gap-2.5 pl-3 border-l border-[#e6ebe5]">
-          <span id="user-name" class="text-[13px] font-medium text-[#3c4d42] hidden sm:inline"></span>
-          <button id="btn-logout" class="text-[13px] font-medium text-[#8a9a8f] hover:text-[#e11d48] transition cursor-pointer">Keluar</button>
+        <div class="flex items-center gap-2.5 pl-3 border-l border-default">
+          <span id="user-name" class="text-[13px] font-medium text-secondary hidden sm:inline"></span>
+          <button id="btn-logout" class="text-[13px] font-medium text-light hover:text-danger transition cursor-pointer">Keluar</button>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-5 rise-in">
+  <main class="container py-6 sm:py-8 flex flex-col gap-5 rise-in">
 
-    <div>
-      <h1 class="font-heading text-[22px] sm:text-[27px] font-semibold tracking-tight text-[#132018]">Riwayat &amp; Statistik</h1>
-      <p class="text-[13.5px] text-[#7d8f83] mt-1.5">Catatan tindakan yang sudah diterapkan dari rekomendasi AI Insight.</p>
+    <div class="page-header">
+      <h1 class="section-title">Riwayat & Statistik</h1>
+      <p class="section-desc">Catatan tindakan yang sudah diterapkan dari rekomendasi AI Insight.</p>
     </div>
 
     <!-- Statistik -->
-    <section aria-label="Statistik" class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-      <div class="bg-white border border-[#e6ebe5] rounded-[15px] px-4 sm:px-[18px] pt-4 pb-4">
-        <p class="text-[12.5px] text-[#7d8f83] font-medium">Total Tindakan</p>
-        <p id="stat-total" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-[#132018]">–</p>
+    <section aria-label="Statistik" class="stats-grid">
+      <div class="card p-4 sm:px-[18px]">
+        <p class="text-[12.5px] text-soft font-medium">Total Tindakan</p>
+        <p id="stat-total" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-primary">–</p>
       </div>
-      <div class="bg-white border border-[#e6ebe5] rounded-[15px] px-4 sm:px-[18px] pt-4 pb-4 border-t-[3px] border-t-[#22c55e]">
-        <p class="text-[12.5px] text-[#7d8f83] font-medium">Barang Terselamatkan</p>
-        <p id="stat-selamat" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-[#166534]">–</p>
-        <p id="stat-selamat-unit" class="text-[12.5px] text-[#8a9a8f] mt-2">–</p>
+      <div class="card p-4 sm:px-[18px] border-t-[3px] border-success">
+        <p class="text-[12.5px] text-soft font-medium">Barang Terselamatkan</p>
+        <p id="stat-selamat" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-success">–</p>
+        <p id="stat-selamat-unit" class="text-[12.5px] text-light mt-2">–</p>
       </div>
-      <div class="bg-white border border-[#e6ebe5] rounded-[15px] px-4 sm:px-[18px] pt-4 pb-4 border-t-[3px] border-t-[#e11d48]">
-        <p class="text-[12.5px] text-[#7d8f83] font-medium">Barang Terbuang</p>
-        <p id="stat-buang" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-[#9f1239]">–</p>
-        <p id="stat-buang-unit" class="text-[12.5px] text-[#8a9a8f] mt-2">–</p>
+      <div class="card p-4 sm:px-[18px] border-t-[3px] border-danger">
+        <p class="text-[12.5px] text-soft font-medium">Barang Terbuang</p>
+        <p id="stat-buang" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-danger">–</p>
+        <p id="stat-buang-unit" class="text-[12.5px] text-light mt-2">–</p>
       </div>
-      <div class="bg-white border border-[#e6ebe5] rounded-[15px] px-4 sm:px-[18px] pt-4 pb-4">
-        <p class="text-[12.5px] text-[#7d8f83] font-medium">Tingkat Penyelamatan</p>
-        <p id="stat-persen" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-[#132018]">–</p>
+      <div class="card p-4 sm:px-[18px]">
+        <p class="text-[12.5px] text-soft font-medium">Tingkat Penyelamatan</p>
+        <p id="stat-persen" class="font-heading text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2 leading-none text-primary">–</p>
       </div>
     </section>
 
     <!-- Rincian per jenis tindakan -->
     <div id="per-jenis-wrap" class="hidden">
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-xs font-semibold text-[#9aab9f] tracking-wide">RINCIAN JENIS TINDAKAN</span>
+        <span class="text-xs font-semibold text-caption tracking-wide uppercase">Rincian Jenis Tindakan</span>
         <div id="per-jenis-chips" class="flex items-center gap-2 flex-wrap"></div>
       </div>
     </div>
 
     <!-- Daftar Riwayat -->
-    <section class="bg-white border border-[#e6ebe5] rounded-2xl overflow-hidden">
-      <div class="px-4 sm:px-[18px] py-4 border-b border-[#eef2ed]">
-        <div class="font-heading text-[16.5px] font-semibold tracking-tight">Catatan Tindakan</div>
+    <section class="card">
+      <div class="card-header">
+        <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Catatan Tindakan</div>
       </div>
 
-      <div id="state-loading" class="text-center py-16 text-[#8a9a8f] text-sm">Memuat riwayat...</div>
-      <div id="state-error" class="hidden text-center py-16 text-[#9f1239] text-sm"></div>
+      <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat riwayat...</div>
+      <div id="state-error" class="hidden text-center py-16 text-danger text-sm"></div>
       <div id="state-empty" class="hidden py-13 text-center px-6">
-        <div class="font-heading text-[17px] font-semibold mb-1.5 text-[#132018]">Belum ada riwayat tindakan</div>
-        <div class="text-sm text-[#7d8f83]">Tandai rekomendasi AI di dashboard sebagai "Diterapkan" untuk mulai mencatat riwayat.</div>
+        <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Belum ada riwayat tindakan</div>
+        <div class="text-sm text-soft">Tandai rekomendasi AI di dashboard sebagai "Diterapkan" untuk mulai mencatat riwayat.</div>
       </div>
 
-      <!-- Desktop table -->
       <div id="riwayat-container" class="hidden">
+        <!-- Desktop table -->
         <div class="hidden lg:block">
-          <div class="grid grid-cols-[1.1fr_2fr_1.1fr_1fr_1.4fr] gap-3 px-[18px] py-[11px] bg-[#fafbf9] border-b border-[#eef2ed] text-[11.5px] font-semibold text-[#8a9a8f] tracking-wide">
+          <div class="riwayat-grid px-[18px] py-[11px] bg-hover border-b border-subtle text-[11.5px] font-semibold text-light tracking-wide">
             <div>TANGGAL</div><div>BARANG</div><div>TINDAKAN</div><div>STOK</div><div>KETERANGAN</div>
           </div>
           <div id="riwayat-table-body"></div>
@@ -121,7 +113,34 @@
 
   </main>
 
-  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-[#8a9a8f]">
+  <!-- Clean Architecture: Templates for Riwayat -->
+  <template id="tmpl-riwayat-row">
+    <div class="riwayat-grid px-[18px] py-3.5 border-b border-subtle hover:bg-hover transition">
+      <div class="js-tanggal text-[13px] text-muted"></div>
+      <div class="js-nama text-sm font-medium text-primary truncate"></div>
+      <div><span class="js-jenis-badge"></span></div>
+      <div class="js-stok text-[13.5px] font-medium font-heading text-primary"></div>
+      <div class="js-keterangan text-[13px] text-soft truncate"></div>
+    </div>
+  </template>
+
+  <template id="tmpl-riwayat-card">
+    <article class="card p-4">
+      <div class="flex items-start justify-between gap-2.5">
+        <div class="min-w-0">
+          <div class="js-nama text-[15px] font-semibold tracking-tight text-primary"></div>
+          <div class="js-tanggal text-[12.5px] text-light mt-1"></div>
+        </div>
+        <span class="js-jenis-badge"></span>
+      </div>
+      <p class="js-keterangan text-[13px] text-muted leading-relaxed mt-3"></p>
+      <div class="js-stok-wrap text-[12.5px] text-light mt-3 pt-3 border-t border-subtle">
+        Stok saat ini: <span class="js-stok font-medium text-secondary"></span>
+      </div>
+    </article>
+  </template>
+
+  <footer class="footer container mt-auto text-light">
     Stok Pangan Cerdas — Trunodjoyo Creative Competition (TCC) 2026, cabang Vibe Code
   </footer>
 
