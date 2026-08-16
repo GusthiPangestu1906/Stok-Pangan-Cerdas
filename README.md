@@ -114,10 +114,8 @@ mulai berisiko.
 
 - **Backend** — Laravel (PHP), REST API murni. Tidak merender HTML apa pun,
   hanya menyediakan endpoint JSON di bawah `/api`.
-- **Frontend** — Vanilla JS + Semantic CSS, file statis terpisah
-  yang memanggil backend lewat `fetch()`. Menggunakan pola Clean Architecture
-  dengan pemisahan struktur (HTML5 Templates), gaya (Centralized CSS), dan
-  logika (Modular JS).
+- **Frontend** — Vanilla JS + Tailwind CSS (lewat CDN), file statis terpisah
+  yang memanggil backend lewat `fetch()`.
 - **Database** — PostgreSQL.
 - **Autentikasi** — Laravel Sanctum, mode *personal access token* (bukan SPA
   cookie/session), karena frontend dan backend adalah dua deployment terpisah
@@ -131,7 +129,7 @@ mulai berisiko.
 | Laravel Framework | 13.25.0 |
 | Laravel Sanctum | 4.3.3 |
 | PostgreSQL | 17.4 |
-| Tailwind CSS | via CDN (`cdn.tailwindcss.com`) + Custom Semantic Classes |
+| Tailwind CSS | via CDN (`cdn.tailwindcss.com`, selalu versi terbaru) |
 | Google Gemini API | lihat bagian [AI generatif](#ai-generatif) |
 
 ### Struktur folder
@@ -151,14 +149,13 @@ TCC 2026/
 │   │   └── seeders/              ItemSeeder (13 barang contoh), DatabaseSeeder
 │   │                             (akun admin demo)
 │   └── routes/api.php           Semua endpoint /api
-├── frontend/                    Vanilla JS + Semantic CSS, file statis
-│   ├── index.html               Dashboard Stok (Template-based)
-│   ├── riwayat.html             Riwayat & Statistik (Template-based)
+├── frontend/                    Vanilla JS + Tailwind, file statis
+│   ├── index.html               Dashboard Stok
+│   ├── riwayat.html             Riwayat & Statistik
 │   ├── login.html               Halaman login admin
 │   └── assets/
-│       ├── css/                 main.css (Centralized styles & design system)
 │       ├── js/                  api.js (klien HTTP + auth), dashboard.js,
-│       │                        riwayat.js, login.js (Hybrid Demo logic)
+│       │                        riwayat.js, login.js
 │       └── img/                 Aset gambar (logo TCC 2026, dll.)
 ├── design-reference/             Referensi visual saja — lihat bagian
 │                                 "Tentang folder design-reference/" di bawah
@@ -431,25 +428,19 @@ php artisan serve --port=8000
 Backend berjalan di `http://127.0.0.1:8000`, endpoint API di
 `http://127.0.0.1:8000/api`.
 
-### Frontend (Hybrid Mode)
+### Frontend
 
-Frontend mendukung **Hybrid Demo Mode**. Jika Anda menjalankan file HTML
-secara lokal (di `localhost` atau `127.0.0.1`) tanpa login, aplikasi akan
-otomatis masuk ke Mode Demo dengan data mock. Ini memudahkan juri atau
-pengembang untuk melakukan audit UI/UX tanpa harus menyiapkan database
-terlebih dahulu.
-
-**Cara menjalankan lokal:**
 ```bash
 cd frontend
 python -m http.server 5500
 ```
-Buka `http://127.0.0.1:5500/login.html` (untuk simulasi login) atau langsung
-ke `index.html` untuk melihat Dashboard Mode Demo.
 
-**Catatan Produksi:** Saat di-deploy ke server publik (non-localhost),
-aplikasi secara ketat mewajibkan token `Authorization` yang valid dan
-melakukan redirect ke login jika tidak ada sesi aktif.
+Buka `http://127.0.0.1:5500/login.html` di browser.
+
+`assets/js/api.js` otomatis mengarah ke `http://127.0.0.1:8000/api` saat
+diakses dari `localhost`/`127.0.0.1`. Untuk deployment produksi, ganti
+placeholder `REPLACE_WITH_RAILWAY_URL` di file itu dengan URL backend Railway
+yang sebenarnya.
 
 ## Kredensial admin demo
 
@@ -528,7 +519,7 @@ terlewat.
   Laravel adalah langkah lanjutan yang wajar untuk project ini.
 - **Satu peran pengguna saja.** Aplikasi dirancang untuk satu admin
   koperasi. Belum ada pembedaan hak akses (misalnya admin vs staf gudang),
-  karena kebutuhan itu tidak ada dalam lingkup kompetisi ini.
+  kategori.
 - **Estimasi umur simpan diisi manual.** Angka umur simpan tiap barang
   dimasukkan admin, bukan diprediksi sistem. Ini keputusan yang disengaja:
   batasan lomba melarang penggunaan machine learning custom, dan admin
