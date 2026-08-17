@@ -1,28 +1,9 @@
-if (!getToken()) {
+// Deteksi mode demo: Aktif jika di localhost dan belum ada token
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const SHOULD_USE_DEMO = IS_LOCAL && !getToken();
+
+if (!SHOULD_USE_DEMO && !getToken()) {
   window.location.href = 'login.html';
-}
-
-const JENIS_WARNA = {
-  Diskon: { fg: '#92400e', bg: '#fffbeb', bd: '#fde68a' },
-  Distribusi: { fg: '#166534', bg: '#f0fdf4', bd: '#bbf7d0' },
-  Bundling: { fg: '#86198f', bg: '#fdf4ff', bd: '#f5d0fe' },
-  Pemusnahan: { fg: '#9f1239', bg: '#fff1f3', bd: '#fecdd3' },
-};
-const JENIS_WARNA_DEFAULT = { fg: '#5d6f63', bg: '#fafbf9', bd: '#e0e7e0' };
-
-function esc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  }[char]));
-}
-
-function jenisBadgeStyle(jenis) {
-  const w = JENIS_WARNA[jenis] || JENIS_WARNA_DEFAULT;
-  return `display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;color:${w.fg};background:${w.bg};border:1px solid ${w.bd}`;
 }
 
 function formatTanggalWaktu(dateString) {
@@ -69,41 +50,57 @@ function renderStatistik(statistik) {
 function renderPerJenis(perJenis) {
   const entries = Object.entries(perJenis || {});
   el.perJenisWrap.classList.toggle('hidden', entries.length === 0);
-  el.perJenisChips.innerHTML = entries
-    .map(([jenis, jumlah]) => `<span style="${jenisBadgeStyle(jenis)}">${esc(jenis)} ${jumlah}</span>`)
-    .join('');
+  el.perJenisChips.innerHTML = '';
+  entries.forEach(([jenis, jumlah]) => {
+    const chip = document.createElement('span');
+    chip.textContent = `${jenis} ${jumlah}`;
+    chip.classList.add('badge', `badge-${jenis.toLowerCase()}`);
+    el.perJenisChips.appendChild(chip);
+  });
 }
 
 function renderRiwayatRow(r) {
   const item = r.item;
-  const row = document.createElement('div');
-  row.className = 'grid grid-cols-[1.1fr_2fr_1.1fr_1fr_1.4fr] gap-3 px-[18px] py-3.5 border-b border-[#f1f4f0] items-center';
-  row.innerHTML = `
-    <div class="text-[13px] text-[#5d6f63]">${esc(formatTanggalWaktu(r.diterapkan_at))}</div>
-    <div class="text-sm font-medium text-[#132018] truncate">${esc(item?.nama ?? '(barang dihapus)')}</div>
-    <div><span style="${jenisBadgeStyle(r.jenis_saran)}">${esc(r.jenis_saran)}</span></div>
-    <div class="text-[13.5px] font-medium font-heading">${item ? item.jumlah_stok : '–'}</div>
-    <div class="text-[13px] text-[#7d8f83] truncate" title="${esc(r.isi_saran)}">${esc(r.isi_saran)}</div>
-  `;
-  return row;
+  const template = document.getElementById('tmpl-riwayat-row');
+  const clone = template.content.cloneNode(true);
+
+  clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
+  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+
+  const badge = clone.querySelector('.js-jenis-badge');
+  badge.textContent = r.jenis_saran;
+  badge.classList.add('badge', `badge-${r.jenis_saran.toLowerCase()}`);
+
+  clone.querySelector('.js-stok').textContent = item ? item.jumlah_stok : '–';
+
+  const keterangan = clone.querySelector('.js-keterangan');
+  keterangan.textContent = r.isi_saran;
+  keterangan.title = r.isi_saran;
+
+  return clone;
 }
 
 function renderRiwayatCard(r) {
   const item = r.item;
-  const card = document.createElement('article');
-  card.className = 'bg-white border border-[#eef2ed] rounded-[14px] p-4';
-  card.innerHTML = `
-    <div class="flex items-start justify-between gap-2.5">
-      <div class="min-w-0">
-        <div class="text-[15px] font-semibold tracking-tight text-[#132018]">${esc(item?.nama ?? '(barang dihapus)')}</div>
-        <div class="text-[12.5px] text-[#93a398] mt-1">${esc(formatTanggalWaktu(r.diterapkan_at))}</div>
-      </div>
-      <span style="${jenisBadgeStyle(r.jenis_saran)}">${esc(r.jenis_saran)}</span>
-    </div>
-    <p class="text-[13px] text-[#6b7c71] leading-relaxed mt-3">${esc(r.isi_saran)}</p>
-    ${item ? `<div class="text-[12.5px] text-[#93a398] mt-3 pt-3 border-t border-[#eef2ed]">Stok saat ini: <span class="font-medium text-[#3c4d42]">${item.jumlah_stok}</span></div>` : ''}
-  `;
-  return card;
+  const template = document.getElementById('tmpl-riwayat-card');
+  const clone = template.content.cloneNode(true);
+
+  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+  clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
+
+  const badge = clone.querySelector('.js-jenis-badge');
+  badge.textContent = r.jenis_saran;
+  badge.classList.add('badge', `badge-${r.jenis_saran.toLowerCase()}`);
+
+  clone.querySelector('.js-keterangan').textContent = r.isi_saran;
+
+  if (item) {
+    clone.querySelector('.js-stok').textContent = item.jumlah_stok;
+  } else {
+    clone.querySelector('.js-stok-wrap').remove();
+  }
+
+  return clone;
 }
 
 function renderRiwayat(daftar) {
@@ -134,16 +131,54 @@ async function init() {
   el.container.classList.add('hidden');
   el.empty.classList.add('hidden');
 
-  try {
-    const [me, riwayat, statistik] = await Promise.all([fetchMe(), fetchRiwayat(), fetchStatistikRiwayat()]);
-    el.userName.textContent = me.name;
-    renderStatistik(statistik);
-    renderRiwayat(riwayat);
-  } catch (err) {
-    el.error.textContent = err.message || 'Terjadi kesalahan saat memuat riwayat.';
-    el.error.classList.remove('hidden');
-  } finally {
+  if (SHOULD_USE_DEMO) {
+    console.warn("Riwayat berjalan dalam MODE DEMO (Offline).");
+    el.userName.textContent = "Admin Demo (Offline)";
+
+    // Data dummy untuk preview riwayat & statistik
+    const mockStatistik = {
+      jumlah_tindakan: 5,
+      jumlah_terselamatkan: 4,
+      unit_terselamatkan: 120,
+      jumlah_terbuang: 1,
+      unit_terbuang: 15,
+      per_jenis: { 'Diskon': 2, 'Bundling': 2, 'Pemusnahan': 1 }
+    };
+
+    const mockRiwayat = [
+      {
+        id: 1, diterapkan_at: new Date().toISOString(), jenis_saran: 'Diskon',
+        isi_saran: 'Diterapkan diskon 50% untuk Tomat Segar.',
+        item: { nama: 'Tomat Segar', jumlah_stok: 45 }
+      },
+      {
+        id: 2, diterapkan_at: new Date().toISOString(), jenis_saran: 'Bundling',
+        isi_saran: 'Paket bundling Apel Fuji dengan Jeruk.',
+        item: { nama: 'Apel Fuji', jumlah_stok: 20 }
+      },
+      {
+        id: 3, diterapkan_at: new Date().toISOString(), jenis_saran: 'Pemusnahan',
+        isi_saran: 'Barang sudah tidak layak konsumsi.',
+        item: { nama: 'Sawi Hijau', jumlah_stok: 15 }
+      }
+    ];
+
+    renderStatistik(mockStatistik);
+    renderRiwayat(mockRiwayat);
     el.loading.classList.add('hidden');
+  } else {
+    // Mode Production
+    try {
+      const [me, riwayat, statistik] = await Promise.all([fetchMe(), fetchRiwayat(), fetchStatistikRiwayat()]);
+      el.userName.textContent = me.name;
+      renderStatistik(statistik);
+      renderRiwayat(riwayat);
+    } catch (err) {
+      el.error.textContent = err.message || 'Terjadi kesalahan saat memuat riwayat.';
+      el.error.classList.remove('hidden');
+    } finally {
+      el.loading.classList.add('hidden');
+    }
   }
 }
 

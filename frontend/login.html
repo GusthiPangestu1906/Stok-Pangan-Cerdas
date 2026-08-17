@@ -4,65 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Masuk — Stok Pangan Cerdas</title>
-  <!-- Favicon: adaptasi ikon aplikasi ukuran kecil dari design-reference/Logo Stok Pangan Cerdas UI/Logo Stok Pangan Cerdas.dc.html -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2212%22%20fill%3D%22%2314532d%22%2F%3E%3Cpath%20d%3D%22M14.5%2033.5C14.5%2022.7%2022.7%2014.5%2033.5%2014.5C33.5%2025.3%2025.3%2033.5%2014.5%2033.5Z%22%20fill%3D%22%23d9f99d%22%2F%3E%3Cpath%20d%3D%22M17.6%2030.4%2030.4%2017.6%22%20stroke%3D%22%2314532d%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
-  <style>
-    html, body { margin: 0; padding: 0; background: #f5f7f3; }
-    body { font-family: 'DM Sans', sans-serif; color: #132018; -webkit-font-smoothing: antialiased; }
-    .font-heading { font-family: 'Space Grotesk', sans-serif; }
-    ::placeholder { color: #9aa89e; }
-    input:focus { outline: 2px solid #14532d; outline-offset: 1px; }
-  </style>
+  <link rel="stylesheet" href="assets/css/main.css" />
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
   <div class="w-full max-w-sm">
-    <!-- Logo: adaptasi dari design-reference/Logo Stok Pangan Cerdas UI/Logo Stok Pangan Cerdas.dc.html -->
-    <div class="flex items-center gap-2.5 justify-center mb-8">
-      <div class="w-[34px] h-[34px] rounded-full bg-[#14532d] flex items-center justify-center shrink-0">
+    <!-- Logo & Branding -->
+    <div class="logo-container justify-center mb-9">
+      <div class="logo-icon shadow-sm">
         <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
           <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
           <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d" />
           <path d="M17.6 30.4 30.4 17.6" stroke="#14532d" stroke-width="2.6" stroke-linecap="round" />
         </svg>
       </div>
-      <div class="text-center">
-        <div class="font-heading font-bold text-[15px] tracking-tight leading-tight text-[#132018]">Stok Pangan Cerdas</div>
-      </div>
+      <div class="font-heading font-bold text-[16px] tracking-tight text-primary">Stok Pangan Cerdas</div>
     </div>
 
-    <div class="bg-white border border-[#e6ebe5] rounded-2xl p-6 sm:p-7">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0fdf4] border border-[#bbf7d0] text-xs text-[#166534] font-medium mb-5">
-        Portal Admin
+    <div class="card p-7 sm:p-8 rise-in shadow-sm">
+      <div class="flex justify-between items-start mb-6">
+        <div class="badge badge-aman">Portal Admin</div>
       </div>
-      <h1 class="font-heading text-[24px] font-semibold tracking-tight mb-1.5">Masuk ke akun Anda</h1>
-      <p class="text-[14px] text-[#5d6f63] leading-relaxed mb-6">Gunakan akun admin koperasi untuk mengelola stok.</p>
 
-      <form id="form-login" class="flex flex-col gap-4">
-        <div id="login-error" class="hidden bg-[#fff1f3] border border-[#fecdd3] text-[#9f1239] rounded-[11px] px-3 py-2.5 text-[13.5px]"></div>
+      <h1 class="section-title text-[24px] mb-2">Masuk ke akun Anda</h1>
+      <p class="text-[14px] text-muted leading-relaxed mb-8">Gunakan akun admin koperasi untuk mengelola stok secara cerdas.</p>
+
+      <form id="form-login" class="flex flex-col gap-5">
+        <div id="login-error" class="hidden alert-error"></div>
         <div>
-          <label for="input-email" class="block text-[13px] font-medium text-[#3c4d42] mb-1.5">Email</label>
-          <input id="input-email" type="email" required autocomplete="username" placeholder="admin@koperasipangan.id" class="w-full h-11 border border-[#dbe3dc] rounded-[11px] px-3.5 text-sm bg-[#fbfcfa]" />
+          <label for="input-email" class="form-label">Email</label>
+          <input id="input-email" type="email" required autocomplete="username" placeholder="admin@koperasipangan.id" class="input-field" />
         </div>
         <div>
-          <label for="input-password" class="block text-[13px] font-medium text-[#3c4d42] mb-1.5">Kata sandi</label>
-          <input id="input-password" type="password" required autocomplete="current-password" placeholder="••••••••" class="w-full h-11 border border-[#dbe3dc] rounded-[11px] px-3.5 text-sm bg-[#fbfcfa]" />
+          <label for="input-password" class="form-label">Kata sandi</label>
+          <input id="input-password" type="password" required autocomplete="current-password" placeholder="••••••••" class="input-field" />
         </div>
-        <button type="submit" id="btn-login" class="h-[46px] border-none rounded-[11px] bg-[#14532d] text-white text-[14.5px] font-semibold cursor-pointer hover:bg-[#0e3a20] transition mt-1">Masuk</button>
+        <button type="submit" id="btn-login" class="btn btn-primary w-full mt-1">Masuk</button>
       </form>
     </div>
 
-    <!-- Sumber: [akan diisi] -->
-    <div class="flex items-center justify-center gap-2 mt-6 flex-wrap px-2">
-      <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026" class="h-[22px] w-[22px] rounded-full shrink-0" />
-      <p class="text-center text-xs text-[#8a9a8f]">
-        Stok Pangan Cerdas — Trunodjoyo Creative Competition (TCC) 2026, cabang Vibe Code
-      </p>
-    </div>
+    <!-- Footer -->
+    <footer class="footer mt-6 px-2">
+      <div class="flex items-center justify-center gap-2 flex-wrap text-light">
+        <img src="assets/img/logo-tcc-2026.png" alt="Logo TCC 2026" class="h-[22px] w-[22px] rounded-full shrink-0" />
+        <p>Stok Pangan Cerdas — Trunodjoyo Creative Competition (TCC) 2026, cabang Vibe Code</p>
+      </div>
+    </footer>
   </div>
 
   <script src="assets/js/api.js"></script>
