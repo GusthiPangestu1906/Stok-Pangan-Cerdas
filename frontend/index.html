@@ -181,14 +181,32 @@
       <!-- Kolom Kanan / Side Copilot: AI Insight Panel -->
       <div class="lg:col-span-5 xl:col-span-4 order-1 lg:order-2 lg:sticky lg:top-[76px] min-w-0">
         <section class="card border-2 border-purple-200/80 shadow-xs">
-          <div class="card-header flex flex-wrap gap-2 items-center justify-between bg-purple-50/40">
-            <div>
-              <div class="badge badge-bundling mb-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
-                AI Insight
+          <div class="card-header flex flex-col gap-2.5 bg-purple-50/40 border-b border-purple-100">
+            <div class="flex flex-wrap gap-2 items-center justify-between">
+              <div>
+                <div class="badge badge-bundling mb-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
+                  AI Insight
+                </div>
+                <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Rekomendasi Tindakan AI</div>
+                <p class="text-[12.5px] text-muted mt-0.5">Saran tindakan cepat untuk barang berisiko & kritis.</p>
               </div>
-              <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Rekomendasi Tindakan AI</div>
-              <p class="text-[12.5px] text-muted mt-0.5">Saran tindakan cepat untuk barang berisiko & kritis.</p>
+            </div>
+
+            <!-- Filter Status Rekomendasi (Semua, Belum Diterapkan, Sudah Diterapkan) -->
+            <div id="ai-filter-tabs" class="ai-filter-tabs" role="tablist" aria-label="Filter Rekomendasi AI">
+              <button type="button" data-ai-filter="semua" class="ai-filter-btn active" role="tab" aria-selected="true" title="Semua rekomendasi">
+                <span>Semua</span>
+                <span id="ai-count-semua" class="ai-filter-count">0</span>
+              </button>
+              <button type="button" data-ai-filter="belum" class="ai-filter-btn" role="tab" aria-selected="false" title="Belum diterapkan">
+                <span>Belum</span>
+                <span id="ai-count-belum" class="ai-filter-count">0</span>
+              </button>
+              <button type="button" data-ai-filter="sudah" class="ai-filter-btn" role="tab" aria-selected="false" title="Sudah diterapkan">
+                <span>Sudah</span>
+                <span id="ai-count-sudah" class="ai-filter-count">0</span>
+              </button>
             </div>
           </div>
 

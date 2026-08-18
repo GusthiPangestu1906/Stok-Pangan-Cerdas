@@ -10,6 +10,7 @@ let allItems = [];
 let allRekomendasi = [];
 let activeKategori = 'Semua';
 let activeStatus = 'Semua';
+let activeAiFilter = 'semua';
 let editingItemId = null;
 let deletingItemId = null;
 let generatingItemId = null;
@@ -56,6 +57,10 @@ const el = {
   aiEmpty: document.getElementById('ai-empty'),
   aiContainer: document.getElementById('ai-container'),
   aiList: document.getElementById('ai-list'),
+  aiFilterTabs: document.getElementById('ai-filter-tabs'),
+  aiCountSemua: document.getElementById('ai-count-semua'),
+  aiCountBelum: document.getElementById('ai-count-belum'),
+  aiCountSudah: document.getElementById('ai-count-sudah'),
   userName: document.getElementById('user-name'),
   btnLogout: document.getElementById('btn-logout'),
 };
@@ -598,19 +603,79 @@ function renderAiGroup(judul, daftarRekomendasi) {
   return group;
 }
 
+function updateAiFilterUI() {
+  const perluCount = allRekomendasi.filter((r) => !r.diterapkan).length;
+  const sudahCount = allRekomendasi.filter((r) => r.diterapkan).length;
+  const semuaCount = allRekomendasi.length;
+
+  if (el.aiCountSemua) el.aiCountSemua.textContent = semuaCount;
+  if (el.aiCountBelum) el.aiCountBelum.textContent = perluCount;
+  if (el.aiCountSudah) el.aiCountSudah.textContent = sudahCount;
+
+  if (el.aiFilterTabs) {
+    const buttons = el.aiFilterTabs.querySelectorAll('[data-ai-filter]');
+    buttons.forEach((btn) => {
+      const isActive = btn.dataset.aiFilter === activeAiFilter;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+}
+
 function renderRekomendasi() {
   el.aiList.innerHTML = '';
-  el.aiEmpty.classList.toggle('hidden', allRekomendasi.length > 0);
-  el.aiContainer.classList.toggle('hidden', allRekomendasi.length === 0);
+  updateAiFilterUI();
+
+  const total = allRekomendasi.length;
+  el.aiEmpty.classList.toggle('hidden', total > 0);
+  el.aiContainer.classList.toggle('hidden', total === 0);
+
+  if (total === 0) return;
 
   const perluDitindak = allRekomendasi.filter((r) => !r.diterapkan);
   const sudahDitindak = allRekomendasi.filter((r) => r.diterapkan);
 
   const fragment = document.createDocumentFragment();
-  const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
-  const groupSudah = renderAiGroup('Sudah Ditindak', sudahDitindak);
-  if (groupPerlu) fragment.appendChild(groupPerlu);
-  if (groupSudah) fragment.appendChild(groupSudah);
+
+  if (activeAiFilter === 'semua') {
+    const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
+    const groupSudah = renderAiGroup('Sudah Ditindak', sudahDitindak);
+    if (groupPerlu) fragment.appendChild(groupPerlu);
+    if (groupSudah) fragment.appendChild(groupSudah);
+  } else if (activeAiFilter === 'belum') {
+    if (perluDitindak.length > 0) {
+      const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
+      if (groupPerlu) fragment.appendChild(groupPerlu);
+    } else {
+      const emptyBox = document.createElement('div');
+      emptyBox.className = 'py-8 px-4 text-center bg-purple-50/40 rounded-xl border border-dashed border-purple-200';
+      emptyBox.innerHTML = `
+        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-700 mb-2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        </div>
+        <div class="font-heading text-[14.5px] font-semibold text-primary">Semua saran sudah diterapkan!</div>
+        <p class="text-xs text-soft mt-0.5">Tidak ada saran AI yang perlu ditindak saat ini.</p>
+      `;
+      fragment.appendChild(emptyBox);
+    }
+  } else if (activeAiFilter === 'sudah') {
+    if (sudahDitindak.length > 0) {
+      const groupSudah = renderAiGroup('Sudah Ditindak', sudahDitindak);
+      if (groupSudah) fragment.appendChild(groupSudah);
+    } else {
+      const emptyBox = document.createElement('div');
+      emptyBox.className = 'py-8 px-4 text-center bg-purple-50/40 rounded-xl border border-dashed border-purple-200';
+      emptyBox.innerHTML = `
+        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-100 text-purple-700 mb-2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="font-heading text-[14.5px] font-semibold text-primary">Belum ada saran diterapkan</div>
+        <p class="text-xs text-soft mt-0.5">Klik tombol "Tandai Diterapkan" pada saran yang sudah dijalankan.</p>
+      `;
+      fragment.appendChild(emptyBox);
+    }
+  }
+
   el.aiList.appendChild(fragment);
 }
 
@@ -668,6 +733,15 @@ el.aiList.addEventListener('click', async (e) => {
 });
 
 // ---------- Init ----------
+
+if (el.aiFilterTabs) {
+  el.aiFilterTabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-ai-filter]');
+    if (!btn) return;
+    activeAiFilter = btn.dataset.aiFilter;
+    renderRekomendasi();
+  });
+}
 
 el.cari.addEventListener('input', applyFilters);
 el.resetFilter.addEventListener('click', () => {
