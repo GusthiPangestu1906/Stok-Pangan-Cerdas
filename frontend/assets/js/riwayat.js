@@ -1,8 +1,5 @@
-// Deteksi mode demo: Aktif jika di localhost dan belum ada token
-const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const SHOULD_USE_DEMO = IS_LOCAL && !getToken();
-
-if (!SHOULD_USE_DEMO && !getToken()) {
+// Pastikan user sudah login
+if (!getToken()) {
   window.location.href = 'login.html';
 }
 
@@ -131,54 +128,16 @@ async function init() {
   el.container.classList.add('hidden');
   el.empty.classList.add('hidden');
 
-  if (SHOULD_USE_DEMO) {
-    console.warn("Riwayat berjalan dalam MODE DEMO (Offline).");
-    el.userName.textContent = "Admin Demo (Offline)";
-
-    // Data dummy untuk preview riwayat & statistik
-    const mockStatistik = {
-      jumlah_tindakan: 5,
-      jumlah_terselamatkan: 4,
-      unit_terselamatkan: 120,
-      jumlah_terbuang: 1,
-      unit_terbuang: 15,
-      per_jenis: { 'Diskon': 2, 'Bundling': 2, 'Pemusnahan': 1 }
-    };
-
-    const mockRiwayat = [
-      {
-        id: 1, diterapkan_at: new Date().toISOString(), jenis_saran: 'Diskon',
-        isi_saran: 'Diterapkan diskon 50% untuk Tomat Segar.',
-        item: { nama: 'Tomat Segar', jumlah_stok: 45 }
-      },
-      {
-        id: 2, diterapkan_at: new Date().toISOString(), jenis_saran: 'Bundling',
-        isi_saran: 'Paket bundling Apel Fuji dengan Jeruk.',
-        item: { nama: 'Apel Fuji', jumlah_stok: 20 }
-      },
-      {
-        id: 3, diterapkan_at: new Date().toISOString(), jenis_saran: 'Pemusnahan',
-        isi_saran: 'Barang sudah tidak layak konsumsi.',
-        item: { nama: 'Sawi Hijau', jumlah_stok: 15 }
-      }
-    ];
-
-    renderStatistik(mockStatistik);
-    renderRiwayat(mockRiwayat);
+  try {
+    const [me, riwayat, statistik] = await Promise.all([fetchMe(), fetchRiwayat(), fetchStatistikRiwayat()]);
+    el.userName.textContent = me.name;
+    renderStatistik(statistik);
+    renderRiwayat(riwayat);
+  } catch (err) {
+    el.error.textContent = err.message || 'Terjadi kesalahan saat memuat riwayat.';
+    el.error.classList.remove('hidden');
+  } finally {
     el.loading.classList.add('hidden');
-  } else {
-    // Mode Production
-    try {
-      const [me, riwayat, statistik] = await Promise.all([fetchMe(), fetchRiwayat(), fetchStatistikRiwayat()]);
-      el.userName.textContent = me.name;
-      renderStatistik(statistik);
-      renderRiwayat(riwayat);
-    } catch (err) {
-      el.error.textContent = err.message || 'Terjadi kesalahan saat memuat riwayat.';
-      el.error.classList.remove('hidden');
-    } finally {
-      el.loading.classList.add('hidden');
-    }
   }
 }
 

@@ -10,8 +10,8 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 /* Layout Grid */
 .inventory-grid {
   display: grid;
-  grid-template-columns: 2.2fr 0.9fr 0.8fr 1fr 1.1fr 0.9fr 0.9fr;
-  gap: 0.75rem;
+  grid-template-columns: 2.4fr 0.6fr 1.6fr 0.8fr 1fr;
+  gap: 0.5rem 0.75rem;
   align-items: center;
 }
 

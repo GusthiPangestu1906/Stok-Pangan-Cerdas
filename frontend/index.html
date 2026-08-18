@@ -82,105 +82,129 @@
       </button>
     </div>
 
-    <!-- Ringkasan Stok (KPI cards) -->
+    <!-- Ringkasan Stok (KPI cards - Interaktif Filter Desktop, Info-only Mobile) -->
     <section aria-label="Ringkasan Stok" class="stats-grid">
-      <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
-        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Total Barang</p>
-        <p id="summary-total" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
-        <p id="summary-total-stok" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
-      </div>
-      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-success/80 shadow-sm">
-        <div class="flex items-center gap-[7px]">
-          <span class="dot dot-aman"></span>
-          <span class="text-[12.5px] sm:text-[13px] text-soft font-medium">Aman</span>
+      <div data-filter="Semua" class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group">
+        <div class="flex items-center justify-between">
+          <p class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-primary transition-colors">Total Barang</p>
+          <span class="hidden sm:inline-block text-[10.5px] font-semibold text-soft bg-subtle px-2 py-0.5 rounded-full">Semua</span>
         </div>
-        <p id="summary-aman" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">–</p>
-        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Sisa > 5 hari</p>
+        <p id="summary-total" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
+        <p id="summary-total-stok" class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">–</p>
       </div>
-      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-warning/80 shadow-sm">
-        <div class="flex items-center gap-[7px]">
-          <span class="dot dot-berisiko"></span>
-          <span class="text-[12.5px] sm:text-[13px] text-soft font-medium">Berisiko</span>
+
+      <div data-filter="aman" class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl border-2 border-success/80 shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-[7px]">
+            <span class="dot dot-aman"></span>
+            <span class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-success transition-colors">Aman</span>
+          </div>
+          <span class="hidden sm:inline-block text-[10.5px] font-semibold text-success/90 bg-emerald-50 px-2 py-0.5 rounded-full">Filter Aman</span>
         </div>
-        <p id="summary-berisiko" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-berisiko">–</p>
-        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Perlu tindakan</p>
+        <p id="summary-aman" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">–</p>
+        <p class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">Sisa > 5 hari</p>
       </div>
-      <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-danger/80 shadow-sm">
-        <div class="flex items-center gap-[7px]">
-          <span class="dot dot-kritis"></span>
-          <span class="text-[12.5px] sm:text-[13px] text-soft font-medium">Kritis</span>
+
+      <div data-filter="berisiko" class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl border-2 border-warning/80 shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-[7px]">
+            <span class="dot dot-berisiko"></span>
+            <span class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-berisiko transition-colors">Berisiko</span>
+          </div>
+          <span class="hidden sm:inline-block text-[10.5px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">Filter Berisiko</span>
         </div>
-        <p id="summary-kritis" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">–</p>
-        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Tindak hari ini</p>
+        <p id="summary-berisiko" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-berisiko">–</p>
+        <p class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">Perlu tindakan</p>
+      </div>
+
+      <div data-filter="kritis" class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl border-2 border-danger/80 shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-[7px]">
+            <span class="dot dot-kritis"></span>
+            <span class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-danger transition-colors">Kritis</span>
+          </div>
+          <span class="hidden sm:inline-block text-[10.5px] font-semibold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-full">Filter Kritis</span>
+        </div>
+        <p id="summary-kritis" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">–</p>
+        <p class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">Tindak hari ini</p>
       </div>
     </section>
 
-    <!-- Daftar Barang -->
-    <section class="card">
-      <div class="card-header flex flex-col gap-3">
-        <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-          <div class="font-heading text-[15.5px] sm:text-[16.5px] font-semibold tracking-tight text-primary">
-            Daftar Barang <span id="jumlah-tampil" class="text-caption font-medium"></span>
-          </div>
-          <div class="relative w-full sm:max-w-[320px]">
-            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex pointer-events-none">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+    <!-- Content Grid: 2 Kolom di Desktop (Daftar Barang + AI Insight Panel Sticky Side-by-Side) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      
+      <!-- Kolom Kiri / Utama: Daftar Barang -->
+      <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-5 order-2 lg:order-1 min-w-0">
+        <section class="card">
+          <div class="card-header flex flex-col gap-3">
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+              <div class="font-heading text-[15.5px] sm:text-[16.5px] font-semibold tracking-tight text-primary">
+                Daftar Barang <span id="jumlah-tampil" class="text-caption font-medium"></span>
+              </div>
+              <div class="relative w-full sm:max-w-[320px]">
+                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex pointer-events-none">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                </div>
+                <input id="filter-cari" type="text" placeholder="Cari nama barang..." class="input-field pl-9 bg-hover text-sm" />
+              </div>
             </div>
-            <input id="filter-cari" type="text" placeholder="Cari nama barang..." class="input-field pl-9 bg-hover text-sm" />
+            <div class="pt-2 border-t border-subtle">
+              <div id="chip-filters" class="chips-scroll scrollbar-none"></div>
+            </div>
           </div>
-        </div>
-        <div class="pt-2 border-t border-subtle">
-          <div id="chip-filters" class="chips-scroll scrollbar-none"></div>
-        </div>
-      </div>
 
-      <!-- Status -->
-      <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat data stok...</div>
-      <div id="state-error" class="hidden text-center py-16 text-danger text-sm"></div>
+          <!-- Status -->
+          <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat data stok...</div>
+          <div id="state-error" class="hidden text-center py-16 text-danger text-sm"></div>
 
-      <div id="state-empty" class="hidden py-10 sm:py-14 text-center px-6">
-        <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Tidak ada barang yang cocok</div>
-        <div class="text-sm text-soft">Coba ubah kata kunci atau atur ulang filter kategori dan status.</div>
-        <button id="reset-filter" class="btn btn-outline mt-5 mb-2 px-5 h-10 text-sm">Atur ulang filter</button>
-      </div>
-
-      <div id="items-container" class="hidden">
-        <!-- Desktop table -->
-        <div class="hidden lg:block">
-          <div class="inventory-grid px-[18px] py-[11px] bg-hover border-b border-subtle text-[11.5px] font-semibold text-light tracking-wide">
-            <div>NAMA BARANG</div><div>KATEGORI</div><div>STOK</div><div>KADALUARSA</div><div>SISA HARI</div><div>STATUS</div><div class="text-right">AKSI</div>
+          <div id="state-empty" class="hidden py-10 sm:py-14 text-center px-6">
+            <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Tidak ada barang yang cocok</div>
+            <div class="text-sm text-soft">Coba ubah kata kunci atau atur ulang filter kategori dan status.</div>
+            <button id="reset-filter" class="btn btn-outline mt-5 mb-2 px-5 h-10 text-sm">Atur ulang filter</button>
           </div>
-          <div id="items-table-body"></div>
-        </div>
 
-        <!-- Mobile/tablet cards -->
-        <div id="items-cards" class="lg:hidden p-3 flex flex-col gap-3 pb-8"></div>
-      </div>
-    </section>
+          <div id="items-container" class="hidden">
+            <!-- Desktop table -->
+            <div class="hidden lg:block">
+              <div class="inventory-grid px-5 py-2.5 bg-hover border-b border-subtle text-[10.5px] font-bold text-muted tracking-widest uppercase">
+                <div>BARANG</div><div class="text-center">STOK</div><div>KADALUARSA</div><div>STATUS</div><div class="text-right">AKSI</div>
+              </div>
+              <div id="items-table-body"></div>
+            </div>
 
-    <!-- AI Insight Panel -->
-    <section class="card">
-      <div class="card-header flex flex-wrap gap-2 items-center justify-between">
-        <div>
-          <div class="badge badge-bundling mb-2">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
-            AI Insight Panel
+            <!-- Mobile/tablet cards -->
+            <div id="items-cards" class="lg:hidden p-3 flex flex-col gap-3 pb-8"></div>
           </div>
-          <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Rekomendasi Tindakan AI</div>
-          <p class="text-[13px] text-muted mt-1">Untuk barang berstatus Berisiko/Kritis. Ditenagai oleh Gemini API.</p>
-        </div>
+        </section>
       </div>
 
-      <div id="ai-loading" class="hidden text-center py-16 text-light text-sm">Memuat rekomendasi...</div>
-      <div id="ai-error" class="hidden text-center py-10 text-danger text-sm px-6"></div>
-      <div id="ai-empty" class="hidden py-10 sm:py-14 text-center px-6">
-        <div class="font-heading text-[16px] font-semibold mb-1.5 text-primary">Belum ada rekomendasi</div>
-        <div class="text-sm text-soft">Klik "Minta Saran AI" pada barang berisiko atau kritis di daftar barang.</div>
+      <!-- Kolom Kanan / Side Copilot: AI Insight Panel -->
+      <div class="lg:col-span-5 xl:col-span-4 order-1 lg:order-2 lg:sticky lg:top-[76px] min-w-0">
+        <section class="card border-2 border-purple-200/80 shadow-xs">
+          <div class="card-header flex flex-wrap gap-2 items-center justify-between bg-purple-50/40">
+            <div>
+              <div class="badge badge-bundling mb-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" /><circle cx="12" cy="12" r="3.4" /></svg>
+                AI Insight
+              </div>
+              <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Rekomendasi Tindakan AI</div>
+              <p class="text-[12.5px] text-muted mt-0.5">Saran tindakan cepat untuk barang berisiko & kritis.</p>
+            </div>
+          </div>
+
+          <div id="ai-loading" class="hidden text-center py-16 text-light text-sm">Memuat rekomendasi...</div>
+          <div id="ai-error" class="hidden text-center py-10 text-danger text-sm px-6"></div>
+          <div id="ai-empty" class="hidden py-10 sm:py-12 text-center px-6">
+            <div class="font-heading text-[15.5px] font-semibold mb-1 text-primary">Belum ada rekomendasi aktif</div>
+            <div class="text-xs text-soft leading-relaxed">Klik tombol <span class="text-purple-700 font-semibold">"Minta Saran AI"</span> pada barang berisiko/kritis di daftar barang.</div>
+          </div>
+          <div id="ai-container" class="hidden">
+            <div id="ai-list" class="p-3 flex flex-col gap-2.5 max-h-[calc(100vh-220px)] overflow-y-auto"></div>
+          </div>
+        </section>
       </div>
-      <div id="ai-container" class="hidden">
-        <div id="ai-list" class="p-3 flex flex-col gap-2.5"></div>
-      </div>
-    </section>
+
+    </div>
 
   </main>
 
@@ -259,24 +283,34 @@
   </template>
 
   <template id="tmpl-table-row">
-    <div class="inventory-grid px-[18px] py-3.5 border-b border-subtle hover:bg-hover transition">
-      <div class="flex items-center gap-[11px] min-w-0">
-        <span class="js-dot dot shrink-0"></span>
+    <div class="js-row-container inventory-grid px-5 py-3 border-b border-subtle hover:bg-hover/60 transition-colors items-center">
+      <span class="js-dot dot shrink-0 hidden"></span>
+
+      <!-- 1. BARANG -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="js-status-dot w-2 h-2 rounded-full shrink-0"></span>
         <div class="min-w-0">
-          <div class="js-nama text-sm font-medium truncate text-primary"></div>
+          <div class="js-nama text-[13.5px] font-semibold truncate text-primary"></div>
+          <div class="js-kategori text-[11px] text-muted truncate mt-px"></div>
         </div>
       </div>
-      <div class="js-kategori text-[13px] text-muted"></div>
-      <div class="js-stok text-[13.5px] font-medium font-heading text-primary"></div>
-      <div class="js-kadaluarsa text-[13px] text-muted"></div>
-      <div>
-        <div class="js-sisa-text text-[13px] font-medium mb-1"></div>
-        <div class="h-1 rounded-full bg-subtle overflow-hidden">
-          <div class="js-progress-bar progress-bar"></div>
-        </div>
+
+      <!-- 2. STOK -->
+      <div class="text-center whitespace-nowrap">
+        <span class="js-stok text-[14px] font-bold text-primary font-heading"></span>
       </div>
-      <div><span class="js-status-badge badge"></span></div>
-      <div class="js-actions flex justify-end gap-1.5" data-actions></div>
+
+      <!-- 3. KADALUARSA -->
+      <div class="flex flex-col min-w-0">
+        <div class="js-sisa-text text-[13px] font-semibold text-secondary whitespace-nowrap"></div>
+        <div class="js-kadaluarsa text-[11px] text-muted mt-px whitespace-nowrap"></div>
+      </div>
+
+      <!-- 4. STATUS -->
+      <div><span class="js-status-badge badge text-[11px]"></span></div>
+
+      <!-- 5. AKSI -->
+      <div class="js-actions flex items-center justify-end gap-1" data-actions></div>
     </div>
   </template>
 

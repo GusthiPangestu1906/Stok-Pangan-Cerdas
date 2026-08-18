@@ -1,8 +1,5 @@
-// Deteksi mode demo: Aktif jika di localhost dan belum ada token
-const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const SHOULD_USE_DEMO = IS_LOCAL && !getToken();
-
-if (!SHOULD_USE_DEMO && !getToken()) {
+// Pastikan user sudah login
+if (!getToken()) {
   window.location.href = 'login.html';
 }
 
@@ -110,6 +107,53 @@ function renderSummary(filteredItems) {
   el.summaryBerisiko.textContent = allItems.filter((item) => item.status === 'berisiko').length;
   el.summaryKritis.textContent = allItems.filter((item) => item.status === 'kritis').length;
   el.jumlahTampil.textContent = `· ${filteredItems.length}`;
+
+  // Highlight KPI card yang sedang aktif memfilter tabel (hanya di desktop/tablet)
+  const isDesktop = window.innerWidth >= 640;
+  const kpiCards = document.querySelectorAll('[data-filter]');
+  kpiCards.forEach((card) => {
+    const filter = card.dataset.filter;
+    const isActive = (filter === 'Semua' && activeStatus === 'Semua') || filter === activeStatus;
+
+    if (!isDesktop) {
+      // Hapus ring highlight pada mobile
+      card.classList.remove('ring-2', 'ring-offset-2', 'ring-emerald-500', 'ring-amber-500', 'ring-rose-500', 'ring-slate-700');
+      return;
+    }
+
+    card.classList.toggle('ring-2', isActive && filter !== 'Semua');
+    card.classList.toggle('ring-offset-2', isActive && filter !== 'Semua');
+
+    if (filter === 'aman') {
+      card.classList.toggle('ring-emerald-500', isActive);
+    } else if (filter === 'berisiko') {
+      card.classList.toggle('ring-amber-500', isActive);
+    } else if (filter === 'kritis') {
+      card.classList.toggle('ring-rose-500', isActive);
+    } else if (filter === 'Semua') {
+      card.classList.toggle('ring-2', isActive && activeStatus === 'Semua');
+      card.classList.toggle('ring-slate-700', isActive && activeStatus === 'Semua');
+      card.classList.toggle('ring-offset-2', isActive && activeStatus === 'Semua');
+    }
+  });
+}
+
+function setupKpiFilterEvents() {
+  document.querySelectorAll('[data-filter]').forEach((card) => {
+    card.addEventListener('click', () => {
+      // Abaikan klik KPI card pada layar mobile (< 640px)
+      if (window.innerWidth < 640) return;
+
+      const filter = card.dataset.filter;
+      if (filter === 'Semua') {
+        activeStatus = 'Semua';
+      } else {
+        activeStatus = activeStatus === filter ? 'Semua' : filter;
+      }
+      renderFilters();
+      applyFilters();
+    });
+  });
 }
 
 function hasRekomendasiAktif(itemId) {
@@ -134,12 +178,12 @@ function renderActionButtons(item, isMobile = false) {
       btnAi.disabled = true;
       btnAi.className = isMobile
         ? 'btn btn-outline border-subtle text-light text-xs h-8 px-3 rounded-lg cursor-not-allowed flex items-center gap-1.5 font-medium'
-        : 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed';
+        : 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed w-7 h-7 shrink-0';
       btnAi.title = 'Sudah ada rekomendasi aktif untuk barang ini';
     } else {
       btnAi.className = isMobile
         ? 'btn bg-purple-50 text-purple-700 border border-purple-200/80 hover:bg-purple-100 cursor-pointer text-xs h-8 px-3 rounded-lg flex items-center gap-1.5 font-semibold'
-        : 'btn btn-outline btn-icon border-ai-subtle text-ai hover:bg-ai cursor-pointer';
+        : 'btn btn-outline btn-icon border-purple-200 text-purple-700 hover:bg-purple-50 cursor-pointer transition-colors w-7 h-7 shrink-0';
       btnAi.title = 'Minta Saran AI';
     }
     if (isMobile) {
@@ -147,6 +191,8 @@ function renderActionButtons(item, isMobile = false) {
       labelSpan.textContent = 'Minta Saran AI';
       btnAi.appendChild(labelSpan);
     }
+  } else {
+    btnAi.classList.add('hidden');
   }
 
   btnEdit.dataset.id = item.id;
@@ -163,6 +209,9 @@ function renderActionButtons(item, isMobile = false) {
     btnEdit.parentNode.insertBefore(rightActions, btnEdit);
     rightActions.appendChild(btnEdit);
     rightActions.appendChild(btnHapus);
+  } else {
+    btnEdit.className = 'btn btn-outline btn-icon w-7 h-7 shrink-0';
+    btnHapus.className = 'btn btn-outline btn-icon hover:!border-danger hover:!text-danger w-7 h-7 shrink-0';
   }
 
   return clone;
@@ -173,16 +222,32 @@ function renderTableRow(item) {
   const template = document.getElementById('tmpl-table-row');
   const clone = template.content.cloneNode(true);
 
-  clone.querySelector('.js-dot').classList.add(`dot-${item.status}`);
+  const dotEl = clone.querySelector('.js-dot');
+  if (dotEl) dotEl.classList.add(`dot-${item.status}`);
+
+  // Status dot color indicator next to name
+  const statusDot = clone.querySelector('.js-status-dot');
+  if (statusDot) {
+    const dotColors = { aman: '#22c55e', berisiko: '#f59e0b', kritis: '#e11d48' };
+    statusDot.style.backgroundColor = dotColors[item.status] || '#8a9a8f';
+  }
+
   clone.querySelector('.js-nama').textContent = item.nama;
   clone.querySelector('.js-kategori').textContent = item.kategori;
   clone.querySelector('.js-stok').textContent = item.jumlah_stok;
   clone.querySelector('.js-kadaluarsa').textContent = formatTanggal(item.tanggal_kadaluarsa);
   clone.querySelector('.js-sisa-text').textContent = sisaHariText(item.sisa_hari);
 
+  // Color the sisa text based on status
+  const sisaText = clone.querySelector('.js-sisa-text');
+  const sisaColors = { aman: '#166534', berisiko: '#92400e', kritis: '#9f1239' };
+  sisaText.style.color = sisaColors[item.status] || '';
+
   const progressBar = clone.querySelector('.js-progress-bar');
-  progressBar.style.width = `${pct}%`;
-  progressBar.classList.add(`progress-${item.status}`);
+  if (progressBar) {
+    progressBar.style.width = `${pct}%`;
+    progressBar.classList.add(`progress-${item.status}`);
+  }
 
   const badge = clone.querySelector('.js-status-badge');
   badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
@@ -629,38 +694,19 @@ el.btnLogout.addEventListener('click', async () => {
 async function init() {
   renderTanggalHariIni();
 
-  if (SHOULD_USE_DEMO) {
-    console.warn("Dashboard berjalan dalam MODE DEMO (Offline).");
-    el.userName.textContent = "Admin Demo (Offline)";
-
-    const today = new Date();
-    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-    const fourDaysLater = new Date(today); fourDaysLater.setDate(today.getDate() + 4);
-
-    allItems = [
-      { id: 1, nama: 'Tomat Segar', kategori: 'Sayur', jumlah_stok: 45, tanggal_masuk: today.toISOString(), tanggal_kadaluarsa: tomorrow.toISOString(), estimasi_umur_simpan_hari: 5, sisa_hari: 1, status: 'kritis' },
-      { id: 2, nama: 'Apel Fuji', kategori: 'Buah', jumlah_stok: 20, tanggal_masuk: today.toISOString(), tanggal_kadaluarsa: fourDaysLater.toISOString(), estimasi_umur_simpan_hari: 10, sisa_hari: 4, status: 'berisiko' },
-      { id: 3, nama: 'Susu UHT', kategori: 'Olahan Susu', jumlah_stok: 12, tanggal_masuk: today.toISOString(), tanggal_kadaluarsa: today.toISOString(), estimasi_umur_simpan_hari: 30, sisa_hari: 15, status: 'aman' }
-    ];
-
-    allRekomendasi = [
-      { id: 1, item_id: 1, item: allItems[0], jenis_saran: 'Diskon', isi_saran: 'Berikan diskon 50% untuk Tomat Segar karena akan kadaluarsa dalam 1 hari.', diterapkan: false }
-    ];
-  } else {
-    // Mode Production: Ambil data asli
-    el.loading.classList.remove('hidden');
-    try {
-      const [me, items, rekomendasi] = await Promise.all([fetchMe(), fetchItems(), fetchRekomendasi()]);
-      el.userName.textContent = me.name;
-      allItems = items;
-      allRekomendasi = rekomendasi;
-    } catch (err) {
-      el.error.textContent = err.message || 'Gagal memuat data dari server.';
-      el.error.classList.remove('hidden');
-      return;
-    }
+  el.loading.classList.remove('hidden');
+  try {
+    const [me, items, rekomendasi] = await Promise.all([fetchMe(), fetchItems(), fetchRekomendasi()]);
+    el.userName.textContent = me.name;
+    allItems = items;
+    allRekomendasi = rekomendasi;
+  } catch (err) {
+    el.error.textContent = err.message || 'Gagal memuat data dari server.';
+    el.error.classList.remove('hidden');
+    return;
   }
 
+  setupKpiFilterEvents();
   renderFilters();
   applyFilters();
   renderRekomendasi();
