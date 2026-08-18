@@ -69,7 +69,7 @@
       <p class="section-desc">Catatan tindakan yang sudah diterapkan dari rekomendasi AI Insight.</p>
     </div>
 
-    <!-- Statistik -->
+    <!-- Statistik KPI -->
     <section aria-label="Statistik" class="stats-grid">
       <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
         <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Total Tindakan</p>
@@ -86,23 +86,90 @@
         <p id="stat-buang-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
       </div>
       <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
-        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Tingkat Penyelamatan</p>
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Efektivitas Tindakan AI</p>
         <p id="stat-persen" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
+        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Rasio kasus berhasil</p>
       </div>
     </section>
 
-    <!-- Rincian per jenis tindakan -->
-    <div id="per-jenis-wrap" class="hidden">
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[11px] font-semibold text-caption tracking-wider uppercase">Rincian Jenis Tindakan</span>
-        <div id="per-jenis-chips" class="chips-scroll scrollbar-none"></div>
-      </div>
-    </div>
+    <!-- Visualisasi Grafik Interaktif -->
+    <section id="charts-section" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <!-- Grafik 1: Proporsi Penyelamatan vs Pembuangan Pangan -->
+      <div class="lg:col-span-5 card p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+        <div>
+          <div class="flex items-start sm:items-center justify-between gap-2">
+            <h2 class="font-heading text-[14.5px] sm:text-[15.5px] font-semibold text-primary leading-tight">Penyelamatan Volume Stok</h2>
+            <span class="badge badge-aman text-[10.5px] sm:text-[11px] shrink-0 whitespace-nowrap px-2.5 py-0.5">Volume Pangan</span>
+          </div>
+          <p class="text-[11.5px] sm:text-[12px] text-muted mt-1 leading-snug">Proporsi unit fisik pangan terselamatkan vs terbuang.</p>
+        </div>
 
-    <!-- Daftar Riwayat -->
-    <section class="card">
-      <div class="card-header">
-        <div class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Catatan Tindakan</div>
+        <div class="relative flex items-center justify-center my-2 sm:my-3 h-[180px] sm:h-[210px] w-full">
+          <canvas id="chart-penyelamatan" class="w-full h-full"></canvas>
+          <div id="chart-penyelamatan-center" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span id="chart-penyelamatan-pct" class="font-heading text-[24px] sm:text-[26px] font-bold text-primary leading-none">0%</span>
+            <span class="text-[9.5px] sm:text-[10px] text-soft uppercase tracking-wider font-semibold mt-1">Volume Selamat</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-subtle text-xs">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-muted">Diselamatkan: <strong id="legend-selamat" class="text-primary font-semibold">0 unit</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+            <span class="text-muted">Terbuang: <strong id="legend-buang" class="text-primary font-semibold">0 unit</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grafik 2: Tren Penyelamatan Pangan (Line Chart) -->
+      <div class="lg:col-span-7 card p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+        <div>
+          <div class="flex items-start sm:items-center justify-between gap-2">
+            <h2 class="font-heading text-[14.5px] sm:text-[15.5px] font-semibold text-primary leading-tight">Tren Penyelamatan Pangan</h2>
+            <span class="badge badge-aman text-[10.5px] sm:text-[11px] shrink-0 whitespace-nowrap px-2.5 py-0.5">Tren Waktu</span>
+          </div>
+          <p class="text-[11.5px] sm:text-[12px] text-muted mt-1 leading-snug">Pertumbuhan unit pangan yang berhasil diselamatkan dari waktu ke waktu.</p>
+        </div>
+
+        <div class="my-3 h-[190px] sm:h-[210px] w-full flex items-center justify-center">
+          <canvas id="chart-tren" class="w-full h-full"></canvas>
+        </div>
+
+        <div id="chart-strategi-summary" class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-subtle text-xs text-soft">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-muted">Unit pangan terselamatkan per tanggal</span>
+          </div>
+          <div id="per-jenis-chips" class="inline-flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Daftar Riwayat / Catatan Eksekusi Tindakan -->
+    <section class="card shadow-xs">
+      <div class="card-header flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-surface">
+        <div>
+          <div class="font-heading text-[16px] sm:text-[17px] font-semibold tracking-tight text-primary">Catatan Eksekusi Tindakan</div>
+          <p class="text-[12px] sm:text-[12.5px] text-muted mt-0.5">Log audit tindakan yang telah diterapkan.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <!-- Search input -->
+          <div class="relative w-full sm:w-52">
+            <input id="riwayat-search" type="text" placeholder="Cari nama barang..." class="input-field h-9 text-xs pl-8 pr-3 w-full" />
+            <svg class="absolute left-2.5 top-2.5 text-soft" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+
+          <!-- Filter Dampak Tabs -->
+          <div id="riwayat-filter-tabs" class="riwayat-filter-tabs">
+            <button type="button" data-dampak="semua" class="riwayat-filter-btn active">Semua</button>
+            <button type="button" data-dampak="selamat" class="riwayat-filter-btn">Selamat</button>
+            <button type="button" data-dampak="buang" class="riwayat-filter-btn">Terbuang</button>
+          </div>
+        </div>
       </div>
 
       <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat riwayat...</div>
@@ -116,13 +183,13 @@
         <!-- Desktop table -->
         <div class="hidden lg:block">
           <div class="riwayat-grid px-[18px] py-[11px] bg-hover border-b border-subtle text-[11.5px] font-semibold text-light tracking-wide">
-            <div>TANGGAL</div><div>BARANG</div><div>TINDAKAN</div><div>STOK</div><div>KETERANGAN</div>
+            <div>WAKTU EKSEKUSI</div><div>BARANG</div><div>TINDAKAN</div><div>STOK DITINDAK</div>
           </div>
           <div id="riwayat-table-body"></div>
         </div>
 
         <!-- Mobile/tablet cards -->
-        <div id="riwayat-cards" class="lg:hidden p-3 flex flex-col gap-3 pb-8"></div>
+        <div id="riwayat-cards" class="lg:hidden p-3 flex flex-col gap-2.5 pb-8"></div>
       </div>
     </section>
 
@@ -132,25 +199,36 @@
   <template id="tmpl-riwayat-row">
     <div class="riwayat-grid px-[18px] py-3.5 border-b border-subtle hover:bg-hover transition">
       <div class="js-tanggal text-[13px] text-muted"></div>
-      <div class="js-nama text-sm font-medium text-primary truncate"></div>
-      <div><span class="js-jenis-badge"></span></div>
-      <div class="js-stok text-[13.5px] font-medium font-heading text-primary"></div>
-      <div class="js-keterangan text-[13px] text-soft truncate"></div>
+      <div class="min-w-0">
+        <div class="js-nama text-sm font-medium text-primary truncate"></div>
+        <div class="js-kategori text-[11.5px] text-soft"></div>
+      </div>
+      <div><span class="js-jenis-badge whitespace-nowrap"></span></div>
+      <div class="js-stok text-[13.5px] font-semibold font-heading text-primary"></div>
     </div>
   </template>
 
   <template id="tmpl-riwayat-card">
-    <article class="card p-4">
+    <article class="card p-3.5 sm:p-4 flex flex-col gap-2.5 shadow-xs border border-subtle">
+      <!-- Baris 1: Nama Barang & Badge Tindakan Tunggal -->
       <div class="flex items-start justify-between gap-2.5">
         <div class="min-w-0">
-          <div class="js-nama text-[15px] font-semibold tracking-tight text-primary"></div>
-          <div class="js-tanggal text-[12.5px] text-light mt-1"></div>
+          <h3 class="js-nama font-heading text-[15px] font-bold text-primary truncate leading-snug"></h3>
+          <p class="js-kategori text-[12px] text-muted mt-0.5"></p>
         </div>
-        <span class="js-jenis-badge"></span>
+        <span class="js-jenis-badge shrink-0 whitespace-nowrap text-[11.5px] px-2.5 py-0.5"></span>
       </div>
-      <p class="js-keterangan text-[13px] text-muted leading-relaxed mt-3"></p>
-      <div class="js-stok-wrap text-[12.5px] text-light mt-3 pt-3 border-t border-subtle">
-        Stok saat ini: <span class="js-stok font-medium text-secondary"></span>
+
+      <!-- Baris 2: Waktu Eksekusi & Jumlah Stok Ditindak -->
+      <div class="flex items-center justify-between pt-2 border-t border-subtle text-xs">
+        <div class="flex items-center gap-1.5 text-muted">
+          <svg class="shrink-0 text-soft" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="js-tanggal text-[12px]"></span>
+        </div>
+        <div class="text-right">
+          <span class="text-muted text-[11.5px]">Stok: </span>
+          <strong class="js-stok font-heading text-[13px] font-bold text-primary"></strong>
+        </div>
       </div>
     </article>
   </template>

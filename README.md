@@ -529,7 +529,7 @@ terlewat.
   Laravel adalah langkah lanjutan yang wajar untuk project ini.
 - **Satu peran pengguna saja.** Aplikasi dirancang untuk satu admin
   koperasi. Belum ada pembedaan hak akses (misalnya admin vs staf gudang),
-  karena kebutuhan itu tidak ada dalam lingkup kompetisi ini.
+  kategori.
 - **Estimasi umur simpan diisi manual.** Angka umur simpan tiap barang
   dimasukkan admin, bukan diprediksi sistem. Ini keputusan yang disengaja:
   batasan lomba melarang penggunaan machine learning custom, dan admin
