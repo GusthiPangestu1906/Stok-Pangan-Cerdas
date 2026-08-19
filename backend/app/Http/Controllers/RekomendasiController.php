@@ -6,6 +6,7 @@ use App\Models\Item;
 use App\Models\Rekomendasi;
 use App\Services\GeminiInsightService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use RuntimeException;
 
 class RekomendasiController extends Controller
@@ -37,6 +38,26 @@ class RekomendasiController extends Controller
             ], 422);
         }
 
+        // Cache sederhana: kalau item ini sudah punya rekomendasi yang dibuat
+        // HARI INI dan item belum diedit sejak rekomendasi itu dibuat, sisa
+        // hari & status barang pasti masih sama seperti saat rekomendasi
+        // dibuat — jadi rekomendasi lama masih relevan dan panggilan ke
+        // Gemini bisa dihindari sama sekali (menghemat kuota harian).
+        $rekomendasiCache = Rekomendasi::query()
+            ->where('item_id', $item->id)
+            ->whereDate('created_at', Carbon::today())
+            ->where('created_at', '>=', $item->updated_at)
+            ->latest()
+            ->first();
+
+        if ($rekomendasiCache) {
+            $rekomendasiCache->setAttribute('dari_cache', true);
+
+            return response()->json([
+                'data' => $rekomendasiCache->load('item'),
+            ], 200);
+        }
+
         try {
             $hasil = $gemini->buatRekomendasi($item);
         } catch (RuntimeException $e) {
@@ -52,6 +73,8 @@ class RekomendasiController extends Controller
             'status_item_saat_dibuat' => $item->status,
             'jumlah_stok_saat_dibuat' => $item->jumlah_stok,
         ]);
+
+        $rekomendasi->setAttribute('dari_cache', false);
 
         return response()->json([
             'data' => $rekomendasi->load('item'),
