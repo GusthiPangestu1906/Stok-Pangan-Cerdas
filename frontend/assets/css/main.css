@@ -573,7 +573,11 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
   header, nav, main, footer, #modal-form, #modal-hapus, #toast, #modal-label-diskon, #modal-voucher, #modal-scan-voucher {
     display: none !important;
   }
-  #printable-labels-area {
+  #printable-labels-area:empty,
+  #printable-vouchers-area:empty {
+    display: none !important;
+  }
+  #printable-labels-area:not(:empty) {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12mm 8mm !important;
@@ -592,7 +596,7 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  #printable-vouchers-area {
+  #printable-vouchers-area:not(:empty) {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10mm 8mm !important;

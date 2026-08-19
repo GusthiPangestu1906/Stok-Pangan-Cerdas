@@ -893,6 +893,11 @@ function extractDiscountPct(saranText) {
 }
 
 function openLabelModal(item, rekomendasi = null) {
+  if (el.modalScanVoucher) closeScanVoucherModal();
+  if (el.modalVoucher) closeVoucherModal();
+  if (el.modalForm) closeFormModal();
+  if (el.modalHapus) closeDeleteModal();
+
   if (!item || item.sisa_hari < 0) {
     showToast('Barang yang sudah kadaluarsa tidak dapat dibuatkan label rak.');
     return;
@@ -958,6 +963,7 @@ function updateLabelPreview() {
 
 function printShelfLabels() {
   if (!el.shelfTagPreview || !el.printableLabelsArea) return;
+  if (el.printableVouchersArea) el.printableVouchersArea.innerHTML = '';
   const qty = currentLabelData.qty;
 
   const previewHTML = el.shelfTagPreview.outerHTML;
@@ -1295,6 +1301,7 @@ function saveAndPrintVouchers() {
   showToast(`Voucher ${currentVoucherData.kode} berhasil disimpan ke sistem kasir.`);
 
   if (!el.voucherTicketPreview || !el.printableVouchersArea) return;
+  if (el.printableLabelsArea) el.printableLabelsArea.innerHTML = '';
   const qty = currentVoucherData.qty;
   const previewHTML = el.voucherTicketPreview.outerHTML;
 
@@ -1312,6 +1319,11 @@ function saveAndPrintVouchers() {
 // ---------- Simulator Scanner & Validasi Kasir ----------
 
 function openScanVoucherModal() {
+  if (el.modalLabelDiskon) closeLabelModal();
+  if (el.modalVoucher) closeVoucherModal();
+  if (el.modalForm) closeFormModal();
+  if (el.modalHapus) closeDeleteModal();
+
   if (el.modalScanVoucher) el.modalScanVoucher.classList.remove('hidden');
   renderQuickVouchers();
   if (el.scanInputKode) {
@@ -1320,11 +1332,11 @@ function openScanVoucherModal() {
   }
   if (el.scanResultContainer) {
     el.scanResultContainer.innerHTML = `
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9aa89e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1.5 opacity-60">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa89e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1 opacity-60">
         <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
         <path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" />
       </svg>
-      <span class="text-muted font-medium text-[11.5px]">Masukkan kode barcode voucher di atas dan klik "Validasi"</span>
+      <span class="text-muted font-medium text-[11px]">Ketik atau pilih kode barcode di atas, lalu klik "Validasi"</span>
     `;
   }
 }
