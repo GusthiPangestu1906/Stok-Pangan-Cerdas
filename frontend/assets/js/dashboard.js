@@ -1436,28 +1436,44 @@ function doValidateVoucher() {
   const totalAkhir = Math.max(0, totalBelanja - potongan);
 
   el.scanResultContainer.innerHTML = `
-    <div class="w-full p-3.5 bg-emerald-50 border-2 border-emerald-500 rounded-xl text-left text-emerald-950 flex flex-col gap-2">
-      <div class="flex items-start justify-between">
-        <div>
-          <span class="inline-block bg-emerald-700 text-white text-[9.5px] font-bold uppercase px-2 py-0.5 rounded-full">KUPON VALID & TERDAFTAR</span>
-          <h4 class="font-heading font-bold text-sm text-emerald-950 mt-1">${esc(voucher.judul)}</h4>
-        </div>
-        <div class="font-heading font-extrabold text-emerald-700 text-lg">-${formatRupiah(potongan)}</div>
+    <div class="w-full p-3.5 bg-emerald-50/90 border-2 border-emerald-500 rounded-xl text-left text-emerald-950 flex flex-col gap-2.5 box-border">
+      <!-- Header Status & Badge Diskon -->
+      <div class="flex items-center justify-between gap-2">
+        <span class="inline-flex items-center gap-1 bg-emerald-800 text-white text-[9.5px] font-bold uppercase px-2 py-0.5 rounded-full">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Kupon Valid & Aktif</span>
+        </span>
+        <span class="text-[11px] font-bold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md border border-emerald-300/70">
+          Diskon ${voucher.tipe === 'persen' ? voucher.nilai + '%' : formatRupiah(voucher.nilai)}
+        </span>
       </div>
 
-      <div class="bg-white/80 rounded-lg p-2 border border-emerald-200/80 text-[11px] flex flex-col gap-1">
-        <div class="flex justify-between">
-          <span class="text-gray-500">Total Belanja Awal:</span>
-          <span class="font-medium line-through text-gray-400">${formatRupiah(totalBelanja)}</span>
+      <!-- Nama Kupon / Promo Lengkap -->
+      <div>
+        <h4 class="font-heading font-bold text-[13px] sm:text-sm text-gray-900 leading-snug break-words">${esc(voucher.judul)}</h4>
+        <p class="text-[10.5px] text-gray-500 mt-0.5">Target: ${esc(voucher.target)} · Sisa kuota: <strong>${voucher.kuota - voucher.terpakai}</strong></p>
+      </div>
+
+      <!-- Rincian Biaya Kasir -->
+      <div class="bg-white rounded-lg p-2.5 border border-emerald-200 text-xs flex flex-col gap-1.5 shadow-2xs">
+        <div class="flex justify-between items-center text-gray-500 text-[11.5px]">
+          <span>Total Belanja Awal:</span>
+          <span class="font-medium">${formatRupiah(totalBelanja)}</span>
         </div>
-        <div class="flex justify-between font-bold text-xs pt-1 border-t border-emerald-100">
-          <span class="text-emerald-900">Total Tagihan Kasir:</span>
-          <span class="text-emerald-700 text-sm">${formatRupiah(totalAkhir)}</span>
+        <div class="flex justify-between items-center text-emerald-700 text-[11.5px]">
+          <span>Potongan Kupon:</span>
+          <span class="font-bold">-${formatRupiah(potongan)}</span>
+        </div>
+        <div class="flex justify-between items-center font-bold pt-1.5 border-t border-gray-100 text-gray-900">
+          <span class="text-xs text-emerald-950">Total Tagihan Kasir:</span>
+          <span class="font-heading text-sm sm:text-base text-emerald-800">${formatRupiah(totalAkhir)}</span>
         </div>
       </div>
 
-      <button type="button" id="btn-redeem-voucher" class="btn btn-primary h-8 px-3 text-xs font-semibold w-full mt-0.5 cursor-pointer">
-        ✅ Klaim & Tandai Kupon Digunakan (Kasir)
+      <!-- Tombol Eksekusi -->
+      <button type="button" id="btn-redeem-voucher" class="btn btn-primary h-9 px-3 text-xs font-semibold w-full mt-0.5 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Terapkan Kupon Kasir</span>
       </button>
     </div>
   `;
