@@ -607,11 +607,12 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
   .voucher-print-item {
     page-break-inside: avoid;
     break-inside: avoid;
-    border: 2px dashed #10b981 !important;
+    border: 2px dashed #059669 !important;
     border-radius: 12px !important;
     overflow: hidden !important;
     background: #ffffff !important;
     color: #000000 !important;
+    padding: 2mm !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

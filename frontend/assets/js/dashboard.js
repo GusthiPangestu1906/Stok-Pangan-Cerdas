@@ -572,7 +572,10 @@ el.formItem.addEventListener('submit', async (e) => {
 
 function openDeleteModal(item) {
   deletingItemId = item.id;
-  el.modalHapusText.textContent = `"${item.nama}" akan dihapus permanen dari daftar stok.`;
+  const isKadaluarsa = item.sisa_hari < 0;
+  el.modalHapusText.textContent = isKadaluarsa
+    ? `"${item.nama}" (${item.jumlah_stok} unit) telah lewat masa kadaluarsa dan akan dicatat ke Riwayat sebagai barang terbuang/pemusnahan.`
+    : `"${item.nama}" (${item.jumlah_stok} unit) akan dihapus dari stok aktif dan dicatat ke Riwayat sebagai barang terbuang.`;
   el.modalHapus.classList.remove('hidden');
 }
 
@@ -591,7 +594,7 @@ el.modalHapusConfirm.addEventListener('click', async () => {
   el.modalHapusConfirm.disabled = true;
   try {
     await deleteItem(deletingItemId);
-    showToast('Barang berhasil dihapus.');
+    showToast('Barang berhasil dihapus dan dicatat ke riwayat sebagai pangan terbuang.');
     closeDeleteModal();
     await loadRekomendasi();
     await loadItems();
@@ -625,6 +628,8 @@ el.cards.addEventListener('click', handleActionClick);
 
 function renderAiCard(rekomendasi) {
   const item = rekomendasi.item;
+  if (!item) return null;
+
   const template = document.getElementById('tmpl-ai-card');
   const clone = template.content.cloneNode(true);
 
@@ -649,36 +654,61 @@ function renderAiCard(rekomendasi) {
 
   const actions = clone.querySelector('.js-actions');
 
-  // Tombol Cetak Label Rak (Hanya untuk barang yang BELUM kadaluarsa & saran berupa promo/diskon)
   const isKadaluarsa = item.sisa_hari < 0;
-  const isTindakanBuang = ['dibuang', 'retur', 'pemusnahan'].includes((rekomendasi.jenis_saran || '').toLowerCase());
-
-  if (!isKadaluarsa && !isTindakanBuang) {
-    const btnLabel = document.createElement('button');
-    btnLabel.type = 'button';
-    btnLabel.dataset.cetakLabel = rekomendasi.id;
-    btnLabel.className = 'btn btn-outline h-9 px-2.5 text-[12px] inline-flex items-center gap-1 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition shrink-0';
-    btnLabel.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg> <span>Label Rak</span>`;
-    actions.appendChild(btnLabel);
-
-    const btnVoucher = document.createElement('button');
-    btnVoucher.type = 'button';
-    btnVoucher.dataset.buatVoucher = rekomendasi.id;
-    btnVoucher.className = 'btn btn-outline h-9 px-2.5 text-[12px] inline-flex items-center gap-1 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 transition shrink-0';
-    btnVoucher.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg> <span>Kupon</span>`;
-    actions.appendChild(btnVoucher);
-  }
+  const jenis = (rekomendasi.jenis_saran || '').toLowerCase();
+  const isTindakanBuang = ['dibuang', 'retur', 'pemusnahan'].includes(jenis) || isKadaluarsa;
 
   if (rekomendasi.diterapkan) {
     const span = document.createElement('span');
     span.className = 'inline-flex items-center gap-1.5 text-[13px] font-medium text-success ml-auto';
     span.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Diterapkan`;
     actions.appendChild(span);
+  } else if (isTindakanBuang) {
+    // 1. Kalau buang barang -> 1 tombol Buang Barang
+    const btnBuang = document.createElement('button');
+    btnBuang.type = 'button';
+    btnBuang.dataset.buangItem = item.id;
+    btnBuang.dataset.recId = rekomendasi.id;
+    btnBuang.className = 'btn btn-danger h-9 px-4 text-[12.5px] ml-auto inline-flex items-center gap-1.5 font-semibold';
+    btnBuang.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg> <span>Buang Barang</span>`;
+    actions.appendChild(btnBuang);
+  } else if (jenis === 'diskon') {
+    // 2. Kalau diskon -> 2 pilihan: Print Label atau Print Kupon
+    const btnLabel = document.createElement('button');
+    btnLabel.type = 'button';
+    btnLabel.dataset.cetakLabel = rekomendasi.id;
+    btnLabel.className = 'btn btn-outline h-9 px-3 text-[12px] inline-flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition font-medium';
+    btnLabel.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg> <span>Print Label</span>`;
+    actions.appendChild(btnLabel);
+
+    const btnVoucher = document.createElement('button');
+    btnVoucher.type = 'button';
+    btnVoucher.dataset.buatVoucher = rekomendasi.id;
+    btnVoucher.className = 'btn bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 h-9 px-3.5 text-[12px] inline-flex items-center gap-1.5 font-semibold transition ml-auto';
+    btnVoucher.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg> <span>Print Kupon</span>`;
+    actions.appendChild(btnVoucher);
+  } else if (jenis === 'bundling') {
+    // 3. Kalau bundling -> 1 tombol Print Label Bundling
+    const btnBundling = document.createElement('button');
+    btnBundling.type = 'button';
+    btnBundling.dataset.cetakBundling = rekomendasi.id;
+    btnBundling.className = 'btn bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 h-9 px-3.5 text-[12.5px] ml-auto inline-flex items-center gap-1.5 font-semibold transition';
+    btnBundling.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg> <span>Print Label Bundling</span>`;
+    actions.appendChild(btnBundling);
+  } else if (jenis === 'distribusi') {
+    // 4. Kalau distribusi -> 1 tombol Salurkan Pangan
+    const btnDistribusi = document.createElement('button');
+    btnDistribusi.type = 'button';
+    btnDistribusi.dataset.terapkan = rekomendasi.id;
+    btnDistribusi.className = 'btn btn-primary h-9 px-3.5 text-[12.5px] ml-auto font-semibold inline-flex items-center gap-1.5';
+    btnDistribusi.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> <span>Salurkan Pangan</span>`;
+    actions.appendChild(btnDistribusi);
   } else {
+    // Default
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.terapkan = rekomendasi.id;
-    btn.className = 'btn btn-primary h-9 px-3.5 text-[13px] ml-auto';
+    btn.className = 'btn btn-primary h-9 px-3.5 text-[13px] ml-auto font-semibold';
     btn.textContent = 'Tandai Diterapkan';
     actions.appendChild(btn);
   }
@@ -687,17 +717,21 @@ function renderAiCard(rekomendasi) {
 }
 
 function renderAiGroup(judul, daftarRekomendasi) {
-  if (daftarRekomendasi.length === 0) return null;
+  const validList = (daftarRekomendasi || []).filter((r) => r && r.item);
+  if (validList.length === 0) return null;
 
   const group = document.createElement('div');
   group.className = 'flex flex-col gap-2.5';
 
   const header = document.createElement('div');
   header.className = 'text-xs font-semibold text-caption tracking-wide px-1';
-  header.textContent = `${judul} · ${daftarRekomendasi.length}`;
+  header.textContent = `${judul} · ${validList.length}`;
   group.appendChild(header);
 
-  daftarRekomendasi.forEach((r) => group.appendChild(renderAiCard(r)));
+  validList.forEach((r) => {
+    const card = renderAiCard(r);
+    if (card) group.appendChild(card);
+  });
   return group;
 }
 
@@ -781,7 +815,8 @@ async function loadRekomendasi() {
   el.aiError.classList.add('hidden');
   el.aiLoading.classList.remove('hidden');
   try {
-    allRekomendasi = await fetchRekomendasi();
+    const data = await fetchRekomendasi();
+    allRekomendasi = (data || []).filter((r) => r && r.item);
     renderRekomendasi();
   } catch (err) {
     el.aiError.textContent = err.message || 'Gagal memuat rekomendasi AI.';
@@ -813,18 +848,29 @@ async function requestRekomendasi(item, button) {
 }
 
 el.aiList.addEventListener('click', async (e) => {
-  // 1. Handler Cetak Label Rak
+  // 1. Handler Cetak Label Rak (Diskon)
   const btnLabel = e.target.closest('[data-cetak-label]');
   if (btnLabel) {
     const id = Number(btnLabel.dataset.cetakLabel);
     const rec = allRekomendasi.find((r) => r.id === id);
     if (rec && rec.item) {
-      openLabelModal(rec.item, rec);
+      openLabelModal(rec.item, rec, false);
     }
     return;
   }
 
-  // 2. Handler Buat Kupon Barcode
+  // 2. Handler Cetak Label Paket Bundling
+  const btnBundling = e.target.closest('[data-cetak-bundling]');
+  if (btnBundling) {
+    const id = Number(btnBundling.dataset.cetakBundling);
+    const rec = allRekomendasi.find((r) => r.id === id);
+    if (rec && rec.item) {
+      openLabelModal(rec.item, rec, true);
+    }
+    return;
+  }
+
+  // 3. Handler Buat Kupon Barcode
   const btnVoucher = e.target.closest('[data-buat-voucher]');
   if (btnVoucher) {
     const id = Number(btnVoucher.dataset.buatVoucher);
@@ -835,7 +881,19 @@ el.aiList.addEventListener('click', async (e) => {
     return;
   }
 
-  // 3. Handler Tandai Diterapkan
+  // 4. Handler Tombol Buang Barang (dari saran AI)
+  const btnBuang = e.target.closest('[data-buang-item]');
+  if (btnBuang) {
+    const itemId = Number(btnBuang.dataset.buangItem);
+    const recId = Number(btnBuang.dataset.recId);
+    const item = allItems.find((i) => i.id === itemId);
+    if (item) {
+      openDeleteModal(item);
+    }
+    return;
+  }
+
+  // 5. Handler Tandai / Terapkan Aksi
   const button = e.target.closest('[data-terapkan]');
   if (!button) return;
 
@@ -892,7 +950,7 @@ function extractDiscountPct(saranText) {
   return 50;
 }
 
-function openLabelModal(item, rekomendasi = null) {
+function openLabelModal(item, rekomendasi = null, isBundling = false) {
   if (el.modalScanVoucher) closeScanVoucherModal();
   if (el.modalVoucher) closeVoucherModal();
   if (el.modalForm) closeFormModal();
@@ -903,19 +961,21 @@ function openLabelModal(item, rekomendasi = null) {
     return;
   }
 
+  const isBundlingMode = Boolean(isBundling || (rekomendasi && (rekomendasi.jenis_saran || '').toLowerCase() === 'bundling'));
   const katKey = (item.kategori || '').toLowerCase().trim();
   const defaultHarga = DEFAULT_PRICES[katKey] || 20000;
-  const pct = rekomendasi ? extractDiscountPct(rekomendasi.isi_saran) : 50;
+  const pct = rekomendasi ? extractDiscountPct(rekomendasi.isi_saran) : (isBundlingMode ? 30 : 50);
 
   currentLabelData = {
     nama: item.nama,
-    kategori: item.kategori,
+    kategori: isBundlingMode ? `${item.kategori} · Paket Bundling` : item.kategori,
     kadaluarsa: item.tanggal_kadaluarsa ? formatTanggal(item.tanggal_kadaluarsa) : 'Hari Ini',
     sisaHari: item.sisa_hari,
     hargaAsli: defaultHarga,
     diskonPct: pct,
-    tagline: 'FOOD RESCUE DEAL',
+    tagline: isBundlingMode ? 'PROMO PAKET BUNDLING' : 'FOOD RESCUE DEAL',
     qty: 4,
+    rekomendasiId: rekomendasi ? rekomendasi.id : null,
   };
 
   if (el.labelInputNama) el.labelInputNama.value = currentLabelData.nama;
@@ -974,6 +1034,14 @@ function printShelfLabels() {
     itemDiv.className = 'shelf-tag-print-item';
     itemDiv.innerHTML = previewHTML;
     el.printableLabelsArea.appendChild(itemDiv);
+  }
+
+  if (currentLabelData.rekomendasiId) {
+    terapkanRekomendasi(currentLabelData.rekomendasiId).then((updated) => {
+      allRekomendasi = allRekomendasi.map((r) => (r.id === updated.id ? updated : r));
+      renderRekomendasi();
+      applyFilters();
+    }).catch(() => {});
   }
 
   window.print();
@@ -1207,7 +1275,8 @@ function openVoucherModal(item = null, rekomendasi = null, fromScanner = false) 
     kadaluarsa: expDate,
     kuota: 10,
     qty: 4,
-    kode: kode
+    kode: kode,
+    rekomendasiId: rekomendasi ? rekomendasi.id : null,
   };
 
   if (el.voucherInputJudul) el.voucherInputJudul.value = currentVoucherData.judul;
@@ -1299,6 +1368,14 @@ function saveAndPrintVouchers() {
   saveVouchers(vouchers);
   renderQuickVouchers();
   showToast(`Voucher ${currentVoucherData.kode} berhasil disimpan ke sistem kasir.`);
+
+  if (currentVoucherData.rekomendasiId) {
+    terapkanRekomendasi(currentVoucherData.rekomendasiId).then((updated) => {
+      allRekomendasi = allRekomendasi.map((r) => (r.id === updated.id ? updated : r));
+      renderRekomendasi();
+      applyFilters();
+    }).catch(() => {});
+  }
 
   if (!el.voucherTicketPreview || !el.printableVouchersArea) return;
   if (el.printableLabelsArea) el.printableLabelsArea.innerHTML = '';
@@ -1582,24 +1659,25 @@ async function init() {
   el.loading.classList.remove('hidden');
   try {
     const [me, items, rekomendasi] = await Promise.all([fetchMe(), fetchItems(), fetchRekomendasi()]);
-    el.userName.textContent = me.name;
-    allItems = items;
-    allRekomendasi = rekomendasi;
+    if (me && me.name) el.userName.textContent = me.name;
+    allItems = items || [];
+    allRekomendasi = (rekomendasi || []).filter((r) => r && r.item);
+
+    setupKpiFilterEvents();
+    renderFilters();
+    applyFilters();
+    renderRekomendasi();
   } catch (err) {
     el.error.textContent = err.message || 'Gagal memuat data dari server.';
     el.error.classList.remove('hidden');
-    return;
+  } finally {
+    el.loading.classList.add('hidden');
+    el.aiLoading.classList.add('hidden');
+    if (allItems.length > 0) {
+      el.itemsContainer.classList.remove('hidden');
+    }
+    el.aiContainer.classList.remove('hidden');
   }
-
-  setupKpiFilterEvents();
-  renderFilters();
-  applyFilters();
-  renderRekomendasi();
-
-  el.loading.classList.add('hidden');
-  el.aiLoading.classList.add('hidden');
-  el.itemsContainer.classList.remove('hidden');
-  el.aiContainer.classList.remove('hidden');
 }
 
 init();

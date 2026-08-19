@@ -455,6 +455,7 @@
               <label for="label-input-tagline" class="form-label">Slogan Promo</label>
               <select id="label-input-tagline" class="input-field py-1.5 text-xs">
                 <option value="FOOD RESCUE DEAL">🌱 FOOD RESCUE DEAL</option>
+                <option value="PROMO PAKET BUNDLING">📦 PROMO PAKET BUNDLING</option>
                 <option value="DISKON SPESIAL SORE">⚡ DISKON SPESIAL SORE</option>
                 <option value="CLEARANCE SALE">🔥 CUCI GUDANG</option>
                 <option value="HEMAT & BERKUALITAS">✨ HEMAT & BERKUALITAS</option>
@@ -641,31 +642,58 @@
 
           <!-- Live Preview Tiket Kupon (Kanan / 6 Kolom) -->
           <div class="md:col-span-6 flex flex-col justify-center w-full min-w-0">
-            <!-- Kartu Tiket Minimalis -->
-            <div id="voucher-ticket-preview" class="voucher-ticket p-3 sm:p-4 bg-white flex flex-col gap-2.5 sm:gap-3 shadow-sm w-full box-border">
-              <!-- Baris Atas: Judul & Badge Diskon -->
-              <div class="flex items-start justify-between gap-2 min-w-0">
-                <div class="min-w-0 flex-1">
-                  <h3 id="voucher-preview-judul" class="font-heading text-xs sm:text-sm font-bold text-gray-900 leading-tight truncate">Food Rescue Deal</h3>
-                  <p id="voucher-preview-target" class="text-[10px] sm:text-[11px] text-gray-500 mt-0.5 truncate">Semua Kategori</p>
+            <!-- Kartu Resi Kupon Kasir yang Jelas & Profesional -->
+            <div id="voucher-ticket-preview" class="voucher-ticket p-3.5 sm:p-4 bg-white flex flex-col gap-3 shadow-md w-full box-border border-2 border-dashed border-emerald-600 rounded-xl">
+              <!-- Header Brand & Status -->
+              <div class="flex items-center justify-between border-b border-emerald-100 pb-2">
+                <div class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 tracking-tight">
+                  <span>🌿 STOK PANGAN CERDAS</span>
                 </div>
-                <div class="shrink-0">
-                  <span id="voucher-preview-badge" class="inline-block bg-rose-600 text-white font-heading font-extrabold text-xs sm:text-sm px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg leading-none shadow-xs">-50%</span>
+                <span class="text-[9px] uppercase font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200">
+                  KUPON RESMI KASIR
+                </span>
+              </div>
+
+              <!-- Judul Promo Lengkap & Diskon Badge -->
+              <div class="flex items-start justify-between gap-2.5">
+                <div class="flex-1 min-w-0">
+                  <h3 id="voucher-preview-judul" class="font-heading text-[13px] sm:text-[14px] font-bold text-gray-900 leading-snug break-words">
+                    Food Rescue Promo · Susu UHT 1L
+                  </h3>
+                  <div class="flex items-center gap-1.5 text-[11px] text-gray-600 mt-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span id="voucher-preview-target" class="font-medium">Khusus: Olahan Susu</span>
+                  </div>
+                </div>
+                <div class="shrink-0 flex flex-col items-center">
+                  <span id="voucher-preview-badge" class="inline-block bg-rose-600 text-white font-heading font-black text-sm sm:text-base px-2.5 py-1 rounded-lg shadow-xs leading-none">
+                    -50%
+                  </span>
+                  <span class="text-[8.5px] font-bold text-rose-600 mt-0.5 tracking-wider">POTONGAN</span>
                 </div>
               </div>
 
-              <!-- Ketentuan Singkat -->
-              <div class="text-[9.5px] sm:text-[10.5px] text-gray-600 flex items-center justify-between border-t border-b border-gray-100 py-1 sm:py-1.5">
-                <span>Min: <strong id="voucher-preview-min-belanja" class="text-gray-900">Rp 25.000</strong></span>
-                <span>s/d <strong id="voucher-preview-kadaluarsa" class="text-gray-900">25 Agu 2026</strong></span>
+              <!-- Rincian Ketentuan Resi (Grid 2 Kolom Jelas) -->
+              <div class="bg-gray-50/90 rounded-lg p-2.5 border border-gray-200/90 grid grid-cols-2 gap-2 text-[11px] text-gray-700">
+                <div class="flex flex-col">
+                  <span class="text-[9.5px] text-gray-500 font-semibold uppercase">Min. Belanja</span>
+                  <span id="voucher-preview-min-belanja" class="font-bold text-gray-900 text-xs">Rp 25.000</span>
+                </div>
+                <div class="flex flex-col text-right">
+                  <span class="text-[9.5px] text-gray-500 font-semibold uppercase">Masa Berlaku s/d</span>
+                  <span id="voucher-preview-kadaluarsa" class="font-bold text-emerald-800 text-xs">21 Agu 2026</span>
+                </div>
               </div>
 
-              <!-- Barcode -->
-              <div class="flex flex-col items-center justify-center pt-0.5 w-full">
-                <svg id="voucher-preview-barcode-svg" class="h-6 sm:h-8 w-36 sm:w-44 max-w-full text-gray-900" viewBox="0 0 100 24"
+              <!-- Area Barcode Besar & Tajam -->
+              <div class="flex flex-col items-center justify-center pt-1.5 w-full bg-white rounded-lg p-2 border border-dashed border-gray-300">
+                <svg id="voucher-preview-barcode-svg" class="h-10 sm:h-12 w-48 sm:w-56 max-w-full text-gray-900" viewBox="0 0 100 24"
                   preserveAspectRatio="none">
                 </svg>
-                <span id="voucher-preview-kode" class="font-mono text-[10px] sm:text-[11px] font-bold text-gray-800 tracking-wider mt-0.5 truncate">VCHR-SPC-88219</span>
+                <div id="voucher-preview-kode" class="font-mono text-xs sm:text-sm font-extrabold text-gray-900 tracking-widest mt-1">
+                  VCHR-SUS-70632
+                </div>
+                <span class="text-[9.5px] text-gray-500 mt-0.5 text-center">Tunjukkan / scan barcode ini di kasir saat pembayaran</span>
               </div>
             </div>
           </div>

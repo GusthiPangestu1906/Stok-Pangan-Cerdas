@@ -338,16 +338,28 @@ function renderPerJenis(perJenis) {
 
 function renderRiwayatRow(r) {
   const item = r.item;
+  const nama = r.nama_barang || r.nama_item || item?.nama || '(barang dihapus)';
+  const kategori = r.kategori_barang || r.kategori_item || item?.kategori || '';
   const template = document.getElementById('tmpl-riwayat-row');
   const clone = template.content.cloneNode(true);
 
   clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
-  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+  
+  const namaEl = clone.querySelector('.js-nama');
+  if (namaEl) {
+    namaEl.textContent = nama;
+    if (!item && nama !== '(barang dihapus)') {
+      const deletedTag = document.createElement('span');
+      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
+      deletedTag.textContent = '(dihapus)';
+      namaEl.appendChild(deletedTag);
+    }
+  }
 
   const katEl = clone.querySelector('.js-kategori');
   if (katEl) {
-    if (item?.kategori) {
-      katEl.textContent = `Kategori: ${item.kategori}`;
+    if (kategori) {
+      katEl.textContent = `Kategori: ${kategori}`;
       katEl.classList.remove('hidden');
     } else {
       katEl.classList.add('hidden');
@@ -367,14 +379,26 @@ function renderRiwayatRow(r) {
 
 function renderRiwayatCard(r) {
   const item = r.item;
+  const nama = r.nama_barang || r.nama_item || item?.nama || '(barang dihapus)';
+  const kategori = r.kategori_barang || r.kategori_item || item?.kategori || '';
   const template = document.getElementById('tmpl-riwayat-card');
   const clone = template.content.cloneNode(true);
 
-  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+  const namaEl = clone.querySelector('.js-nama');
+  if (namaEl) {
+    namaEl.textContent = nama;
+    if (!item && nama !== '(barang dihapus)') {
+      const deletedTag = document.createElement('span');
+      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
+      deletedTag.textContent = '(dihapus)';
+      namaEl.appendChild(deletedTag);
+    }
+  }
+
   const katEl = clone.querySelector('.js-kategori');
   if (katEl) {
-    if (item?.kategori) {
-      katEl.textContent = `Kategori: ${item.kategori}`;
+    if (kategori) {
+      katEl.textContent = `Kategori: ${kategori}`;
       katEl.classList.remove('hidden');
     } else {
       katEl.classList.add('hidden');
@@ -400,8 +424,8 @@ function applyRiwayatFilters() {
   if (searchKeyword.trim()) {
     const q = searchKeyword.trim().toLowerCase();
     filtered = filtered.filter((r) => {
-      const nama = (r.item?.nama || '').toLowerCase();
-      const kat = (r.item?.kategori || '').toLowerCase();
+      const nama = (r.nama_barang || r.nama_item || r.item?.nama || '').toLowerCase();
+      const kat = (r.kategori_barang || r.kategori_item || r.item?.kategori || '').toLowerCase();
       const jenis = (r.jenis_saran || '').toLowerCase();
       return nama.includes(q) || kat.includes(q) || jenis.includes(q);
     });
