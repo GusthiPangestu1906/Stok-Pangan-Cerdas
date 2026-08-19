@@ -82,8 +82,40 @@ const el = {
   previewPct: document.getElementById('preview-pct'),
   previewHargaAsli: document.getElementById('preview-harga-asli'),
   previewHargaDiskon: document.getElementById('preview-harga-diskon'),
-  previewSku: document.getElementById('preview-sku'),
   printableLabelsArea: document.getElementById('printable-labels-area'),
+  btnNavScanVoucher: document.getElementById('btn-nav-scan-voucher'),
+  modalVoucher: document.getElementById('modal-voucher'),
+  modalVoucherClose: document.getElementById('modal-voucher-close'),
+  modalVoucherCancel: document.getElementById('modal-voucher-cancel'),
+  btnPrintVouchers: document.getElementById('btn-print-vouchers'),
+  voucherInputJudul: document.getElementById('voucher-input-judul'),
+  voucherInputTarget: document.getElementById('voucher-input-target'),
+  voucherInputKadaluarsa: document.getElementById('voucher-input-kadaluarsa'),
+  voucherDiskonGroup: document.getElementById('voucher-diskon-group'),
+  voucherInputMinBelanja: document.getElementById('voucher-input-min-belanja'),
+  voucherInputKuota: document.getElementById('voucher-input-kuota'),
+  voucherInputQty: document.getElementById('voucher-input-qty'),
+  voucherInputKode: document.getElementById('voucher-input-kode'),
+  btnVoucherGenerateCode: document.getElementById('btn-voucher-generate-code'),
+  voucherTicketPreview: document.getElementById('voucher-ticket-preview'),
+  voucherPreviewJudul: document.getElementById('voucher-preview-judul'),
+  voucherPreviewTarget: document.getElementById('voucher-preview-target'),
+  voucherPreviewBadge: document.getElementById('voucher-preview-badge'),
+  voucherPreviewMinBelanja: document.getElementById('voucher-preview-min-belanja'),
+  voucherPreviewKadaluarsa: document.getElementById('voucher-preview-kadaluarsa'),
+  voucherPreviewBarcodeSvg: document.getElementById('voucher-preview-barcode-svg'),
+  voucherPreviewKode: document.getElementById('voucher-preview-kode'),
+  modalScanVoucher: document.getElementById('modal-scan-voucher'),
+  modalScanClose: document.getElementById('modal-scan-close'),
+  modalScanCloseBtn: document.getElementById('modal-scan-close-btn'),
+  scanInputKode: document.getElementById('scan-input-kode'),
+  scanInputBelanja: document.getElementById('scan-input-belanja'),
+  btnDoScan: document.getElementById('btn-do-scan'),
+  scanQuickVouchers: document.getElementById('scan-quick-vouchers'),
+  btnKasirCreateVoucher: document.getElementById('btn-kasir-create-voucher'),
+  btnMobileScanVoucher: document.getElementById('btn-mobile-scan-voucher'),
+  scanResultContainer: document.getElementById('scan-result-container'),
+  printableVouchersArea: document.getElementById('printable-vouchers-area'),
 };
 
 function esc(value) {
@@ -191,12 +223,15 @@ function renderActionButtons(item, isMobile = false) {
   const clone = template.content.cloneNode(true);
 
   const btnAi = clone.querySelector('[data-action="ai"]');
+  const btnLabel = clone.querySelector('[data-action="label"]');
   const btnEdit = clone.querySelector('[data-action="edit"]');
   const btnHapus = clone.querySelector('[data-action="hapus"]');
 
   const bisaAi = item.status !== 'aman';
   const sudahAdaRekomendasi = bisaAi && hasRekomendasiAktif(item.id);
+  const sudahKadaluarsa = item.sisa_hari < 0;
 
+  // 1. Tombol AI (hanya untuk barang kritis/berisiko)
   if (bisaAi) {
     btnAi.classList.remove('hidden');
     btnAi.dataset.id = item.id;
@@ -218,21 +253,41 @@ function renderActionButtons(item, isMobile = false) {
       btnAi.appendChild(labelSpan);
     }
   } else {
-    btnAi.classList.add('hidden');
+    btnAi.remove();
   }
 
+  // 2. Tombol Label Rak (untuk semua barang yang belum kadaluarsa)
+  const bisaLabelRak = !sudahKadaluarsa;
+  if (btnLabel) {
+    if (bisaLabelRak) {
+      btnLabel.dataset.id = item.id;
+      btnLabel.title = 'Cetak Label Rak';
+      if (isMobile) {
+        btnLabel.className = 'btn btn-outline btn-icon hover:!border-purple-300 hover:!text-purple-700';
+      } else {
+        btnLabel.className = 'btn btn-outline btn-icon hover:!border-purple-300 hover:!text-purple-700 w-7 h-7 shrink-0';
+      }
+    } else {
+      btnLabel.remove();
+    }
+  }
+
+  // 3. Tombol Edit & Hapus (selalu ada)
   btnEdit.dataset.id = item.id;
   btnHapus.dataset.id = item.id;
 
   if (isMobile) {
-    // Tombol Edit dan Hapus berbentuk icon-only square button di kanan agar rapi & lega
     btnEdit.className = 'btn btn-outline btn-icon';
     btnHapus.className = 'btn btn-outline btn-icon hover:!border-danger hover:!text-danger';
 
-    // Bungkus Edit dan Hapus di kontainer flex kanan
     const rightActions = document.createElement('div');
     rightActions.className = 'flex items-center gap-1.5 ml-auto';
-    btnEdit.parentNode.insertBefore(rightActions, btnEdit);
+    if (btnLabel && bisaLabelRak && btnLabel.parentNode) {
+      btnLabel.parentNode.insertBefore(rightActions, btnLabel);
+      rightActions.appendChild(btnLabel);
+    } else {
+      btnEdit.parentNode.insertBefore(rightActions, btnEdit);
+    }
     rightActions.appendChild(btnEdit);
     rightActions.appendChild(btnHapus);
   } else {
@@ -560,6 +615,7 @@ function handleActionClick(e) {
   if (button.dataset.action === 'edit') openFormModal(item);
   if (button.dataset.action === 'hapus') openDeleteModal(item);
   if (button.dataset.action === 'ai') requestRekomendasi(item, button);
+  if (button.dataset.action === 'label') openLabelModal(item);
 }
 
 el.tableBody.addEventListener('click', handleActionClick);
@@ -593,13 +649,25 @@ function renderAiCard(rekomendasi) {
 
   const actions = clone.querySelector('.js-actions');
 
-  // Tombol Cetak Label Rak (tersedia untuk semua jenis rekomendasi, terutama Diskon & Bundling)
-  const btnLabel = document.createElement('button');
-  btnLabel.type = 'button';
-  btnLabel.dataset.cetakLabel = rekomendasi.id;
-  btnLabel.className = 'btn btn-outline h-9 px-3 text-[12.5px] inline-flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition shrink-0';
-  btnLabel.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg> <span>Label Rak</span>`;
-  actions.appendChild(btnLabel);
+  // Tombol Cetak Label Rak (Hanya untuk barang yang BELUM kadaluarsa & saran berupa promo/diskon)
+  const isKadaluarsa = item.sisa_hari < 0;
+  const isTindakanBuang = ['dibuang', 'retur', 'pemusnahan'].includes((rekomendasi.jenis_saran || '').toLowerCase());
+
+  if (!isKadaluarsa && !isTindakanBuang) {
+    const btnLabel = document.createElement('button');
+    btnLabel.type = 'button';
+    btnLabel.dataset.cetakLabel = rekomendasi.id;
+    btnLabel.className = 'btn btn-outline h-9 px-2.5 text-[12px] inline-flex items-center gap-1 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition shrink-0';
+    btnLabel.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg> <span>Label Rak</span>`;
+    actions.appendChild(btnLabel);
+
+    const btnVoucher = document.createElement('button');
+    btnVoucher.type = 'button';
+    btnVoucher.dataset.buatVoucher = rekomendasi.id;
+    btnVoucher.className = 'btn btn-outline h-9 px-2.5 text-[12px] inline-flex items-center gap-1 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 transition shrink-0';
+    btnVoucher.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg> <span>Kupon</span>`;
+    actions.appendChild(btnVoucher);
+  }
 
   if (rekomendasi.diterapkan) {
     const span = document.createElement('span');
@@ -756,7 +824,18 @@ el.aiList.addEventListener('click', async (e) => {
     return;
   }
 
-  // 2. Handler Tandai Diterapkan
+  // 2. Handler Buat Kupon Barcode
+  const btnVoucher = e.target.closest('[data-buat-voucher]');
+  if (btnVoucher) {
+    const id = Number(btnVoucher.dataset.buatVoucher);
+    const rec = allRekomendasi.find((r) => r.id === id);
+    if (rec && rec.item) {
+      openVoucherModal(rec.item, rec);
+    }
+    return;
+  }
+
+  // 3. Handler Tandai Diterapkan
   const button = e.target.closest('[data-terapkan]');
   if (!button) return;
 
@@ -814,11 +893,14 @@ function extractDiscountPct(saranText) {
 }
 
 function openLabelModal(item, rekomendasi = null) {
+  if (!item || item.sisa_hari < 0) {
+    showToast('Barang yang sudah kadaluarsa tidak dapat dibuatkan label rak.');
+    return;
+  }
+
   const katKey = (item.kategori || '').toLowerCase().trim();
   const defaultHarga = DEFAULT_PRICES[katKey] || 20000;
   const pct = rekomendasi ? extractDiscountPct(rekomendasi.isi_saran) : 50;
-
-  const skuCode = 'SKU-' + (item.nama ? item.nama.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase() : 'SPC') + '-' + item.id + (Math.floor(100 + Math.random() * 900));
 
   currentLabelData = {
     nama: item.nama,
@@ -829,7 +911,6 @@ function openLabelModal(item, rekomendasi = null) {
     diskonPct: pct,
     tagline: 'FOOD RESCUE DEAL',
     qty: 4,
-    sku: skuCode,
   };
 
   if (el.labelInputNama) el.labelInputNama.value = currentLabelData.nama;
@@ -873,7 +954,6 @@ function updateLabelPreview() {
   if (el.previewPct) el.previewPct.textContent = `-${pct}%`;
   if (el.previewHargaAsli) el.previewHargaAsli.textContent = formatRupiah(hargaAsli);
   if (el.previewHargaDiskon) el.previewHargaDiskon.textContent = formatRupiah(hargaDiskon);
-  if (el.previewSku) el.previewSku.textContent = currentLabelData.sku;
 }
 
 function printShelfLabels() {
@@ -933,12 +1013,533 @@ el.resetFilter.addEventListener('click', () => {
   applyFilters();
 });
 
+// ---------- Barcode & Voucher Engine (API-Ready) ----------
+
+function generateBarcodeSvgBars(text) {
+  const clean = String(text || 'VCHR-SPC-88219').toUpperCase().replace(/[^0-9A-Z\-]/g, '-');
+  const patterns = {
+    '0': '101001101101', '1': '110100101011', '2': '101100101011', '3': '110110010101',
+    '4': '101001101011', '5': '110100110101', '6': '101100110101', '7': '101001011011',
+    '8': '110100101101', '9': '101100101101', 'A': '110101001011', 'B': '101101001011',
+    'C': '110110100101', 'D': '101011001011', 'E': '110101100101', 'F': '101101100101',
+    'G': '101010011011', 'H': '110101001101', 'I': '101101001101', 'J': '101011001101',
+    'K': '110101010011', 'L': '101101010011', 'M': '110110101001', 'N': '101011010011',
+    'O': '110101101001', 'P': '101101101001', 'Q': '101010110011', 'R': '110101011001',
+    'S': '101101011001', 'T': '101011011001', 'U': '110010101011', 'V': '100110101011',
+    'W': '110011010101', 'X': '100101101011', 'Y': '110010110101', 'Z': '100110110101',
+    '-': '100101011011', '*': '100101101101'
+  };
+
+  const startStop = patterns['*'];
+  let bitString = startStop + '0';
+  for (const ch of clean) {
+    const p = patterns[ch] || patterns['-'];
+    bitString += p + '0';
+  }
+  bitString += startStop;
+
+  let rects = '';
+  let currentBarWidth = 0;
+  let barStart = 0;
+
+  for (let i = 0; i < bitString.length; i++) {
+    if (bitString[i] === '1') {
+      if (currentBarWidth === 0) barStart = i;
+      currentBarWidth++;
+    } else {
+      if (currentBarWidth > 0) {
+        rects += `<rect x="${barStart}" y="0" width="${currentBarWidth}" height="24" fill="currentColor" />`;
+        currentBarWidth = 0;
+      }
+    }
+  }
+  if (currentBarWidth > 0) {
+    rects += `<rect x="${barStart}" y="0" width="${currentBarWidth}" height="24" fill="currentColor" />`;
+  }
+
+  return { totalWidth: bitString.length, rects };
+}
+
+const DEFAULT_VOUCHERS = [
+  {
+    kode: 'VCHR-KEJ-88219',
+    judul: 'Food Rescue Deal - Keju Slice',
+    target: 'Olahan Susu',
+    tipe: 'persen',
+    nilai: 50,
+    minBelanja: 25000,
+    kadaluarsa: '2026-08-25',
+    kuota: 10,
+    terpakai: 2,
+    status: 'aktif'
+  },
+  {
+    kode: 'VCHR-BAY-77102',
+    judul: 'Flash Sale Sore - Bayam Segar',
+    target: 'Sayur',
+    tipe: 'persen',
+    nilai: 70,
+    minBelanja: 20000,
+    kadaluarsa: '2026-08-22',
+    kuota: 15,
+    terpakai: 5,
+    status: 'aktif'
+  },
+  {
+    kode: 'VCHR-HEMAT-10K',
+    judul: 'Kupon Penyelamatan Pangan Koperasi',
+    target: 'Semua Kategori',
+    tipe: 'nominal',
+    nilai: 10000,
+    minBelanja: 40000,
+    kadaluarsa: '2026-08-30',
+    kuota: 20,
+    terpakai: 8,
+    status: 'aktif'
+  }
+];
+
+function getVouchers() {
+  try {
+    const saved = localStorage.getItem('spc_vouchers');
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return DEFAULT_VOUCHERS;
+}
+
+function saveVouchers(list) {
+  try {
+    localStorage.setItem('spc_vouchers', JSON.stringify(list));
+  } catch (e) {}
+}
+
+function generateVoucherCode(targetName = 'SPC') {
+  const prefix = targetName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase() || 'SPC';
+  const randNum = Math.floor(10000 + Math.random() * 90000);
+  return `VCHR-${prefix}-${randNum}`;
+}
+
+let currentVoucherData = {
+  judul: 'Food Rescue Deal',
+  target: 'Semua Kategori',
+  tipe: 'persen',
+  nilai: 50,
+  minBelanja: 25000,
+  kadaluarsa: '2026-08-25',
+  kuota: 10,
+  qty: 4,
+  kode: 'VCHR-SPC-88219'
+};
+
+function populateVoucherTargetOptions(selectedVal = 'Semua') {
+  if (!el.voucherInputTarget) return;
+  el.voucherInputTarget.innerHTML = '';
+
+  const optGlobal = document.createElement('option');
+  optGlobal.value = 'Semua';
+  optGlobal.textContent = 'Semua Kategori (Global)';
+  optGlobal.dataset.prefix = 'SPC';
+  el.voucherInputTarget.appendChild(optGlobal);
+
+  const categories = [...new Set(allItems.map((i) => i.kategori))];
+  const catGroup = document.createElement('optgroup');
+  catGroup.label = 'Kategori Produk';
+  categories.forEach((cat) => {
+    const opt = document.createElement('option');
+    opt.value = `Kategori: ${cat}`;
+    opt.textContent = `Semua ${cat}`;
+    opt.dataset.prefix = cat.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase() || 'CAT';
+    catGroup.appendChild(opt);
+  });
+  el.voucherInputTarget.appendChild(catGroup);
+
+  const itemGroup = document.createElement('optgroup');
+  itemGroup.label = 'Pangan Spesifik (Stok Gudang)';
+  allItems.forEach((i) => {
+    const opt = document.createElement('option');
+    opt.value = i.nama;
+    opt.textContent = `${i.nama} (${i.kategori} · ${sisaHariText(i.sisa_hari)})`;
+    opt.dataset.prefix = i.nama.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase() || 'ITM';
+    opt.dataset.kadaluarsa = i.tanggal_kadaluarsa;
+    opt.dataset.kategori = i.kategori;
+    itemGroup.appendChild(opt);
+  });
+  el.voucherInputTarget.appendChild(itemGroup);
+
+  el.voucherInputTarget.value = selectedVal;
+}
+
+let voucherOpenedFromScanner = false;
+
+function openVoucherModal(item = null, rekomendasi = null, fromScanner = false) {
+  voucherOpenedFromScanner = Boolean(fromScanner);
+  if (fromScanner) {
+    closeScanVoucherModal();
+  }
+  if (el.modalLabelDiskon) closeLabelModal();
+  if (el.modalForm) closeFormModal();
+  if (el.modalHapus) closeDeleteModal();
+
+  const targetName = item ? item.nama : 'Semua';
+  const targetKategori = item ? item.kategori : 'Semua Kategori';
+  const defaultDiskon = rekomendasi ? extractDiscountPct(rekomendasi.isi_saran) : 50;
+  const kode = generateVoucherCode(item ? item.nama : 'SPC');
+
+  populateVoucherTargetOptions(targetName);
+
+  let expDate = '2026-08-25';
+  if (item && item.tanggal_kadaluarsa) {
+    expDate = item.tanggal_kadaluarsa;
+  }
+
+  currentVoucherData = {
+    judul: item ? `Food Rescue Promo · ${targetName}` : 'Kupon Penyelamatan Pangan Kasir',
+    target: targetKategori,
+    tipe: 'persen',
+    nilai: defaultDiskon,
+    minBelanja: 25000,
+    kadaluarsa: expDate,
+    kuota: 10,
+    qty: 4,
+    kode: kode
+  };
+
+  if (el.voucherInputJudul) el.voucherInputJudul.value = currentVoucherData.judul;
+  if (el.voucherInputTarget) el.voucherInputTarget.value = targetName;
+  if (el.voucherInputKadaluarsa) el.voucherInputKadaluarsa.value = currentVoucherData.kadaluarsa;
+  if (el.voucherInputMinBelanja) el.voucherInputMinBelanja.value = currentVoucherData.minBelanja;
+  if (el.voucherInputKuota) el.voucherInputKuota.value = currentVoucherData.kuota;
+  if (el.voucherInputQty) el.voucherInputQty.value = currentVoucherData.qty;
+  if (el.voucherInputKode) el.voucherInputKode.value = currentVoucherData.kode;
+
+  updateVoucherDiskonButtons(currentVoucherData.tipe, currentVoucherData.nilai);
+  updateVoucherPreview();
+
+  if (el.modalVoucher) el.modalVoucher.classList.remove('hidden');
+}
+
+function closeVoucherModal() {
+  if (el.modalVoucher) el.modalVoucher.classList.add('hidden');
+  if (voucherOpenedFromScanner) {
+    voucherOpenedFromScanner = false;
+    openScanVoucherModal();
+    if (el.scanInputKode && currentVoucherData.kode) {
+      el.scanInputKode.value = currentVoucherData.kode;
+    }
+  }
+}
+
+function updateVoucherDiskonButtons(selectedTipe, selectedVal) {
+  if (!el.voucherDiskonGroup) return;
+  const buttons = el.voucherDiskonGroup.querySelectorAll('[data-val]');
+  buttons.forEach((btn) => {
+    const isMatch = btn.dataset.tipe === selectedTipe && Number(btn.dataset.val) === Number(selectedVal);
+    btn.classList.toggle('active', isMatch);
+  });
+}
+
+function updateVoucherPreview() {
+  if (el.voucherInputJudul && el.voucherInputJudul.value) {
+    currentVoucherData.judul = el.voucherInputJudul.value;
+  }
+  currentVoucherData.minBelanja = Math.max(0, Number(el.voucherInputMinBelanja?.value || 0));
+  currentVoucherData.kadaluarsa = el.voucherInputKadaluarsa?.value || '2026-08-25';
+  currentVoucherData.kuota = Math.max(1, Number(el.voucherInputKuota?.value || 10));
+  currentVoucherData.qty = Number(el.voucherInputQty?.value || 4);
+  currentVoucherData.kode = (el.voucherInputKode?.value || 'VCHR-SPC-88219').trim().toUpperCase();
+
+  if (el.voucherPreviewJudul) el.voucherPreviewJudul.textContent = currentVoucherData.judul;
+  if (el.voucherPreviewTarget) el.voucherPreviewTarget.textContent = `Khusus: ${currentVoucherData.target}`;
+  if (el.voucherPreviewMinBelanja) el.voucherPreviewMinBelanja.textContent = formatRupiah(currentVoucherData.minBelanja);
+  if (el.voucherPreviewKadaluarsa) el.voucherPreviewKadaluarsa.textContent = formatTanggal(currentVoucherData.kadaluarsa);
+  if (el.voucherPreviewKode) el.voucherPreviewKode.textContent = currentVoucherData.kode;
+
+  if (el.voucherPreviewBadge) {
+    if (currentVoucherData.tipe === 'persen') {
+      el.voucherPreviewBadge.textContent = `-${currentVoucherData.nilai}%`;
+    } else {
+      el.voucherPreviewBadge.textContent = `-Rp ${Number(currentVoucherData.nilai).toLocaleString('id-ID')}`;
+    }
+  }
+
+  if (el.voucherPreviewBarcodeSvg) {
+    const barcodeData = generateBarcodeSvgBars(currentVoucherData.kode);
+    el.voucherPreviewBarcodeSvg.setAttribute('viewBox', `0 0 ${barcodeData.totalWidth} 24`);
+    el.voucherPreviewBarcodeSvg.innerHTML = barcodeData.rects;
+  }
+}
+
+function saveAndPrintVouchers() {
+  const vouchers = getVouchers();
+  const existingIdx = vouchers.findIndex((v) => v.kode === currentVoucherData.kode);
+  const newVoucherRecord = {
+    kode: currentVoucherData.kode,
+    judul: currentVoucherData.judul,
+    target: currentVoucherData.target,
+    tipe: currentVoucherData.tipe,
+    nilai: currentVoucherData.nilai,
+    minBelanja: currentVoucherData.minBelanja,
+    kadaluarsa: currentVoucherData.kadaluarsa,
+    kuota: currentVoucherData.kuota,
+    terpakai: 0,
+    status: 'aktif'
+  };
+
+  if (existingIdx >= 0) {
+    vouchers[existingIdx] = newVoucherRecord;
+  } else {
+    vouchers.unshift(newVoucherRecord);
+  }
+  saveVouchers(vouchers);
+  renderQuickVouchers();
+  showToast(`Voucher ${currentVoucherData.kode} berhasil disimpan ke sistem kasir.`);
+
+  if (!el.voucherTicketPreview || !el.printableVouchersArea) return;
+  const qty = currentVoucherData.qty;
+  const previewHTML = el.voucherTicketPreview.outerHTML;
+
+  el.printableVouchersArea.innerHTML = '';
+  for (let i = 0; i < qty; i++) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'voucher-print-item';
+    itemDiv.innerHTML = previewHTML;
+    el.printableVouchersArea.appendChild(itemDiv);
+  }
+
+  window.print();
+}
+
+// ---------- Simulator Scanner & Validasi Kasir ----------
+
+function openScanVoucherModal() {
+  if (el.modalScanVoucher) el.modalScanVoucher.classList.remove('hidden');
+  renderQuickVouchers();
+  if (el.scanInputKode) {
+    el.scanInputKode.value = '';
+    el.scanInputKode.focus();
+  }
+  if (el.scanResultContainer) {
+    el.scanResultContainer.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9aa89e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1.5 opacity-60">
+        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+        <path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" />
+      </svg>
+      <span class="text-muted font-medium text-[11.5px]">Masukkan kode barcode voucher di atas dan klik "Validasi"</span>
+    `;
+  }
+}
+
+function closeScanVoucherModal() {
+  if (el.modalScanVoucher) el.modalScanVoucher.classList.add('hidden');
+}
+
+function renderQuickVouchers() {
+  if (!el.scanQuickVouchers) return;
+  const vouchers = getVouchers().filter((v) => v.status === 'aktif' && v.terpakai < v.kuota);
+  el.scanQuickVouchers.innerHTML = '';
+
+  if (vouchers.length === 0) {
+    el.scanQuickVouchers.innerHTML = '<span class="text-gray-400 text-xs italic">Belum ada voucher aktif.</span>';
+    return;
+  }
+
+  vouchers.slice(0, 4).forEach((v) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'px-1.5 py-0.5 bg-white border border-emerald-300 hover:bg-emerald-50 text-emerald-800 rounded-md text-[10px] sm:text-[11px] font-mono font-semibold transition cursor-pointer shrink-0';
+    chip.textContent = v.kode;
+    chip.title = `${v.judul} (${v.tipe === 'persen' ? '-' + v.nilai + '%' : '-Rp ' + v.nilai.toLocaleString('id-ID')})`;
+    chip.addEventListener('click', () => {
+      if (el.scanInputKode) el.scanInputKode.value = v.kode;
+      doValidateVoucher();
+    });
+    el.scanQuickVouchers.appendChild(chip);
+  });
+}
+
+function doValidateVoucher() {
+  const kode = (el.scanInputKode?.value || '').trim().toUpperCase();
+  const totalBelanja = Number(el.scanInputBelanja?.value || 0);
+
+  if (!kode) {
+    showToast('Masukkan kode voucher terlebih dahulu.');
+    return;
+  }
+
+  const vouchers = getVouchers();
+  const voucher = vouchers.find((v) => v.kode === kode);
+
+  if (!voucher) {
+    el.scanResultContainer.innerHTML = `
+      <div class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 flex flex-col items-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="mb-1"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+        <strong class="font-bold text-xs">Voucher Tidak Ditemukan!</strong>
+        <span class="text-[11px] mt-0.5">Kode "${esc(kode)}" tidak terdaftar di database server.</span>
+      </div>
+    `;
+    return;
+  }
+
+  const now = new Date().toISOString().slice(0, 10);
+  if (voucher.kadaluarsa < now) {
+    el.scanResultContainer.innerHTML = `
+      <div class="w-full p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 flex flex-col items-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="mb-1"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        <strong class="font-bold text-xs">Kupon Telah Kadaluarsa!</strong>
+        <span class="text-[11px] mt-0.5">Kupon ini habis masa berlakunya pada ${formatTanggal(voucher.kadaluarsa)}.</span>
+      </div>
+    `;
+    return;
+  }
+
+  if (voucher.terpakai >= voucher.kuota) {
+    el.scanResultContainer.innerHTML = `
+      <div class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 flex flex-col items-center">
+        <strong class="font-bold text-xs">Kuota Kupon Habis!</strong>
+        <span class="text-[11px] mt-0.5">Kupon ini telah digunakan maksimal (${voucher.kuota}/${voucher.kuota}).</span>
+      </div>
+    `;
+    return;
+  }
+
+  if (totalBelanja < voucher.minBelanja) {
+    const kurang = voucher.minBelanja - totalBelanja;
+    el.scanResultContainer.innerHTML = `
+      <div class="w-full p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-left">
+        <div class="flex items-center gap-1.5 font-bold text-xs">
+          <span>⚠️ Belum Memenuhi Minimal Belanja</span>
+        </div>
+        <div class="text-[11px] mt-1">Minimal belanja: <strong>${formatRupiah(voucher.minBelanja)}</strong>. Kurang <strong>${formatRupiah(kurang)}</strong> untuk menggunakan kupon ini.</div>
+      </div>
+    `;
+    return;
+  }
+
+  let potongan = 0;
+  if (voucher.tipe === 'persen') {
+    potongan = Math.round((totalBelanja * (voucher.nilai / 100)) / 500) * 500;
+  } else {
+    potongan = Math.min(totalBelanja, voucher.nilai);
+  }
+  const totalAkhir = Math.max(0, totalBelanja - potongan);
+
+  el.scanResultContainer.innerHTML = `
+    <div class="w-full p-3.5 bg-emerald-50 border-2 border-emerald-500 rounded-xl text-left text-emerald-950 flex flex-col gap-2">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="inline-block bg-emerald-700 text-white text-[9.5px] font-bold uppercase px-2 py-0.5 rounded-full">KUPON VALID & TERDAFTAR</span>
+          <h4 class="font-heading font-bold text-sm text-emerald-950 mt-1">${esc(voucher.judul)}</h4>
+        </div>
+        <div class="font-heading font-extrabold text-emerald-700 text-lg">-${formatRupiah(potongan)}</div>
+      </div>
+
+      <div class="bg-white/80 rounded-lg p-2 border border-emerald-200/80 text-[11px] flex flex-col gap-1">
+        <div class="flex justify-between">
+          <span class="text-gray-500">Total Belanja Awal:</span>
+          <span class="font-medium line-through text-gray-400">${formatRupiah(totalBelanja)}</span>
+        </div>
+        <div class="flex justify-between font-bold text-xs pt-1 border-t border-emerald-100">
+          <span class="text-emerald-900">Total Tagihan Kasir:</span>
+          <span class="text-emerald-700 text-sm">${formatRupiah(totalAkhir)}</span>
+        </div>
+      </div>
+
+      <button type="button" id="btn-redeem-voucher" class="btn btn-primary h-8 px-3 text-xs font-semibold w-full mt-0.5 cursor-pointer">
+        ✅ Klaim & Tandai Kupon Digunakan (Kasir)
+      </button>
+    </div>
+  `;
+
+  document.getElementById('btn-redeem-voucher')?.addEventListener('click', () => {
+    voucher.terpakai += 1;
+    saveVouchers(vouchers);
+    showToast(`Kupon ${voucher.kode} berhasil diklaim. Sisa kuota: ${voucher.kuota - voucher.terpakai}`);
+    doValidateVoucher();
+  });
+}
+
+// Event Listeners for Voucher Modal
+if (el.modalVoucherClose) el.modalVoucherClose.addEventListener('click', closeVoucherModal);
+if (el.modalVoucherCancel) el.modalVoucherCancel.addEventListener('click', closeVoucherModal);
+if (el.modalVoucher) el.modalVoucher.addEventListener('click', (e) => { if (e.target === el.modalVoucher) closeVoucherModal(); });
+if (el.btnPrintVouchers) el.btnPrintVouchers.addEventListener('click', saveAndPrintVouchers);
+
+if (el.voucherInputJudul) el.voucherInputJudul.addEventListener('input', updateVoucherPreview);
+if (el.voucherInputMinBelanja) el.voucherInputMinBelanja.addEventListener('input', updateVoucherPreview);
+if (el.voucherInputKadaluarsa) el.voucherInputKadaluarsa.addEventListener('change', updateVoucherPreview);
+if (el.voucherInputKuota) el.voucherInputKuota.addEventListener('input', updateVoucherPreview);
+if (el.voucherInputQty) el.voucherInputQty.addEventListener('change', updateVoucherPreview);
+if (el.voucherInputKode) el.voucherInputKode.addEventListener('input', updateVoucherPreview);
+
+if (el.btnVoucherGenerateCode) {
+  el.btnVoucherGenerateCode.addEventListener('click', () => {
+    const newCode = generateVoucherCode(currentVoucherData.target);
+    if (el.voucherInputKode) el.voucherInputKode.value = newCode;
+    updateVoucherPreview();
+  });
+}
+
+if (el.voucherDiskonGroup) {
+  el.voucherDiskonGroup.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-val]');
+    if (!btn) return;
+    currentVoucherData.tipe = btn.dataset.tipe;
+    currentVoucherData.nilai = Number(btn.dataset.val);
+    updateVoucherDiskonButtons(currentVoucherData.tipe, currentVoucherData.nilai);
+    updateVoucherPreview();
+  });
+}
+
+if (el.voucherInputTarget) {
+  el.voucherInputTarget.addEventListener('change', () => {
+    const selectedOpt = el.voucherInputTarget.selectedOptions[0];
+    const val = el.voucherInputTarget.value;
+    const prefix = selectedOpt?.dataset.prefix || 'SPC';
+
+    if (val === 'Semua') {
+      currentVoucherData.target = 'Semua Kategori';
+      currentVoucherData.judul = 'Kupon Penyelamatan Pangan Kasir';
+    } else if (val.startsWith('Kategori: ')) {
+      currentVoucherData.target = val.replace('Kategori: ', '');
+      currentVoucherData.judul = `Promo Kategori · ${currentVoucherData.target}`;
+    } else {
+      currentVoucherData.target = selectedOpt?.dataset.kategori ? `${val} (${selectedOpt.dataset.kategori})` : val;
+      currentVoucherData.judul = `Food Rescue Promo · ${val}`;
+      if (selectedOpt?.dataset.kadaluarsa) {
+        currentVoucherData.kadaluarsa = selectedOpt.dataset.kadaluarsa;
+        if (el.voucherInputKadaluarsa) el.voucherInputKadaluarsa.value = currentVoucherData.kadaluarsa;
+      }
+    }
+
+    currentVoucherData.kode = generateVoucherCode(prefix);
+    if (el.voucherInputJudul) el.voucherInputJudul.value = currentVoucherData.judul;
+    if (el.voucherInputKode) el.voucherInputKode.value = currentVoucherData.kode;
+    updateVoucherPreview();
+  });
+}
+
+// Event Listeners for Scanner Kasir Modal
+if (el.btnNavScanVoucher) el.btnNavScanVoucher.addEventListener('click', openScanVoucherModal);
+if (el.btnMobileScanVoucher) el.btnMobileScanVoucher.addEventListener('click', openScanVoucherModal);
+if (el.btnKasirCreateVoucher) el.btnKasirCreateVoucher.addEventListener('click', () => openVoucherModal(null, null, true));
+if (el.modalScanClose) el.modalScanClose.addEventListener('click', closeScanVoucherModal);
+if (el.modalScanCloseBtn) el.modalScanCloseBtn.addEventListener('click', closeScanVoucherModal);
+if (el.modalScanVoucher) el.modalScanVoucher.addEventListener('click', (e) => { if (e.target === el.modalScanVoucher) closeScanVoucherModal(); });
+if (el.btnDoScan) el.btnDoScan.addEventListener('click', doValidateVoucher);
+if (el.scanInputKode) {
+  el.scanInputKode.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doValidateVoucher();
+  });
+}
+
 // Tutup modal dengan tombol Escape.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (!el.modalForm.classList.contains('hidden')) closeFormModal();
   if (!el.modalHapus.classList.contains('hidden')) closeDeleteModal();
   if (el.modalLabelDiskon && !el.modalLabelDiskon.classList.contains('hidden')) closeLabelModal();
+  if (el.modalVoucher && !el.modalVoucher.classList.contains('hidden')) closeVoucherModal();
+  if (el.modalScanVoucher && !el.modalScanVoucher.classList.contains('hidden')) closeScanVoucherModal();
 });
 
 el.btnLogout.addEventListener('click', async () => {

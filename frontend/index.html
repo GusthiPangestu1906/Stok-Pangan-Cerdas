@@ -71,6 +71,16 @@
       </svg>
       <span>Dashboard</span>
     </a>
+    <button type="button" id="btn-mobile-scan-voucher" class="mobile-nav-item cursor-pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7d8f83" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+        <path d="M13 5v2" />
+        <path d="M13 17v2" />
+        <path d="M13 11v2" />
+      </svg>
+      <span>Kupon</span>
+    </button>
     <a href="riwayat.html" class="mobile-nav-item">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7d8f83" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
@@ -94,16 +104,29 @@
     <div class="flex items-end justify-between gap-3">
       <div>
         <p id="tanggal-hari-ini" class="text-[12.5px] sm:text-[13px] text-soft mb-1"></p>
-        <h1 class="font-heading text-[20px] sm:text-[27px] font-semibold tracking-tight text-primary">Dashboard Stok
-        </h1>
+        <h1 class="font-heading text-[20px] sm:text-[27px] font-semibold tracking-tight text-primary">Dashboard Stok</h1>
       </div>
-      <button id="btn-tambah" class="btn btn-primary h-11 px-[18px] text-sm shrink-0 hidden sm:inline-flex">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        <span>Tambah Barang</span>
-      </button>
+      <div class="flex items-center gap-2.5 shrink-0 hidden sm:flex">
+        <button type="button" id="btn-nav-scan-voucher"
+          class="btn btn-outline h-11 px-3.5 text-sm font-semibold flex items-center gap-2 border-emerald-300 text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 hover:text-emerald-900 transition shadow-xs cursor-pointer"
+          title="Simulator Validasi Kupon Kasir">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+            <path d="M13 5v2" />
+            <path d="M13 17v2" />
+            <path d="M13 11v2" />
+          </svg>
+          <span>Cek Kupon Kasir</span>
+        </button>
+        <button id="btn-tambah" class="btn btn-primary h-11 px-[18px] text-sm shrink-0 flex items-center gap-2 shadow-xs cursor-pointer">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>Tambah Barang</span>
+        </button>
+      </div>
     </div>
 
     <!-- Ringkasan Stok (KPI cards - Interaktif Filter Desktop, Info-only Mobile) -->
@@ -215,12 +238,12 @@
             <!-- Desktop table -->
             <div class="hidden lg:block">
               <div
-                class="inventory-grid px-5 py-2.5 bg-hover border-b border-subtle text-[10.5px] font-bold text-muted tracking-widest uppercase">
+                class="inventory-grid px-5 py-2.5 bg-hover border-b border-subtle text-[10.5px] font-bold text-muted tracking-widest uppercase items-center">
                 <div>BARANG</div>
                 <div class="text-center">STOK</div>
                 <div>KADALUARSA</div>
-                <div>STATUS</div>
-                <div class="text-right">AKSI</div>
+                <div class="text-center">STATUS</div>
+                <div class="text-right pr-2">AKSI</div>
               </div>
               <div id="items-table-body"></div>
             </div>
@@ -473,72 +496,39 @@
                     RESCUE DEAL</span>
                 </div>
 
-                <div class="p-3 sm:p-3.5 flex flex-col gap-2 bg-white">
+                <div class="p-3.5 sm:p-4 flex flex-col gap-2.5 bg-white">
                   <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
                       <h3 id="preview-nama"
-                        class="font-heading text-[14.5px] sm:text-[16px] font-bold text-gray-900 truncate leading-tight">
+                        class="font-heading text-[15px] sm:text-[16.5px] font-bold text-gray-900 truncate leading-tight">
                         Nama Barang</h3>
-                      <p id="preview-kategori" class="text-[10.5px] sm:text-[11px] text-gray-500 mt-0.5 truncate">
+                      <p id="preview-kategori" class="text-[11px] sm:text-[11.5px] text-gray-500 mt-0.5 truncate">
                         Kategori Pangan</p>
                     </div>
                     <div class="shrink-0 flex flex-col items-center">
                       <span id="preview-pct"
-                        class="shelf-tag-badge bg-rose-600 text-white text-[13.5px] sm:text-[15px] font-extrabold px-2 py-0.5 rounded-lg shadow-xs">-50%</span>
+                        class="shelf-tag-badge bg-rose-600 text-white text-[14px] sm:text-[16px] font-extrabold px-2.5 py-0.5 rounded-lg shadow-xs">-50%</span>
                     </div>
                   </div>
 
                   <div class="flex items-end justify-between pt-1.5 border-t border-dashed border-gray-200">
                     <div>
                       <div class="text-[9.5px] text-gray-400 uppercase font-semibold">Harga Normal</div>
-                      <div id="preview-harga-asli" class="text-[11.5px] text-gray-400 line-through font-medium">Rp
+                      <div id="preview-harga-asli" class="text-[12px] text-gray-400 line-through font-medium">Rp
                         20.000</div>
                     </div>
                     <div class="text-right">
                       <div class="text-[9.5px] text-emerald-800 uppercase font-bold tracking-wider">Harga Hemat</div>
                       <div id="preview-harga-diskon"
-                        class="font-heading text-[17px] sm:text-[20px] font-extrabold text-emerald-700 leading-none">Rp
+                        class="font-heading text-[19px] sm:text-[22px] font-extrabold text-emerald-700 leading-none">Rp
                         10.000</div>
                     </div>
                   </div>
 
                   <div
-                    class="bg-amber-50 rounded-lg p-1.5 sm:p-2 border border-amber-200/70 flex items-center justify-between text-[10.5px] sm:text-[11px] mt-0.5">
+                    class="bg-amber-50 rounded-lg p-2 border border-amber-200/70 flex items-center justify-between text-[11px] sm:text-[11.5px] mt-0.5">
                     <span class="text-amber-900 font-medium">⏳ Batas Konsumsi:</span>
                     <strong id="preview-kadaluarsa" class="text-amber-950 font-bold">20 Agu 2026</strong>
-                  </div>
-
-                  <!-- Barcode Simulation SVG -->
-                  <div class="flex items-center justify-between pt-1 text-[9px] text-gray-400 font-mono">
-                    <div class="flex flex-col">
-                      <svg class="h-5 sm:h-6 w-28 sm:w-32 text-gray-800" viewBox="0 0 100 24"
-                        preserveAspectRatio="none">
-                        <rect x="0" y="0" width="3" height="24" fill="currentColor" />
-                        <rect x="5" y="0" width="2" height="24" fill="currentColor" />
-                        <rect x="9" y="0" width="5" height="24" fill="currentColor" />
-                        <rect x="16" y="0" width="2" height="24" fill="currentColor" />
-                        <rect x="20" y="0" width="4" height="24" fill="currentColor" />
-                        <rect x="26" y="0" width="2" height="24" fill="currentColor" />
-                        <rect x="30" y="0" width="6" height="24" fill="currentColor" />
-                        <rect x="38" y="0" width="3" height="24" fill="currentColor" />
-                        <rect x="43" y="0" width="1" height="24" fill="currentColor" />
-                        <rect x="46" y="0" width="4" height="24" fill="currentColor" />
-                        <rect x="52" y="0" width="2" height="24" fill="currentColor" />
-                        <rect x="56" y="0" width="5" height="24" fill="currentColor" />
-                        <rect x="63" y="0" width="3" height="24" fill="currentColor" />
-                        <rect x="68" y="0" width="1" height="24" fill="currentColor" />
-                        <rect x="71" y="0" width="4" height="24" fill="currentColor" />
-                        <rect x="77" y="0" width="3" height="24" fill="currentColor" />
-                        <rect x="82" y="0" width="5" height="24" fill="currentColor" />
-                        <rect x="89" y="0" width="2" height="24" fill="currentColor" />
-                        <rect x="93" y="0" width="4" height="24" fill="currentColor" />
-                        <rect x="98" y="0" width="2" height="24" fill="currentColor" />
-                      </svg>
-                      <span id="preview-sku"
-                        class="mt-0.5 text-gray-500 font-semibold tracking-wider text-[8.5px]">SKU-SPC-88219</span>
-                    </div>
-                    <span class="text-[8.5px] text-gray-400 text-right leading-tight max-w-[110px]">Cegah Food
-                      Waste!</span>
                   </div>
                 </div>
               </div>
@@ -568,8 +558,231 @@
     </div>
   </div>
 
+  <!-- Modal: Terbitkan Voucher & Kupon Barcode -->
+  <div id="modal-voucher"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-[60] flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto">
+    <div
+      class="bg-surface rounded-2xl w-full max-w-[94vw] sm:max-w-xl md:max-w-2xl max-h-[92vh] flex flex-col shadow-2xl border border-default overflow-hidden my-auto box-border">
+      <!-- Modal Header -->
+      <div
+        class="px-3.5 py-2.5 sm:px-5 sm:py-3.5 border-b border-subtle flex items-center justify-between bg-emerald-50/70 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span
+            class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-100 text-emerald-800 shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+              <path d="M13 5v2" />
+              <path d="M13 17v2" />
+              <path d="M13 11v2" />
+            </svg>
+          </span>
+          <div class="min-w-0">
+            <h2 class="font-heading text-[14px] sm:text-[16px] font-bold text-primary truncate leading-tight">Terbitkan Kupon / Voucher</h2>
+            <p class="text-[10px] sm:text-[11.5px] text-muted truncate">Kupon terdaftar di mesin kasir</p>
+          </div>
+        </div>
+        <button id="modal-voucher-close" class="text-light hover:text-primary transition p-1 shrink-0 ml-1"
+          aria-label="Tutup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-3 sm:p-5 overflow-y-auto min-h-0 flex-1 overscroll-contain">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-6 items-center w-full">
+          <!-- Form Pengaturan Voucher (Kiri / 6 Kolom) -->
+          <div class="md:col-span-6 flex flex-col gap-2.5 sm:gap-3 text-xs w-full min-w-0">
+            <div>
+              <label for="voucher-input-target" class="form-label text-[11px] sm:text-xs">Target Produk / Promo</label>
+              <select id="voucher-input-target" class="input-field text-xs py-1.5 sm:py-2 font-medium w-full">
+                <option value="Semua">Semua Kategori (Global)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label text-[11px] sm:text-xs">Besaran Diskon</label>
+              <div id="voucher-diskon-group" class="grid grid-cols-4 gap-1 mt-1 w-full">
+                <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold" data-tipe="persen" data-val="30">30%</button>
+                <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold active" data-tipe="persen" data-val="50">50%</button>
+                <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold" data-tipe="persen" data-val="70">70%</button>
+                <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold" data-tipe="nominal" data-val="10000">10rb</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label for="voucher-input-min-belanja" class="form-label text-[11px] sm:text-xs">Min. Belanja (Rp)</label>
+                <input id="voucher-input-min-belanja" type="number" step="1000" min="0" value="25000"
+                  class="input-field font-semibold text-xs py-1.5 w-full" />
+              </div>
+              <div>
+                <label for="voucher-input-kadaluarsa" class="form-label text-[11px] sm:text-xs">Masa Berlaku</label>
+                <input id="voucher-input-kadaluarsa" type="date"
+                  class="input-field text-xs py-1.5 w-full" />
+              </div>
+            </div>
+
+            <div>
+              <label for="voucher-input-kode" class="form-label flex items-center justify-between text-[11px] sm:text-xs">
+                <span>Kode Barcode</span>
+                <button type="button" id="btn-voucher-generate-code"
+                  class="text-[10.5px] sm:text-[11px] text-emerald-800 hover:text-emerald-950 font-semibold hover:underline cursor-pointer">
+                  Acak Kode
+                </button>
+              </label>
+              <input id="voucher-input-kode" type="text"
+                class="input-field font-mono uppercase text-xs tracking-wider py-1.5 font-bold text-gray-700 bg-muted/10 w-full" />
+            </div>
+          </div>
+
+          <!-- Live Preview Tiket Kupon (Kanan / 6 Kolom) -->
+          <div class="md:col-span-6 flex flex-col justify-center w-full min-w-0">
+            <!-- Kartu Tiket Minimalis -->
+            <div id="voucher-ticket-preview" class="voucher-ticket p-3 sm:p-4 bg-white flex flex-col gap-2.5 sm:gap-3 shadow-sm w-full box-border">
+              <!-- Baris Atas: Judul & Badge Diskon -->
+              <div class="flex items-start justify-between gap-2 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <h3 id="voucher-preview-judul" class="font-heading text-xs sm:text-sm font-bold text-gray-900 leading-tight truncate">Food Rescue Deal</h3>
+                  <p id="voucher-preview-target" class="text-[10px] sm:text-[11px] text-gray-500 mt-0.5 truncate">Semua Kategori</p>
+                </div>
+                <div class="shrink-0">
+                  <span id="voucher-preview-badge" class="inline-block bg-rose-600 text-white font-heading font-extrabold text-xs sm:text-sm px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg leading-none shadow-xs">-50%</span>
+                </div>
+              </div>
+
+              <!-- Ketentuan Singkat -->
+              <div class="text-[9.5px] sm:text-[10.5px] text-gray-600 flex items-center justify-between border-t border-b border-gray-100 py-1 sm:py-1.5">
+                <span>Min: <strong id="voucher-preview-min-belanja" class="text-gray-900">Rp 25.000</strong></span>
+                <span>s/d <strong id="voucher-preview-kadaluarsa" class="text-gray-900">25 Agu 2026</strong></span>
+              </div>
+
+              <!-- Barcode -->
+              <div class="flex flex-col items-center justify-center pt-0.5 w-full">
+                <svg id="voucher-preview-barcode-svg" class="h-6 sm:h-8 w-36 sm:w-44 max-w-full text-gray-900" viewBox="0 0 100 24"
+                  preserveAspectRatio="none">
+                </svg>
+                <span id="voucher-preview-kode" class="font-mono text-[10px] sm:text-[11px] font-bold text-gray-800 tracking-wider mt-0.5 truncate">VCHR-SPC-88219</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div
+        class="px-3.5 py-2.5 sm:px-5 sm:py-3 border-t border-subtle bg-surface flex items-center justify-between gap-2 shrink-0">
+        <button type="button" id="modal-voucher-cancel"
+          class="btn btn-outline h-8 sm:h-9 px-3 text-xs font-medium shrink-0">Batal</button>
+        <button type="button" id="btn-print-vouchers"
+          class="btn btn-primary h-8 sm:h-9 px-3 sm:px-4 text-xs font-semibold flex items-center gap-1.5 shadow-sm shrink-0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect width="12" height="8" x="6" y="14" />
+          </svg>
+          <span>Simpan & Cetak</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Simulator Scan & Validasi Kupon Kasir -->
+  <div id="modal-scan-voucher"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-[60] flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto">
+    <div
+      class="bg-surface rounded-2xl w-full max-w-[94vw] sm:max-w-md max-h-[92vh] flex flex-col shadow-2xl border border-default overflow-hidden my-auto box-border">
+      <!-- Modal Header -->
+      <div
+        class="px-3.5 py-2.5 sm:px-5 sm:py-3.5 border-b border-subtle flex items-center justify-between bg-emerald-50/70 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span
+            class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-100 text-emerald-800 shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+              <rect x="7" y="7" width="10" height="10" rx="1" />
+            </svg>
+          </span>
+          <div class="min-w-0">
+            <h2 class="font-heading text-[14px] sm:text-[16px] font-bold text-primary truncate leading-tight">Simulator Validasi Kupon</h2>
+            <p class="text-[10px] sm:text-[11.5px] text-muted truncate">Periksa barcode voucher belanja</p>
+          </div>
+        </div>
+        <button id="modal-scan-close" class="text-light hover:text-primary transition p-1 shrink-0 ml-1"
+          aria-label="Tutup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-3 sm:p-4 overflow-y-auto min-h-0 flex-1 overscroll-contain flex flex-col gap-3 text-xs">
+        <!-- Input Kode Barcode & Total Belanja -->
+        <div class="flex flex-col gap-2.5">
+          <div>
+            <label for="scan-input-kode" class="form-label text-[11px] sm:text-xs">Kode Barcode Voucher</label>
+            <div class="flex gap-1.5 items-center w-full">
+              <input id="scan-input-kode" type="text"
+                class="input-field font-mono uppercase text-xs sm:text-sm tracking-wider font-semibold flex-1 min-w-0 py-1.5 sm:py-2 px-2.5" placeholder="VCHR-KEJ-88219" />
+              <button type="button" id="btn-do-scan"
+                class="btn btn-primary h-8 sm:h-9 px-3 text-xs font-semibold shrink-0 flex items-center gap-1 shadow-sm whitespace-nowrap">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21 21-4.3-4.3" />
+                  <circle cx="11" cy="11" r="8" />
+                </svg>
+                <span>Validasi</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label for="scan-input-belanja" class="form-label text-[11px] sm:text-xs">Simulasi Total Belanja Pelanggan (Rp)</label>
+            <input id="scan-input-belanja" type="number" step="1000" min="0" value="35000"
+              class="input-field font-semibold text-xs sm:text-sm py-1.5 sm:py-2 px-2.5 w-full" placeholder="35000" />
+          </div>
+        </div>
+
+        <!-- Quick Pick Active Vouchers Demo -->
+        <div>
+          <div class="text-[10.5px] sm:text-[11px] font-semibold text-muted mb-1">Kupon Aktif Tersedia (Klik untuk Coba):</div>
+          <div id="scan-quick-vouchers" class="flex flex-wrap gap-1 w-full">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Kotak Hasil Validasi -->
+        <div id="scan-result-container" class="mt-0.5 p-3 rounded-xl border border-dashed border-gray-200 bg-hover/40 min-h-[90px] flex flex-col items-center justify-center text-center w-full box-border">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa89e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1 opacity-60">
+            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+            <path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" />
+          </svg>
+          <span class="text-muted font-medium text-[11px]">Ketik atau pilih kode barcode di atas, lalu klik "Validasi"</span>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-3.5 py-2.5 sm:px-5 sm:py-3 border-t border-subtle bg-surface flex items-center justify-between gap-2 shrink-0">
+        <button type="button" id="btn-kasir-create-voucher"
+          class="btn btn-outline h-8 sm:h-9 px-2.5 sm:px-3 text-[11px] sm:text-xs font-semibold flex items-center gap-1 border-emerald-300 text-emerald-800 hover:bg-emerald-50 transition shrink-0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>Buat Kupon</span>
+        </button>
+        <button type="button" id="modal-scan-close-btn" class="btn btn-outline h-8 sm:h-9 px-3.5 sm:px-4 text-xs font-medium shrink-0">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Hidden Container for Print Output -->
   <div id="printable-labels-area" class="hidden"></div>
+  <div id="printable-vouchers-area" class="hidden"></div>
 
   <!-- Toast -->
   <div id="toast"
@@ -587,6 +800,14 @@
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" />
         <circle cx="12" cy="12" r="3.4" />
+      </svg>
+    </button>
+    <button type="button" data-action="label" class="btn btn-outline btn-icon hover:!border-purple-300 hover:!text-purple-700"
+      title="Cetak Barcode & Label Rak">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+        <circle cx="7" cy="7" r=".5" fill="currentColor" />
       </svg>
     </button>
     <button type="button" data-action="edit" class="btn btn-outline btn-icon" title="Edit">
@@ -631,10 +852,10 @@
       </div>
 
       <!-- 4. STATUS -->
-      <div><span class="js-status-badge badge text-[11px]"></span></div>
+      <div class="flex justify-center"><span class="js-status-badge badge text-[11px]"></span></div>
 
       <!-- 5. AKSI -->
-      <div class="js-actions flex items-center justify-end gap-1" data-actions></div>
+      <div class="js-actions flex items-center justify-end gap-1.5" data-actions></div>
     </div>
   </template>
 

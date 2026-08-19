@@ -10,7 +10,7 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 /* Layout Grid */
 .inventory-grid {
   display: grid;
-  grid-template-columns: 2.4fr 0.6fr 1.6fr 0.8fr 1fr;
+  grid-template-columns: minmax(170px, 2fr) 60px minmax(130px, 1.4fr) 90px 145px;
   gap: 0.5rem 0.75rem;
   align-items: center;
 }
@@ -547,22 +547,30 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-#modal-label-diskon, #modal-form, #modal-hapus {
+/* Voucher Ticket Styling */
+.voucher-ticket {
+  background: #ffffff;
+  border: 1.5px dashed #059669;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#modal-voucher, #modal-scan-voucher {
   -webkit-overflow-scrolling: touch;
 }
 
-#modal-label-diskon input[readonly] {
-  user-select: none;
-}
-
-/* Print Specific Rules for Shelf Labels */
+/* Print Specific Rules for Shelf Labels & Vouchers */
 @media print {
   body {
     background: #ffffff !important;
     padding: 0 !important;
     margin: 0 !important;
   }
-  header, nav, main, footer, #modal-form, #modal-hapus, #toast, #modal-label-diskon {
+  header, nav, main, footer, #modal-form, #modal-hapus, #toast, #modal-label-diskon, #modal-voucher, #modal-scan-voucher {
     display: none !important;
   }
   #printable-labels-area {
@@ -578,6 +586,25 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
     break-inside: avoid;
     border: 2px solid #1f2937 !important;
     border-radius: 8px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #printable-vouchers-area {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10mm 8mm !important;
+    padding: 10mm !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .voucher-print-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 2px dashed #10b981 !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
     background: #ffffff !important;
     color: #000000 !important;
