@@ -63,6 +63,27 @@ const el = {
   aiCountSudah: document.getElementById('ai-count-sudah'),
   userName: document.getElementById('user-name'),
   btnLogout: document.getElementById('btn-logout'),
+  modalLabelDiskon: document.getElementById('modal-label-diskon'),
+  modalLabelClose: document.getElementById('modal-label-close'),
+  modalLabelCancel: document.getElementById('modal-label-cancel'),
+  btnPrintLabels: document.getElementById('btn-print-labels'),
+  labelInputNama: document.getElementById('label-input-nama'),
+  labelInputKategori: document.getElementById('label-input-kategori'),
+  labelInputKadaluarsa: document.getElementById('label-input-kadaluarsa'),
+  labelInputHargaAsli: document.getElementById('label-input-harga-asli'),
+  labelPctGroup: document.getElementById('label-pct-group'),
+  labelInputTagline: document.getElementById('label-input-tagline'),
+  labelInputQty: document.getElementById('label-input-qty'),
+  shelfTagPreview: document.getElementById('shelf-tag-preview'),
+  previewNama: document.getElementById('preview-nama'),
+  previewKategori: document.getElementById('preview-kategori'),
+  previewKadaluarsa: document.getElementById('preview-kadaluarsa'),
+  previewTagline: document.getElementById('preview-tagline'),
+  previewPct: document.getElementById('preview-pct'),
+  previewHargaAsli: document.getElementById('preview-harga-asli'),
+  previewHargaDiskon: document.getElementById('preview-harga-diskon'),
+  previewSku: document.getElementById('preview-sku'),
+  printableLabelsArea: document.getElementById('printable-labels-area'),
 };
 
 function esc(value) {
@@ -571,16 +592,25 @@ function renderAiCard(rekomendasi) {
   clone.querySelector('.js-saran').textContent = rekomendasi.isi_saran;
 
   const actions = clone.querySelector('.js-actions');
+
+  // Tombol Cetak Label Rak (tersedia untuk semua jenis rekomendasi, terutama Diskon & Bundling)
+  const btnLabel = document.createElement('button');
+  btnLabel.type = 'button';
+  btnLabel.dataset.cetakLabel = rekomendasi.id;
+  btnLabel.className = 'btn btn-outline h-9 px-3 text-[12.5px] inline-flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition shrink-0';
+  btnLabel.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg> <span>Label Rak</span>`;
+  actions.appendChild(btnLabel);
+
   if (rekomendasi.diterapkan) {
     const span = document.createElement('span');
-    span.className = 'inline-flex items-center gap-1.5 text-[13px] font-medium text-success';
-    span.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Sudah diterapkan`;
+    span.className = 'inline-flex items-center gap-1.5 text-[13px] font-medium text-success ml-auto';
+    span.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg> Diterapkan`;
     actions.appendChild(span);
   } else {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.terapkan = rekomendasi.id;
-    btn.className = 'btn btn-primary h-9 px-3.5 text-[13px]';
+    btn.className = 'btn btn-primary h-9 px-3.5 text-[13px] ml-auto';
     btn.textContent = 'Tandai Diterapkan';
     actions.appendChild(btn);
   }
@@ -639,7 +669,7 @@ function renderRekomendasi() {
 
   if (activeAiFilter === 'semua') {
     const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
-    const groupSudah = renderAiGroup('Sudah Ditindak', sudahDitindak);
+    const groupSudah = renderAiGroup('Diterapkan', sudahDitindak);
     if (groupPerlu) fragment.appendChild(groupPerlu);
     if (groupSudah) fragment.appendChild(groupSudah);
   } else if (activeAiFilter === 'belum') {
@@ -653,14 +683,14 @@ function renderRekomendasi() {
         <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-700 mb-2">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
         </div>
-        <div class="font-heading text-[14.5px] font-semibold text-primary">Semua saran sudah diterapkan!</div>
+        <div class="font-heading text-[14.5px] font-semibold text-primary">Semua saran telah diterapkan!</div>
         <p class="text-xs text-soft mt-0.5">Tidak ada saran AI yang perlu ditindak saat ini.</p>
       `;
       fragment.appendChild(emptyBox);
     }
   } else if (activeAiFilter === 'sudah') {
     if (sudahDitindak.length > 0) {
-      const groupSudah = renderAiGroup('Sudah Ditindak', sudahDitindak);
+      const groupSudah = renderAiGroup('Diterapkan', sudahDitindak);
       if (groupSudah) fragment.appendChild(groupSudah);
     } else {
       const emptyBox = document.createElement('div');
@@ -669,8 +699,8 @@ function renderRekomendasi() {
         <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-100 text-purple-700 mb-2">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <div class="font-heading text-[14.5px] font-semibold text-primary">Belum ada saran diterapkan</div>
-        <p class="text-xs text-soft mt-0.5">Klik tombol "Tandai Diterapkan" pada saran yang sudah dijalankan.</p>
+        <div class="font-heading text-[14.5px] font-semibold text-primary">Belum ada saran yang diterapkan</div>
+        <p class="text-xs text-soft mt-0.5">Klik tombol "Tandai Diterapkan" pada saran yang telah dijalankan.</p>
       `;
       fragment.appendChild(emptyBox);
     }
@@ -715,6 +745,18 @@ async function requestRekomendasi(item, button) {
 }
 
 el.aiList.addEventListener('click', async (e) => {
+  // 1. Handler Cetak Label Rak
+  const btnLabel = e.target.closest('[data-cetak-label]');
+  if (btnLabel) {
+    const id = Number(btnLabel.dataset.cetakLabel);
+    const rec = allRekomendasi.find((r) => r.id === id);
+    if (rec && rec.item) {
+      openLabelModal(rec.item, rec);
+    }
+    return;
+  }
+
+  // 2. Handler Tandai Diterapkan
   const button = e.target.closest('[data-terapkan]');
   if (!button) return;
 
@@ -731,6 +773,145 @@ el.aiList.addEventListener('click', async (e) => {
     button.disabled = false;
   }
 });
+
+// ---------- Modal Cetak Label Rak Promo & Diskon ----------
+
+let currentLabelData = {
+  nama: '',
+  kategori: '',
+  kadaluarsa: '',
+  sisaHari: 0,
+  hargaAsli: 20000,
+  diskonPct: 50,
+  tagline: 'FOOD RESCUE DEAL',
+  qty: 4,
+  sku: 'SKU-SPC-001',
+};
+
+const DEFAULT_PRICES = {
+  sayur: 12000,
+  buah: 28000,
+  'olahan susu': 24000,
+  roti: 16000,
+  sembako: 65000,
+  daging: 45000,
+  ikan: 35000,
+  bumbu: 8000,
+};
+
+function formatRupiah(num) {
+  return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+}
+
+function extractDiscountPct(saranText) {
+  if (!saranText) return 50;
+  const match = saranText.match(/(\d{1,2})\s*%/);
+  if (match && match[1]) {
+    const val = Number(match[1]);
+    if (val >= 10 && val <= 90) return val;
+  }
+  return 50;
+}
+
+function openLabelModal(item, rekomendasi = null) {
+  const katKey = (item.kategori || '').toLowerCase().trim();
+  const defaultHarga = DEFAULT_PRICES[katKey] || 20000;
+  const pct = rekomendasi ? extractDiscountPct(rekomendasi.isi_saran) : 50;
+
+  const skuCode = 'SKU-' + (item.nama ? item.nama.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase() : 'SPC') + '-' + item.id + (Math.floor(100 + Math.random() * 900));
+
+  currentLabelData = {
+    nama: item.nama,
+    kategori: item.kategori,
+    kadaluarsa: item.tanggal_kadaluarsa ? formatTanggal(item.tanggal_kadaluarsa) : 'Hari Ini',
+    sisaHari: item.sisa_hari,
+    hargaAsli: defaultHarga,
+    diskonPct: pct,
+    tagline: 'FOOD RESCUE DEAL',
+    qty: 4,
+    sku: skuCode,
+  };
+
+  if (el.labelInputNama) el.labelInputNama.value = currentLabelData.nama;
+  if (el.labelInputKategori) el.labelInputKategori.value = currentLabelData.kategori;
+  if (el.labelInputKadaluarsa) el.labelInputKadaluarsa.value = currentLabelData.kadaluarsa;
+  if (el.labelInputHargaAsli) el.labelInputHargaAsli.value = currentLabelData.hargaAsli;
+  if (el.labelInputTagline) el.labelInputTagline.value = currentLabelData.tagline;
+  if (el.labelInputQty) el.labelInputQty.value = currentLabelData.qty;
+
+  updateLabelPctButtons(currentLabelData.diskonPct);
+  updateLabelPreview();
+
+  if (el.modalLabelDiskon) el.modalLabelDiskon.classList.remove('hidden');
+}
+
+function closeLabelModal() {
+  if (el.modalLabelDiskon) el.modalLabelDiskon.classList.add('hidden');
+}
+
+function updateLabelPctButtons(selectedPct) {
+  if (!el.labelPctGroup) return;
+  const buttons = el.labelPctGroup.querySelectorAll('[data-pct]');
+  buttons.forEach((btn) => {
+    btn.classList.toggle('active', Number(btn.dataset.pct) === Number(selectedPct));
+  });
+}
+
+function updateLabelPreview() {
+  const hargaAsli = Math.max(0, Number(el.labelInputHargaAsli?.value || 0));
+  const pct = currentLabelData.diskonPct;
+  const hargaDiskon = Math.max(0, Math.round((hargaAsli * (100 - pct) / 100) / 500) * 500);
+
+  currentLabelData.hargaAsli = hargaAsli;
+  currentLabelData.tagline = el.labelInputTagline?.value || 'FOOD RESCUE DEAL';
+  currentLabelData.qty = Number(el.labelInputQty?.value || 4);
+
+  if (el.previewNama) el.previewNama.textContent = currentLabelData.nama;
+  if (el.previewKategori) el.previewKategori.textContent = `${currentLabelData.kategori} · ${sisaHariText(currentLabelData.sisaHari)}`;
+  if (el.previewKadaluarsa) el.previewKadaluarsa.textContent = currentLabelData.kadaluarsa;
+  if (el.previewTagline) el.previewTagline.textContent = currentLabelData.tagline;
+  if (el.previewPct) el.previewPct.textContent = `-${pct}%`;
+  if (el.previewHargaAsli) el.previewHargaAsli.textContent = formatRupiah(hargaAsli);
+  if (el.previewHargaDiskon) el.previewHargaDiskon.textContent = formatRupiah(hargaDiskon);
+  if (el.previewSku) el.previewSku.textContent = currentLabelData.sku;
+}
+
+function printShelfLabels() {
+  if (!el.shelfTagPreview || !el.printableLabelsArea) return;
+  const qty = currentLabelData.qty;
+
+  const previewHTML = el.shelfTagPreview.outerHTML;
+  el.printableLabelsArea.innerHTML = '';
+
+  for (let i = 0; i < qty; i++) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'shelf-tag-print-item';
+    itemDiv.innerHTML = previewHTML;
+    el.printableLabelsArea.appendChild(itemDiv);
+  }
+
+  window.print();
+}
+
+// Event Listeners for Label Modal
+if (el.modalLabelClose) el.modalLabelClose.addEventListener('click', closeLabelModal);
+if (el.modalLabelCancel) el.modalLabelCancel.addEventListener('click', closeLabelModal);
+if (el.modalLabelDiskon) el.modalLabelDiskon.addEventListener('click', (e) => { if (e.target === el.modalLabelDiskon) closeLabelModal(); });
+if (el.btnPrintLabels) el.btnPrintLabels.addEventListener('click', printShelfLabels);
+
+if (el.labelInputHargaAsli) el.labelInputHargaAsli.addEventListener('input', updateLabelPreview);
+if (el.labelInputTagline) el.labelInputTagline.addEventListener('change', updateLabelPreview);
+if (el.labelInputQty) el.labelInputQty.addEventListener('change', updateLabelPreview);
+
+if (el.labelPctGroup) {
+  el.labelPctGroup.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pct]');
+    if (!btn) return;
+    currentLabelData.diskonPct = Number(btn.dataset.pct);
+    updateLabelPctButtons(currentLabelData.diskonPct);
+    updateLabelPreview();
+  });
+}
 
 // ---------- Init ----------
 
@@ -757,6 +938,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (!el.modalForm.classList.contains('hidden')) closeFormModal();
   if (!el.modalHapus.classList.contains('hidden')) closeDeleteModal();
+  if (el.modalLabelDiskon && !el.modalLabelDiskon.classList.contains('hidden')) closeLabelModal();
 });
 
 el.btnLogout.addEventListener('click', async () => {

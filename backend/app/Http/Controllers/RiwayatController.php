@@ -8,7 +8,7 @@ class RiwayatController extends Controller
 {
     private const JENIS_TERSELAMATKAN = ['Diskon', 'Distribusi', 'Bundling'];
 
-    private const JENIS_TERBUANG = ['Pemusnahan'];
+    private const JENIS_TERBUANG = ['Dibuang', 'Pemusnahan'];
 
     /**
      * Daftar riwayat tindakan — rekomendasi AI yang sudah ditandai diterapkan.
@@ -38,6 +38,10 @@ class RiwayatController extends Controller
         $terselamatkan = $diterapkan->whereIn('jenis_saran', self::JENIS_TERSELAMATKAN);
         $terbuang = $diterapkan->whereIn('jenis_saran', self::JENIS_TERBUANG);
 
+        $perJenis = $diterapkan->groupBy(function ($r) {
+            return $r->jenis_saran === 'Pemusnahan' ? 'Dibuang' : $r->jenis_saran;
+        })->map->count();
+
         return response()->json([
             'data' => [
                 'jumlah_tindakan' => $diterapkan->count(),
@@ -45,7 +49,7 @@ class RiwayatController extends Controller
                 'jumlah_terbuang' => $terbuang->count(),
                 'unit_terselamatkan' => $terselamatkan->sum('jumlah_stok_saat_dibuat'),
                 'unit_terbuang' => $terbuang->sum('jumlah_stok_saat_dibuat'),
-                'per_jenis' => $diterapkan->groupBy('jenis_saran')->map->count(),
+                'per_jenis' => $perJenis,
             ],
         ]);
     }

@@ -82,7 +82,7 @@ class GeminiInsightService
     private function kirimKeGemini(string $model, string $prompt, bool $sudahKadaluarsa, Item $item)
     {
         $enumSaran = $sudahKadaluarsa
-            ? ['Pemusnahan']
+            ? ['Dibuang']
             : ['Diskon', 'Distribusi', 'Bundling'];
 
         // 429 (kuota habis) sengaja TIDAK di-retry: kalau yang habis adalah
@@ -205,7 +205,7 @@ class GeminiInsightService
         $instruksiSaran = $sudahKadaluarsa
             ? <<<INSTRUKSI
                 PENTING — Barang ini SUDAH LEWAT tanggal kadaluarsa (sisa hari negatif). Barang seperti ini TIDAK LAYAK dijual, didiskon, didistribusikan, atau dibundling dengan produk lain karena berisiko terhadap keamanan pangan.
-                Satu-satunya jenis_saran yang boleh kamu berikan adalah "Pemusnahan". Isi_saran harus menginstruksikan pemusnahan/pembuangan barang secara aman sesuai prosedur kebersihan gudang, TANPA menyarankan penjualan dalam bentuk apa pun.
+                Satu-satunya jenis_saran yang boleh kamu berikan adalah "Dibuang". Isi_saran harus menginstruksikan pembuangan barang secara aman sesuai prosedur kebersihan gudang, TANPA menyarankan penjualan dalam bentuk apa pun.
                 INSTRUKSI
             : <<<INSTRUKSI
                 Pilih SATU jenis saran yang paling tepat: "Diskon", "Distribusi", atau "Bundling".

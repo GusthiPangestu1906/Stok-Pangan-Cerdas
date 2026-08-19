@@ -86,7 +86,7 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 .badge-diskon { color: #92400e; background: #fffbeb; border-color: #fde68a; }
 .badge-distribusi { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
 .badge-bundling { color: #86198f; background: #fdf4ff; border-color: #f5d0fe; }
-.badge-pemusnahan { color: #9f1239; background: #fff1f3; border-color: #fecdd3; }
+.badge-pemusnahan, .badge-dibuang { color: #9f1239; background: #fff1f3; border-color: #fecdd3; }
 .badge-olah-kembali { color: #115e59; background: #ccfbf1; border-color: #99f6e4; }
 .badge-default { color: #5d6f63; background: #fafbf9; border-color: #e0e7e0; }
 
@@ -510,6 +510,85 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
     padding-bottom: 4rem;
   }
 }
+
+/* ========================================================
+   DISCOUNT & SHELF CLEARANCE TAG STYLES
+   ======================================================== */
+.label-pct-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.label-pct-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+}
+.label-pct-btn.active {
+  border-color: #166534;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.15);
+}
+
+.shelf-tag {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+#modal-label-diskon, #modal-form, #modal-hapus {
+  -webkit-overflow-scrolling: touch;
+}
+
+#modal-label-diskon input[readonly] {
+  user-select: none;
+}
+
+/* Print Specific Rules for Shelf Labels */
+@media print {
+  body {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  header, nav, main, footer, #modal-form, #modal-hapus, #toast, #modal-label-diskon {
+    display: none !important;
+  }
+  #printable-labels-area {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12mm 8mm !important;
+    padding: 10mm !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .shelf-tag-print-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 2px solid #1f2937 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+
+
+
 
 
 

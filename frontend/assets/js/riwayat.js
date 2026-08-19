@@ -313,6 +313,12 @@ function renderStatistik(statistik) {
   renderCharts(statistik, cachedRiwayat);
 }
 
+function formatJenisSaran(jenis) {
+  if (!jenis) return 'Umum';
+  if (jenis.toLowerCase() === 'pemusnahan') return 'Dibuang';
+  return jenis;
+}
+
 function renderPerJenis(perJenis) {
   const entries = Object.entries(perJenis || {});
   if (!el.perJenisChips) return;
@@ -321,7 +327,8 @@ function renderPerJenis(perJenis) {
     el.perJenisChips.innerHTML = '<span class="text-xs text-light">Belum ada strategi dieksekusi</span>';
     return;
   }
-  entries.forEach(([jenis, jumlah]) => {
+  entries.forEach(([rawJenis, jumlah]) => {
+    const jenis = formatJenisSaran(rawJenis);
     const chip = document.createElement('span');
     chip.textContent = `${jenis}: ${jumlah}`;
     chip.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
@@ -348,7 +355,7 @@ function renderRiwayatRow(r) {
   }
 
   const badge = clone.querySelector('.js-jenis-badge');
-  const jenis = r.jenis_saran || 'Umum';
+  const jenis = formatJenisSaran(r.jenis_saran);
   badge.textContent = jenis;
   badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
 
@@ -377,7 +384,7 @@ function renderRiwayatCard(r) {
   clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
 
   const badge = clone.querySelector('.js-jenis-badge');
-  const jenis = r.jenis_saran || 'Umum';
+  const jenis = formatJenisSaran(r.jenis_saran);
   badge.textContent = jenis;
   badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
 
@@ -477,7 +484,10 @@ async function init() {
     ]);
 
     cachedRiwayat = riwayat || [];
-    if (me && el.userName) el.userName.textContent = me.name;
+    if (me) {
+      if (me.name) currentUserName = me.name;
+      if (el.userName) el.userName.textContent = me.name;
+    }
     if (statistik) renderStatistik(statistik);
     applyRiwayatFilters();
   } catch (err) {
