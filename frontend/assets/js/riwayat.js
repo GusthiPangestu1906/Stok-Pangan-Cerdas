@@ -313,6 +313,12 @@ function renderStatistik(statistik) {
   renderCharts(statistik, cachedRiwayat);
 }
 
+function formatJenisSaran(jenis) {
+  if (!jenis) return 'Umum';
+  if (jenis.toLowerCase() === 'pemusnahan') return 'Dibuang';
+  return jenis;
+}
+
 function renderPerJenis(perJenis) {
   const entries = Object.entries(perJenis || {});
   if (!el.perJenisChips) return;
@@ -321,7 +327,8 @@ function renderPerJenis(perJenis) {
     el.perJenisChips.innerHTML = '<span class="text-xs text-light">Belum ada strategi dieksekusi</span>';
     return;
   }
-  entries.forEach(([jenis, jumlah]) => {
+  entries.forEach(([rawJenis, jumlah]) => {
+    const jenis = formatJenisSaran(rawJenis);
     const chip = document.createElement('span');
     chip.textContent = `${jenis}: ${jumlah}`;
     chip.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
@@ -331,16 +338,28 @@ function renderPerJenis(perJenis) {
 
 function renderRiwayatRow(r) {
   const item = r.item;
+  const nama = r.nama_barang || r.nama_item || item?.nama || '(barang dihapus)';
+  const kategori = r.kategori_barang || r.kategori_item || item?.kategori || '';
   const template = document.getElementById('tmpl-riwayat-row');
   const clone = template.content.cloneNode(true);
 
   clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
-  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+  
+  const namaEl = clone.querySelector('.js-nama');
+  if (namaEl) {
+    namaEl.textContent = nama;
+    if (!item && nama !== '(barang dihapus)') {
+      const deletedTag = document.createElement('span');
+      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
+      deletedTag.textContent = '(dihapus)';
+      namaEl.appendChild(deletedTag);
+    }
+  }
 
   const katEl = clone.querySelector('.js-kategori');
   if (katEl) {
-    if (item?.kategori) {
-      katEl.textContent = `Kategori: ${item.kategori}`;
+    if (kategori) {
+      katEl.textContent = `Kategori: ${kategori}`;
       katEl.classList.remove('hidden');
     } else {
       katEl.classList.add('hidden');
@@ -348,7 +367,7 @@ function renderRiwayatRow(r) {
   }
 
   const badge = clone.querySelector('.js-jenis-badge');
-  const jenis = r.jenis_saran || 'Umum';
+  const jenis = formatJenisSaran(r.jenis_saran);
   badge.textContent = jenis;
   badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
 
@@ -360,14 +379,26 @@ function renderRiwayatRow(r) {
 
 function renderRiwayatCard(r) {
   const item = r.item;
+  const nama = r.nama_barang || r.nama_item || item?.nama || '(barang dihapus)';
+  const kategori = r.kategori_barang || r.kategori_item || item?.kategori || '';
   const template = document.getElementById('tmpl-riwayat-card');
   const clone = template.content.cloneNode(true);
 
-  clone.querySelector('.js-nama').textContent = item?.nama ?? '(barang dihapus)';
+  const namaEl = clone.querySelector('.js-nama');
+  if (namaEl) {
+    namaEl.textContent = nama;
+    if (!item && nama !== '(barang dihapus)') {
+      const deletedTag = document.createElement('span');
+      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
+      deletedTag.textContent = '(dihapus)';
+      namaEl.appendChild(deletedTag);
+    }
+  }
+
   const katEl = clone.querySelector('.js-kategori');
   if (katEl) {
-    if (item?.kategori) {
-      katEl.textContent = `Kategori: ${item.kategori}`;
+    if (kategori) {
+      katEl.textContent = `Kategori: ${kategori}`;
       katEl.classList.remove('hidden');
     } else {
       katEl.classList.add('hidden');
@@ -377,7 +408,7 @@ function renderRiwayatCard(r) {
   clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
 
   const badge = clone.querySelector('.js-jenis-badge');
-  const jenis = r.jenis_saran || 'Umum';
+  const jenis = formatJenisSaran(r.jenis_saran);
   badge.textContent = jenis;
   badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
 
@@ -393,8 +424,8 @@ function applyRiwayatFilters() {
   if (searchKeyword.trim()) {
     const q = searchKeyword.trim().toLowerCase();
     filtered = filtered.filter((r) => {
-      const nama = (r.item?.nama || '').toLowerCase();
-      const kat = (r.item?.kategori || '').toLowerCase();
+      const nama = (r.nama_barang || r.nama_item || r.item?.nama || '').toLowerCase();
+      const kat = (r.kategori_barang || r.kategori_item || r.item?.kategori || '').toLowerCase();
       const jenis = (r.jenis_saran || '').toLowerCase();
       return nama.includes(q) || kat.includes(q) || jenis.includes(q);
     });
@@ -477,7 +508,10 @@ async function init() {
     ]);
 
     cachedRiwayat = riwayat || [];
-    if (me && el.userName) el.userName.textContent = me.name;
+    if (me) {
+      if (me.name) currentUserName = me.name;
+      if (el.userName) el.userName.textContent = me.name;
+    }
     if (statistik) renderStatistik(statistik);
     applyRiwayatFilters();
   } catch (err) {

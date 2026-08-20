@@ -11,6 +11,8 @@ class Rekomendasi extends Model
 
     protected $fillable = [
         'item_id',
+        'nama_item',
+        'kategori_item',
         'jenis_saran',
         'isi_saran',
         'status_item_saat_dibuat',
@@ -24,8 +26,23 @@ class Rekomendasi extends Model
         'diterapkan_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'nama_barang',
+        'kategori_barang',
+    ];
+
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
+    }
+
+    public function getNamaBarangAttribute(): string
+    {
+        return $this->item?->nama ?? $this->nama_item ?? '(barang dihapus)';
+    }
+
+    public function getKategoriBarangAttribute(): ?string
+    {
+        return $this->item?->kategori ?? $this->kategori_item;
     }
 }

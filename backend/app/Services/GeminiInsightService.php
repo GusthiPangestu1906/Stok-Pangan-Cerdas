@@ -47,12 +47,17 @@ class GeminiInsightService
             throw new RuntimeException('Layanan AI belum dikonfigurasi. Hubungi pengelola sistem.');
         }
 
+        $cacheKey = 'gemini_insight_' . md5("{$item->nama}_{$item->kategori}_{$item->status}_{$item->sisa_hari}_{$item->jumlah_stok}");
+        $cached = \Illuminate\Support\Facades\Cache::get($cacheKey);
+        if ($cached && is_array($cached)) {
+            Log::info('GeminiInsightService menggunakan cache persisten (0 token)', ['item_id' => $item->id]);
+            return $cached;
+        }
+
         $sudahKadaluarsa = $item->sisa_hari < 0;
         $prompt = $this->buildPrompt($item, $sudahKadaluarsa);
 
-        // Rantai model yang dicoba untuk kasus 429, tanpa duplikat (model
-        // utama tidak diulang lagi kalau kebetulan juga ada di daftar
-        // fallback, dan tiap model cadangan hanya dicoba sekali).
+        // Rantai model yang dicoba untuk kasus 429
         $rantaiModel = array_values(array_unique([$this->model, ...$this->modelFallbacks]));
 
         $modelSebelumnya = null;
@@ -76,24 +81,23 @@ class GeminiInsightService
             $modelSebelumnya = $model;
         }
 
-        return $this->parseResponse($response, $item, $rantaiModel);
+        $hasil = $this->parseResponse($response, $item, $rantaiModel);
+        \Illuminate\Support\Facades\Cache::put($cacheKey, $hasil, now()->addDays(30));
+
+        return $hasil;
     }
 
     private function kirimKeGemini(string $model, string $prompt, bool $sudahKadaluarsa, Item $item)
     {
         $enumSaran = $sudahKadaluarsa
-            ? ['Pemusnahan']
+            ? ['Dibuang']
             : ['Diskon', 'Distribusi', 'Bundling'];
 
-        // 429 (kuota habis) sengaja TIDAK di-retry: kalau yang habis adalah
-        // kuota HARIAN (bukan per-menit), jeda beberapa detik tidak akan
-        // memulihkannya — kuota baru pulih besok. Mengulang percobaan hanya
-        // membuang waktu dan menunda pesan/fallback yang seharusnya cepat
-        // terjadi.
         $retryableStatusCodes = [500, 503];
 
         try {
-            return Http::timeout(12)
+            return Http::withoutVerifying()
+                ->timeout(25)
                 ->withHeader('x-goog-api-key', $this->apiKey)
                 ->retry([1000, 2000], when: function ($exception, $request) use ($retryableStatusCodes, $item, $model) {
                     $bolehRetry = $exception instanceof ConnectionException
@@ -115,7 +119,7 @@ class GeminiInsightService
                         ['parts' => [['text' => $prompt]]],
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.4,
+                        'temperature' => 0.3,
                         'responseMimeType' => 'application/json',
                         'responseSchema' => [
                             'type' => 'OBJECT',
@@ -196,40 +200,14 @@ class GeminiInsightService
 
     private function buildPrompt(Item $item, bool $sudahKadaluarsa): string
     {
-        $statusLabel = match ($item->status) {
-            'kritis' => 'Kritis (akan kadaluarsa dalam 2 hari atau kurang, atau sudah lewat)',
-            'berisiko' => 'Berisiko (akan kadaluarsa dalam 3-5 hari)',
-            default => 'Aman',
-        };
-
-        $instruksiSaran = $sudahKadaluarsa
-            ? <<<INSTRUKSI
-                PENTING — Barang ini SUDAH LEWAT tanggal kadaluarsa (sisa hari negatif). Barang seperti ini TIDAK LAYAK dijual, didiskon, didistribusikan, atau dibundling dengan produk lain karena berisiko terhadap keamanan pangan.
-                Satu-satunya jenis_saran yang boleh kamu berikan adalah "Pemusnahan". Isi_saran harus menginstruksikan pemusnahan/pembuangan barang secara aman sesuai prosedur kebersihan gudang, TANPA menyarankan penjualan dalam bentuk apa pun.
-                INSTRUKSI
-            : <<<INSTRUKSI
-                Pilih SATU jenis saran yang paling tepat: "Diskon", "Distribusi", atau "Bundling".
-                - Diskon: barang dijual dengan potongan harga agar cepat terjual sebelum kadaluarsa.
-                - Distribusi: barang didistribusikan/disumbangkan ke pihak lain (mitra, dapur umum, dsb) sebelum kadaluarsa.
-                - Bundling: barang digabung dengan produk lain menjadi satu paket jual agar lebih menarik dan cepat laku.
-                INSTRUKSI;
+        $aturan = $sudahKadaluarsa
+            ? 'Barang ini telah lewat tanggal kadaluarsa. Rekomendasikan jenis_saran "Dibuang" dengan instruksi pembuangan/pemusnahan yang aman.'
+            : 'Pilih jenis_saran yang paling tepat: "Diskon", "Distribusi", atau "Bundling".';
 
         return <<<PROMPT
-            Kamu adalah asisten AI untuk sistem manajemen stok pangan koperasi/UMKM bernama "Stok Pangan Cerdas".
-            Tugasmu: memberi SATU rekomendasi tindakan konkret dalam Bahasa Indonesia untuk barang berikut.
-
-            Data barang:
-            - Nama: {$item->nama}
-            - Kategori: {$item->kategori}
-            - Jumlah stok: {$item->jumlah_stok} unit
-            - Tanggal masuk: {$item->tanggal_masuk->toDateString()}
-            - Estimasi umur simpan: {$item->estimasi_umur_simpan_hari} hari
-            - Sisa hari sebelum kadaluarsa: {$item->sisa_hari} hari
-            - Status risiko: {$statusLabel}
-
-            {$instruksiSaran}
-
-            Tulis isi_saran sebagai 1-2 kalimat singkat, praktis, dan actionable dalam Bahasa Indonesia — sebutkan jenis barang dan alasan singkat berdasarkan data di atas. Jangan gunakan format markdown.
-            PROMPT;
+Sebagai asisten manajemen stok pangan, berikan 1 rekomendasi singkat (1-2 kalimat) dalam Bahasa Indonesia.
+Data: {$item->nama} ({$item->kategori}), Stok: {$item->jumlah_stok} unit, Sisa masa simpan: {$item->sisa_hari} hari, Status: {$item->status}.
+{$aturan}
+PROMPT;
     }
 }

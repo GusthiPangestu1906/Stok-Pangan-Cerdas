@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
+use App\Models\Rekomendasi;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -63,10 +64,43 @@ class ItemController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage and log food waste to Riwayat.
      */
     public function destroy(Item $item)
     {
+        // 1. Simpan snapshot nama & kategori pada rekomendasi lama yang sudah diterapkan
+        Rekomendasi::where('item_id', $item->id)
+            ->where('diterapkan', true)
+            ->update([
+                'nama_item' => $item->nama,
+                'kategori_item' => $item->kategori,
+            ]);
+
+        // 2. Hapus rekomendasi pending/belum diterapkan untuk barang ini
+        Rekomendasi::where('item_id', $item->id)
+            ->where('diterapkan', false)
+            ->delete();
+
+        // 3. Catat log pembuangan barang (waste tracking) ke Riwayat jika barang memiliki stok
+        if ($item->jumlah_stok > 0) {
+            $isKadaluarsa = $item->sisa_hari < 0;
+            $alasan = $isKadaluarsa
+                ? "Pembersihan stok \"{$item->nama}\" sebanyak {$item->jumlah_stok} unit yang telah melewati masa kadaluarsa (dibuang/dimusnahkan)."
+                : "Penghapusan stok \"{$item->nama}\" sebanyak {$item->jumlah_stok} unit dari sistem gudang (dibuang/dimusnahkan).";
+
+            Rekomendasi::create([
+                'item_id' => null,
+                'nama_item' => $item->nama,
+                'kategori_item' => $item->kategori,
+                'jenis_saran' => 'Dibuang',
+                'isi_saran' => $alasan,
+                'status_item_saat_dibuat' => $item->status,
+                'jumlah_stok_saat_dibuat' => $item->jumlah_stok,
+                'diterapkan' => true,
+                'diterapkan_at' => now(),
+            ]);
+        }
+
         $item->delete();
 
         return response()->json(null, 204);

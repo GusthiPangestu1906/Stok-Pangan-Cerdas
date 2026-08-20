@@ -42,8 +42,8 @@ class RekomendasiDemoSeeder extends Seeder
 
         Rekomendasi::create([
             'item_id' => $seladaSegar->id,
-            'jenis_saran' => 'Pemusnahan',
-            'isi_saran' => 'Segera lakukan pemusnahan 5 unit Selada Segar yang telah melewati masa kadaluarsa selama 1 hari demi menjaga keselamatan konsumen dan kebersihan gudang.',
+            'jenis_saran' => 'Dibuang',
+            'isi_saran' => 'Segera lakukan pembuangan 5 unit Selada Segar yang telah melewati masa kadaluarsa selama 1 hari demi menjaga keselamatan konsumen dan kebersihan gudang.',
             'status_item_saat_dibuat' => 'kritis',
             'jumlah_stok_saat_dibuat' => 5,
             'diterapkan' => true,

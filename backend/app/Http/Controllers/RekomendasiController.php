@@ -18,6 +18,7 @@ class RekomendasiController extends Controller
     {
         $rekomendasi = Rekomendasi::query()
             ->with('item')
+            ->whereHas('item')
             ->when($request->has('diterapkan'), fn ($query) => $query->where('diterapkan', $request->boolean('diterapkan')))
             ->latest()
             ->get();
@@ -68,6 +69,8 @@ class RekomendasiController extends Controller
 
         $rekomendasi = Rekomendasi::create([
             'item_id' => $item->id,
+            'nama_item' => $item->nama,
+            'kategori_item' => $item->kategori,
             'jenis_saran' => $hasil['jenis_saran'],
             'isi_saran' => $hasil['isi_saran'],
             'status_item_saat_dibuat' => $item->status,

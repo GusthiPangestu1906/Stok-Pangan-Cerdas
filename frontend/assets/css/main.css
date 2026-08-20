@@ -10,7 +10,7 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 /* Layout Grid */
 .inventory-grid {
   display: grid;
-  grid-template-columns: 2.4fr 0.6fr 1.6fr 0.8fr 1fr;
+  grid-template-columns: minmax(170px, 2fr) 60px minmax(130px, 1.4fr) 90px 145px;
   gap: 0.5rem 0.75rem;
   align-items: center;
 }
@@ -86,7 +86,7 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 .badge-diskon { color: #92400e; background: #fffbeb; border-color: #fde68a; }
 .badge-distribusi { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
 .badge-bundling { color: #86198f; background: #fdf4ff; border-color: #f5d0fe; }
-.badge-pemusnahan { color: #9f1239; background: #fff1f3; border-color: #fecdd3; }
+.badge-pemusnahan, .badge-dibuang { color: #9f1239; background: #fff1f3; border-color: #fecdd3; }
 .badge-olah-kembali { color: #115e59; background: #ccfbf1; border-color: #99f6e4; }
 .badge-default { color: #5d6f63; background: #fafbf9; border-color: #e0e7e0; }
 
@@ -510,6 +510,117 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
     padding-bottom: 4rem;
   }
 }
+
+/* ========================================================
+   DISCOUNT & SHELF CLEARANCE TAG STYLES
+   ======================================================== */
+.label-pct-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.label-pct-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+}
+.label-pct-btn.active {
+  border-color: #166534;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.15);
+}
+
+.shelf-tag {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Voucher Ticket Styling */
+.voucher-ticket {
+  background: #ffffff;
+  border: 1.5px dashed #059669;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#modal-voucher, #modal-scan-voucher {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Print Specific Rules for Shelf Labels & Vouchers */
+@media print {
+  body {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  header, nav, main, footer, #modal-form, #modal-hapus, #toast, #modal-label-diskon, #modal-voucher, #modal-scan-voucher {
+    display: none !important;
+  }
+  #printable-labels-area:empty,
+  #printable-vouchers-area:empty {
+    display: none !important;
+  }
+  #printable-labels-area:not(:empty) {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12mm 8mm !important;
+    padding: 10mm !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .shelf-tag-print-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 2px solid #1f2937 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #printable-vouchers-area:not(:empty) {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10mm 8mm !important;
+    padding: 10mm !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .voucher-print-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 2px dashed #059669 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 2mm !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+
+
+
 
 
 

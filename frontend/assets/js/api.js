@@ -119,3 +119,24 @@ function fetchRiwayat() {
 function fetchStatistikRiwayat() {
   return apiRequest('/riwayat/statistik');
 }
+
+// ---------- Vouchers ----------
+
+function fetchVouchers(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.status) params.set('status', filters.status);
+  const query = params.toString();
+  return apiRequest(`/vouchers${query ? `?${query}` : ''}`);
+}
+
+function createVoucher(payload) {
+  return apiRequest('/vouchers', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+function validasiVoucher(kode) {
+  return apiRequest('/vouchers/validasi', { method: 'POST', body: JSON.stringify({ kode }) });
+}
+
+function klaimVoucher(voucherId) {
+  return apiRequest(`/vouchers/${voucherId}/klaim`, { method: 'POST' });
+}
