@@ -1,6 +1,6 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://127.0.0.1:8000/api'
-  : 'https://stok-pangan-cerdas-production.up.railway.app/api';
+  : 'https://stok-pangan-cerdas-production-1606.up.railway.app/api';
 
 const TOKEN_KEY = 'spc_token';
 

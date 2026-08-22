@@ -9,7 +9,7 @@ cabang Vibe Code.
 | | |
 |---|---|
 | **Aplikasi (frontend)** | https://stok-pangan-cerdas.vercel.app |
-| **API (backend)** | https://stok-pangan-cerdas-production.up.railway.app/api |
+| **API (backend)** | https://stok-pangan-cerdas-production-1606.up.railway.app/api |
 | **Repositori** | https://github.com/HammamFais/Stok-Pangan-Cerdas |
 
 **Akun admin demo:**
@@ -58,6 +58,7 @@ diakses tanpa token, kecuali `/api/login` itu sendiri.
   - [Bagian mana rule-based, bagian mana AI generatif](#bagian-mana-rule-based-bagian-mana-ai-generatif)
   - [Prompt utama AI Insight Panel](#prompt-utama-ai-insight-panel)
   - [Kenapa pakai Structured Output](#kenapa-pakai-structured-output-responseschema-bukan-parsing-teks-bebas)
+- [Sistem kupon & validasi kasir](#sistem-kupon--validasi-kasir)
 - [Perhitungan skalabilitas](#perhitungan-skalabilitas)
 - [Menjalankan project (lokal)](#menjalankan-project-lokal)
 - [Kredensial admin demo](#kredensial-admin-demo)
@@ -101,13 +102,26 @@ mulai berisiko.
    dan menampilkan rekomendasi tindakan (Diskon/Distribusi/Bundling, atau
    Pemusnahan khusus barang yang sudah lewat kadaluarsa) di AI Insight
    Panel, lengkap dengan alasannya dalam Bahasa Indonesia.
-5. **Setelah tindakan itu benar-benar dijalankan di gudang**, admin
-   menekan "Tandai Diterapkan" pada rekomendasi tersebut.
-6. **Admin membuka halaman Riwayat** (`riwayat.html`) untuk melihat rekap:
+5. **Untuk rekomendasi berjenis Diskon**, admin bisa menekan "Print Kupon".
+   Sistem membuka modal yang sudah terisi otomatis dari saran AI: besaran
+   diskon mengikuti yang disarankan, masa berlaku mengikuti tanggal
+   kadaluarsa barang, dan jumlah kupon dibatasi tidak melebihi stok. Setiap
+   lembar yang dicetak mendapat kode unik sendiri beserta barcode Code-39
+   yang benar-benar bisa dipindai.
+6. **Pembeli membawa kupon ke kasir.** Kasir membuka "Cek Kupon Kasir",
+   memindai barcode dengan kamera atau mengetik kodenya, lalu menekan
+   Validasi. Backend memeriksa berurutan: kode ada, status aktif, belum
+   lewat masa berlaku, kuota masih tersisa, dan minimal belanja terpenuhi.
+   Kupon yang lolos bisa diklaim — sekali pakai, tidak bisa diulang.
+7. **Setelah tindakan itu benar-benar dijalankan di gudang**, admin
+   menekan "Tandai Diterapkan" pada rekomendasi tersebut. Mencetak label
+   rak atau kupon juga otomatis menandainya.
+8. **Admin membuka halaman Riwayat** (`riwayat.html`) untuk melihat rekap:
    berapa banyak tindakan yang sudah diambil, berapa unit barang yang
-   berhasil diselamatkan versus yang terpaksa dimusnahkan, dan daftar
-   lengkap setiap tindakan beserta waktunya.
-7. **Admin logout** kapan saja lewat tombol "Keluar" di header, yang
+   berhasil diselamatkan versus yang terpaksa dibuang, dan daftar lengkap
+   setiap tindakan beserta waktunya. Klaim kupon di kasir ikut tercatat di
+   sini, ditandai badge "Kasir" beserta kode kuponnya.
+9. **Admin logout** kapan saja lewat tombol "Keluar" di header, yang
    mencabut token aktif di server.
 
 ## Arsitektur
@@ -355,6 +369,95 @@ satu dari nilai yang diizinkan, `isi_saran` harus string). Hasilnya:
   dipaksakan di level skema, bukan cuma diharapkan lewat instruksi bahasa
   alami di prompt.
 
+## Sistem kupon & validasi kasir
+
+Rekomendasi AI hanya berguna kalau benar-benar dijalankan. Bagian ini
+menutup jarak antara *saran* dan *transaksi nyata*: setiap saran berjenis
+Diskon bisa diterbitkan menjadi kupon fisik ber-barcode yang ditukarkan
+pembeli di kasir.
+
+### Kenapa kupon, bukan sekadar label diskon
+
+Aplikasi punya dua jenis cetakan, dan keduanya berbeda peran:
+
+| | Label Rak | Kupon |
+|---|---|---|
+| Ditempel di | Rak barang | Dibawa pembeli |
+| Barcode | Tidak ada | Code-39, bisa dipindai |
+| Tersimpan di database | Tidak | Ya, tabel `vouchers` |
+| Bisa divalidasi kasir | Tidak | Ya |
+| Sekali pakai | Tidak | Ya, kuota berkurang tiap klaim |
+
+Label rak hanya menyampaikan informasi. Kupon punya **status** — belum
+dipakai, sudah dipakai, kadaluarsa — sehingga bisa diaudit dan tidak bisa
+digandakan.
+
+### Barcode Code-39 tanpa library eksternal
+
+Barcode digambar sebagai SVG murni memakai tabel encoding Code-39 lengkap
+(43 karakter: `0-9`, `A-Z`, `-`, dan karakter start/stop `*`). Tidak ada
+library barcode yang di-*bundle* — konsisten dengan keputusan arsitektur
+"Vanilla JS tanpa framework". Hasilnya barcode standar yang terbaca
+pemindai USB maupun kamera ponsel, bukan garis hiasan CSS.
+
+### Kode kupon dibuat di backend, bukan browser
+
+Setiap kupon mendapat kode unik berformat `VCHR-{3 huruf nama barang}-{5
+digit}`, misalnya `VCHR-KEJ-88219`. Kode dibuat **di backend** dan dijamin
+unik lewat dua lapis pemeriksaan: terhadap seluruh isi tabel `vouchers`,
+dan terhadap kode-kode lain dalam satu batch pencetakan yang sama.
+
+Mencetak 6 kupon menghasilkan 6 kode berbeda, dibungkus satu transaksi
+database sehingga tidak ada kupon setengah jadi kalau proses gagal di
+tengah. Batas maksimal 50 kupon per permintaan.
+
+### Validasi berlapis, backend sebagai satu-satunya otoritas
+
+Endpoint validasi memeriksa berurutan dan mengembalikan pesan spesifik
+untuk tiap kegagalan:
+
+1. Kode ada di database
+2. Status masih `aktif` (bukan `habis`)
+3. Belum lewat `berlaku_sampai`
+4. Kuota masih tersisa (`terpakai < kuota`)
+5. Total belanja memenuhi `min_belanja`
+
+Endpoint klaim **memeriksa ulang seluruh pemeriksaan yang sama** sebelum
+menaikkan `terpakai`. Frontend tidak pernah dipercaya: memanggil endpoint
+klaim langsung lewat `curl` tanpa melewati validasi tetap ditolak.
+
+Frontend juga tidak menghitung ulang syarat kupon secara mandiri — saat
+nominal belanja diubah, hasil validasi lama justru dihapus dan kasir wajib
+menekan Validasi lagi. Ini mencegah dua sumber kebenaran yang bisa
+berbeda rumus.
+
+### Jejak ke rekomendasi AI
+
+Kupon yang lahir dari kartu AI Insight menyimpan `item_id` dan
+`rekomendasi_id`, sehingga setiap kupon bisa ditelusuri berasal dari saran
+AI yang mana. Kolom `nama_item` dan `kategori_item` disimpan sebagai
+*snapshot* agar riwayat tetap terbaca meski barangnya kemudian dihapus.
+
+### Klaim kupon tidak menambah "unit terselamatkan"
+
+Keputusan yang disengaja. Sistem kasir hanya memvalidasi kode — ia tidak
+mencatat berapa unit yang benar-benar dibeli. Mengisi angka apa pun di
+situ berarti mengarang data, jadi kolom `jumlah_stok_saat_dibuat` untuk
+entri klaim kupon sengaja diisi `0`.
+
+Klaim tetap tercatat penuh di Riwayat sebagai *tindakan* (dengan badge
+"Kasir" dan kode kuponnya), tapi tidak menyumbang ke statistik unit. Angka
+yang ditampilkan ke pengguna lebih baik kecil tapi bisa
+dipertanggungjawabkan daripada besar tapi berbasis asumsi.
+
+### Pemindaian kamera dengan cadangan manual
+
+Halaman kasir memakai `BarcodeDetector` API bila tersedia. API ini masih
+eksperimental dan belum didukung Chrome desktop di Windows, jadi input
+manual **selalu tersedia** sebagai jaring pengaman — bukan sebagai
+alternatif kelas dua. Kalau kamera tidak didukung, muncul pesan jelas
+alih-alih layar hitam tanpa keterangan.
+
 ## Perhitungan skalabilitas
 
 - **Deteksi risiko tanpa job terjadwal.** Status Aman/Berisiko/Kritis
@@ -477,16 +580,35 @@ itu sendiri.
 
 ## Daftar endpoint API
 
-Semua endpoint diawali `/api`. Kecuali `POST /login`, semua endpoint di
-bawah wajib header `Authorization: Bearer <token>` (login wall penuh).
+Semua endpoint diawali `/api`. Kecuali `POST /login` dan
+`GET /ringkasan-publik`, semua endpoint di bawah wajib header
+`Authorization: Bearer <token>`.
 
-**Auth**
+**Auth & publik**
 
 | Method | Endpoint | Keterangan |
 |---|---|---|
-| POST | `/login` | Login admin, mengembalikan personal access token (Sanctum). Endpoint publik, tidak butuh token. |
+| POST | `/login` | Login admin, mengembalikan personal access token (Sanctum). Endpoint publik. |
 | POST | `/logout` | Mencabut token yang sedang dipakai. |
 | GET | `/me` | Data admin yang sedang login. |
+| GET | `/ringkasan-publik` | Ringkasan anonim untuk kartu "Pantauan Gudang" di halaman login. Endpoint publik dengan permukaan data sengaja dipersempit — lihat catatan di bawah. |
+
+> **Tentang `/ringkasan-publik`.** Endpoint ini dipanggil dari halaman
+> login, saat pengunjung belum punya token. Yang dikembalikan hanya total
+> jumlah barang dan tiga barang sorotan (nama, kategori, jumlah stok, sisa
+> hari, status) — **tanpa** id, harga, tanggal masuk, atau field lain.
+> Ketiga barang dipilih satu per status (Kritis, Berisiko, Aman) supaya
+> sistem tiga warna langsung terbaca, bukan tiga barang paling kritis yang
+> kebetulan semuanya merah.
+
+**Vouchers (kupon kasir)**
+
+| Method | Endpoint | Keterangan |
+|---|---|---|
+| GET | `/vouchers` | Daftar kupon. Mendukung filter `?status=aktif`. |
+| POST | `/vouchers` | Terbitkan kupon. Parameter `jumlah` (maks. 50) mencetak sejumlah kupon berkode unik dalam satu transaksi database. |
+| POST | `/vouchers/validasi` | Periksa satu kode kupon terhadap lima syarat berlapis. Mengembalikan pesan spesifik untuk tiap kegagalan. |
+| POST | `/vouchers/{voucher}/klaim` | Klaim kupon, menaikkan `terpakai`. Memeriksa ulang seluruh validasi di backend — tidak mempercayai frontend. |
 
 **Items**
 
@@ -519,6 +641,9 @@ bawah wajib header `Authorization: Bearer <token>` (login wall penuh).
 - **Fase 2** — CRUD barang, AI Insight Panel.
 - **Fase 3** — Riwayat & statistik barang terselamatkan, autentikasi admin
   (Sanctum token-based).
+- **Pengembangan lanjutan** — Sistem kupon ber-barcode dan halaman validasi
+  kasir, menutup jarak antara rekomendasi AI dan transaksi nyata di gudang.
+  Di luar tuntutan Fase 1–3, dibangun setelah ketiganya selesai.
 
 ## Batasan yang diketahui
 
@@ -540,8 +665,18 @@ terlewat.
   untuk membuktikan perilaku retry dan fallback. Menambahkan *feature test*
   Laravel adalah langkah lanjutan yang wajar untuk project ini.
 - **Satu peran pengguna saja.** Aplikasi dirancang untuk satu admin
-  koperasi. Belum ada pembedaan hak akses (misalnya admin vs staf gudang),
-  kategori.
+  koperasi. Belum ada pembedaan hak akses antara admin dan kasir — halaman
+  validasi kupon memakai token yang sama dengan dashboard.
+- **Stok tidak berkurang otomatis saat kupon diklaim.** Aplikasi ini
+  sistem manajemen stok, bukan mesin kasir (POS). Halaman kasir hanya
+  memvalidasi kode kupon dan tidak mencatat kuantitas transaksi, jadi
+  jumlah stok dikurangi admin lewat menu Edit Barang setelah stok opname.
+  Konsekuensinya klaim kupon tidak menyumbang ke statistik unit
+  terselamatkan — lihat [Sistem kupon & validasi kasir](#sistem-kupon--validasi-kasir).
+- **`BarcodeDetector` belum didukung semua browser.** Pemindaian kamera di
+  halaman kasir bergantung pada API eksperimental yang tersedia di Chrome
+  Android tapi belum di Chrome desktop Windows. Input kode manual selalu
+  tersedia sebagai cadangan penuh.
 - **Estimasi umur simpan diisi manual.** Angka umur simpan tiap barang
   dimasukkan admin, bukan diprediksi sistem. Ini keputusan yang disengaja:
   batasan lomba melarang penggunaan machine learning custom, dan admin
