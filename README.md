@@ -452,6 +452,18 @@ diakses dari `localhost`/`127.0.0.1`. Untuk deployment produksi, ganti
 placeholder `REPLACE_WITH_RAILWAY_URL` di file itu dengan URL backend Railway
 yang sebenarnya.
 
+### Cache-busting file JS
+
+Semua tag `<script src="assets/js/...">` di `index.html`, `riwayat.html`,
+dan `login.html` memakai query string versi manual, misalnya
+`assets/js/dashboard.js?v=1.0.0`. **Naikkan angka versi ini di semua file
+HTML setiap kali ada perubahan berarti pada file JS terkait** — tanpa itu,
+browser bisa terus menyajikan versi lama dari cache setelah deploy, dan
+perubahan kode terasa "tidak muncul" padahal source-nya sudah benar. Jangan
+pakai nilai yang berubah otomatis tiap muat halaman (seperti timestamp) —
+itu memaksa unduh ulang semua file JS setiap kali, boros dan memperlambat
+aplikasi tanpa perlu.
+
 ## Kredensial admin demo
 
 ```

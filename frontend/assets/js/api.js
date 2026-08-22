@@ -73,6 +73,12 @@ function fetchMe() {
   return apiRequest('/me');
 }
 
+// ---------- Ringkasan Publik (halaman login, tanpa token) ----------
+
+function fetchRingkasanPublik() {
+  return apiRequest('/ringkasan-publik');
+}
+
 // ---------- Items ----------
 
 async function fetchItems(filters = {}) {
@@ -133,10 +139,16 @@ function createVoucher(payload) {
   return apiRequest('/vouchers', { method: 'POST', body: JSON.stringify(payload) });
 }
 
-function validasiVoucher(kode) {
-  return apiRequest('/vouchers/validasi', { method: 'POST', body: JSON.stringify({ kode }) });
+function validasiVoucher(kode, totalBelanja = null) {
+  return apiRequest('/vouchers/validasi', {
+    method: 'POST',
+    body: JSON.stringify({ kode, total_belanja: totalBelanja }),
+  });
 }
 
-function klaimVoucher(voucherId) {
-  return apiRequest(`/vouchers/${voucherId}/klaim`, { method: 'POST' });
+function klaimVoucher(voucherId, totalBelanja = null) {
+  return apiRequest(`/vouchers/${voucherId}/klaim`, {
+    method: 'POST',
+    body: JSON.stringify({ total_belanja: totalBelanja }),
+  });
 }

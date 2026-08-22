@@ -336,6 +336,80 @@ function renderPerJenis(perJenis) {
   });
 }
 
+/**
+ * Kupon kasir bertarget kategori sengaja tidak punya item terkait (item_id
+ * null sejak awal, bukan barang yang dihapus). Tag "(dihapus)" hanya masuk
+ * akal untuk rekomendasi AI (sumber='ai') yang item_id null karena barang
+ * aslinya sudah dihapus dari stok.
+ */
+function isBarangDihapus(r) {
+  return r.sumber !== 'kasir' && !r.item;
+}
+
+function isDariKasir(r) {
+  return r.sumber === 'kasir';
+}
+
+function renderNamaDanBadgeSumber(clone, r, nama, item) {
+  const namaEl = clone.querySelector('.js-nama');
+  if (namaEl) {
+    namaEl.textContent = nama;
+    if (isBarangDihapus(r)) {
+      const deletedTag = document.createElement('span');
+      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
+      deletedTag.textContent = '(dihapus)';
+      namaEl.appendChild(deletedTag);
+    }
+  }
+}
+
+function renderJenisBadge(clone, r) {
+  const badge = clone.querySelector('.js-jenis-badge');
+  const jenis = formatJenisSaran(r.jenis_saran);
+  badge.textContent = jenis;
+  badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
+
+  if (isDariKasir(r)) {
+    const sumberBadge = document.createElement('span');
+    sumberBadge.textContent = 'Kasir';
+    sumberBadge.className = 'badge badge-default ml-1';
+    badge.insertAdjacentElement('afterend', sumberBadge);
+  }
+}
+
+/**
+ * Sejajar dengan "Kategori: ..." untuk rekomendasi AI: entri kasir tidak
+ * punya kategori yang berguna untuk dibedakan (dua klaim kupon kategori
+ * yang sama akan identik), jadi slot ini menampilkan kode kupon supaya
+ * tiap baris klaim bisa dibedakan satu sama lain.
+ */
+function renderKategoriAtauKode(clone, r, kategori) {
+  const katEl = clone.querySelector('.js-kategori');
+  if (!katEl) return;
+
+  if (isDariKasir(r) && r.kode_voucher) {
+    katEl.textContent = `Kode: ${r.kode_voucher}`;
+    katEl.classList.remove('hidden');
+  } else if (kategori) {
+    katEl.textContent = `Kategori: ${kategori}`;
+    katEl.classList.remove('hidden');
+  } else {
+    katEl.classList.add('hidden');
+  }
+}
+
+function renderStokDitindak(clone, r, item) {
+  const stokEl = clone.querySelector('.js-stok');
+  if (isDariKasir(r)) {
+    // Klaim kupon tidak mencatat kuantitas transaksi (lihat Opsi C) --
+    // tampilkan tanda hubung, bukan "0 unit" yang terlihat seperti bug.
+    stokEl.textContent = '–';
+  } else {
+    const stok = Number(r.jumlah_stok_saat_dibuat ?? item?.jumlah_stok ?? 0);
+    stokEl.textContent = `${stok} unit`;
+  }
+}
+
 function renderRiwayatRow(r) {
   const item = r.item;
   const nama = r.nama_barang || r.nama_item || item?.nama || '(barang dihapus)';
@@ -344,35 +418,12 @@ function renderRiwayatRow(r) {
   const clone = template.content.cloneNode(true);
 
   clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
-  
-  const namaEl = clone.querySelector('.js-nama');
-  if (namaEl) {
-    namaEl.textContent = nama;
-    if (!item && nama !== '(barang dihapus)') {
-      const deletedTag = document.createElement('span');
-      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
-      deletedTag.textContent = '(dihapus)';
-      namaEl.appendChild(deletedTag);
-    }
-  }
 
-  const katEl = clone.querySelector('.js-kategori');
-  if (katEl) {
-    if (kategori) {
-      katEl.textContent = `Kategori: ${kategori}`;
-      katEl.classList.remove('hidden');
-    } else {
-      katEl.classList.add('hidden');
-    }
-  }
+  renderNamaDanBadgeSumber(clone, r, nama, item);
+  renderKategoriAtauKode(clone, r, kategori);
 
-  const badge = clone.querySelector('.js-jenis-badge');
-  const jenis = formatJenisSaran(r.jenis_saran);
-  badge.textContent = jenis;
-  badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
-
-  const stok = Number(r.jumlah_stok_saat_dibuat ?? item?.jumlah_stok ?? 0);
-  clone.querySelector('.js-stok').textContent = `${stok} unit`;
+  renderJenisBadge(clone, r);
+  renderStokDitindak(clone, r, item);
 
   return clone;
 }
@@ -384,36 +435,13 @@ function renderRiwayatCard(r) {
   const template = document.getElementById('tmpl-riwayat-card');
   const clone = template.content.cloneNode(true);
 
-  const namaEl = clone.querySelector('.js-nama');
-  if (namaEl) {
-    namaEl.textContent = nama;
-    if (!item && nama !== '(barang dihapus)') {
-      const deletedTag = document.createElement('span');
-      deletedTag.className = 'ml-1.5 text-[11px] text-soft font-normal italic';
-      deletedTag.textContent = '(dihapus)';
-      namaEl.appendChild(deletedTag);
-    }
-  }
-
-  const katEl = clone.querySelector('.js-kategori');
-  if (katEl) {
-    if (kategori) {
-      katEl.textContent = `Kategori: ${kategori}`;
-      katEl.classList.remove('hidden');
-    } else {
-      katEl.classList.add('hidden');
-    }
-  }
+  renderNamaDanBadgeSumber(clone, r, nama, item);
+  renderKategoriAtauKode(clone, r, kategori);
 
   clone.querySelector('.js-tanggal').textContent = formatTanggalWaktu(r.diterapkan_at);
 
-  const badge = clone.querySelector('.js-jenis-badge');
-  const jenis = formatJenisSaran(r.jenis_saran);
-  badge.textContent = jenis;
-  badge.classList.add('badge', `badge-${jenis.toLowerCase().replace(/\s+/g, '-')}`);
-
-  const stok = Number(r.jumlah_stok_saat_dibuat ?? item?.jumlah_stok ?? 0);
-  clone.querySelector('.js-stok').textContent = `${stok} unit`;
+  renderJenisBadge(clone, r);
+  renderStokDitindak(clone, r, item);
 
   return clone;
 }

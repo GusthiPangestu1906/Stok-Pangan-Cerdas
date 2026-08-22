@@ -1,63 +1,284 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Masuk — Stok Pangan Cerdas</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2212%22%20fill%3D%22%2314532d%22%2F%3E%3Cpath%20d%3D%22M14.5%2033.5C14.5%2022.7%2022.7%2014.5%2033.5%2014.5C33.5%2025.3%2025.3%2033.5%2014.5%2033.5Z%22%20fill%3D%22%23d9f99d%22%2F%3E%3Cpath%20d%3D%22M17.6%2030.4%2030.4%2017.6%22%20stroke%3D%22%2314532d%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Masuk — Stok Pangan Cerdas</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2212%22%20fill%3D%22%2314532d%22%2F%3E%3Cpath%20d%3D%22M14.5%2033.5C14.5%2022.7%2022.7%2014.5%2033.5%2014.5C33.5%2025.3%2025.3%2033.5%2014.5%2033.5Z%22%20fill%3D%22%23d9f99d%22%2F%3E%3Cpath%20d%3D%22M17.6%2030.4%2030.4%2017.6%22%20stroke%3D%22%2314532d%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --hijau:#14532d;
+    --hijau-gelap:#0b2f1a;
+    --hijau-muda:#d9f99d;
+    --teks:#132018;
+    --teks-lembut:#5d6f63;
+    --garis:#dbe3dc;
+    --latar:#f5f7f3;
+    --aman:#22c55e;
+    --risiko:#f59e0b;
+    --kritis:#e11d48;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--teks);background:var(--latar);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.gs{font-family:'Space Grotesk','DM Sans',sans-serif;letter-spacing:-0.03em;}
+  a{color:var(--hijau);text-decoration:none;}
+  a:hover{color:#0e3a20;}
+
+  .layar{min-height:100vh;display:grid;grid-template-columns:1.05fr 1fr;}
+
+  /* ---------- KOLOM KIRI: PANEL CERITA ---------- */
+  .kisah{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 8% 4%, #1b6b3a 0%, transparent 55%),
+      linear-gradient(158deg,#14532d 0%,#0e3a20 58%,#0b2f1a 100%);
+    color:#e8f2ea;
+    padding:clamp(32px,4vw,60px);
+    display:flex;flex-direction:column;justify-content:space-between;gap:38px;
+  }
+  /* tekstur cincin umur simpan, geometris & sangat halus */
+  .kisah::before{
+    content:"";position:absolute;right:-170px;bottom:-190px;width:560px;height:560px;
+    border-radius:50%;
+    border:1px solid rgba(217,249,157,.16);
+    box-shadow:0 0 0 60px rgba(217,249,157,.045), 0 0 0 140px rgba(217,249,157,.035);
+    pointer-events:none;
+  }
+  .kisah::after{
+    content:"";position:absolute;left:-90px;top:38%;width:260px;height:260px;
+    border-radius:50%;border:1px dashed rgba(217,249,157,.14);pointer-events:none;
+  }
+  .kisah > *{position:relative;z-index:1;}
+
+  .merek{display:flex;align-items:center;gap:13px;}
+  .merek .nama{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;line-height:1.15;}
+  .merek .sub{font-size:11px;color:#9dc0a9;letter-spacing:0.2em;margin-top:3px;}
+
+  .judul{font-size:clamp(30px,3.3vw,44px);line-height:1.1;font-weight:600;margin:0;text-wrap:pretty;}
+  .judul em{font-style:normal;color:var(--hijau-muda);}
+  .paragraf{font-size:15.5px;line-height:1.68;color:#b9d4c2;margin:18px 0 0;max-width:46ch;text-wrap:pretty;}
+
+  /* panel status */
+  .status{margin-top:30px;border:1px solid rgba(217,249,157,.2);border-radius:16px;background:rgba(8,38,21,.42);padding:16px 18px;max-width:470px;}
+  .status-kepala{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;letter-spacing:0.12em;color:#9dc0a9;font-weight:600;}
+  .baris{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(217,249,157,.11);}
+  .baris:last-child{border-bottom:none;padding-bottom:2px;}
+  .baris .nama-brg{font-size:14.5px;font-weight:500;color:#eaf4ec;}
+  .baris .ket{font-size:12px;color:#8fb59d;margin-top:3px;}
+  .pil{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;white-space:nowrap;}
+  .pil i{width:7px;height:7px;border-radius:50%;display:block;}
+  .pil.aman{color:#bbf7d0;background:rgba(34,197,94,.14);}
+  .pil.aman i{background:var(--aman);}
+  .pil.risiko{color:#fde68a;background:rgba(245,158,11,.15);}
+  .pil.risiko i{background:var(--risiko);}
+  .pil.kritis{color:#fecdd3;background:rgba(225,29,72,.17);}
+  .pil.kritis i{background:var(--kritis);}
+  .bar{grid-column:1/-1;height:3px;border-radius:99px;background:rgba(217,249,157,.14);overflow:hidden;margin-top:9px;}
+  .bar span{display:block;height:100%;border-radius:99px;}
+
+  /* status: keadaan kosong/gagal muat (tenang, tidak menakutkan) */
+  .status-kosong{padding:14px 0;font-size:13px;color:#9dc0a9;text-align:center;}
+
+  /* tiga fitur inti */
+  .fitur{display:flex;flex-direction:column;gap:2px;margin-top:34px;max-width:520px;}
+  .fitur-item{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:14px 0;border-top:1px solid rgba(217,249,157,.13);}
+  .fitur-item:first-child{border-top:none;}
+  .fitur-item .ikon{width:34px;height:34px;border-radius:10px;background:rgba(217,249,157,.12);display:flex;align-items:center;justify-content:center;}
+  .fitur-item h3{margin:0;font-size:15px;font-weight:600;letter-spacing:-0.015em;color:#f0f7f1;}
+  .fitur-item p{margin:5px 0 0;font-size:13.5px;line-height:1.6;color:#a8c9b4;text-wrap:pretty;}
+
+  .kaki{font-size:12px;color:#7ea78d;line-height:1.6;}
+
+  /* ---------- KOLOM KANAN: FORM ---------- */
+  .sisi-form{background:#fff;display:flex;align-items:center;justify-content:center;padding:clamp(28px,4vw,56px) clamp(20px,4vw,48px);}
+  .form-kotak{width:100%;max-width:392px;}
+  .lencana{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;color:#166534;font-weight:600;}
+  .form-kotak h2{font-size:30px;font-weight:600;margin:22px 0 8px;}
+  .form-kotak .halo{font-size:14.5px;color:var(--teks-lembut);line-height:1.6;margin:0 0 28px;}
+  label{display:block;font-size:13px;font-weight:500;color:#3c4d42;margin-bottom:7px;}
+  .kolom{margin-bottom:16px;}
+  input[type=email],input[type=text],input[type=password]{
+    width:100%;height:47px;border:1px solid var(--garis);border-radius:11px;
+    padding:0 14px;font-size:14.5px;font-family:inherit;color:var(--teks);background:#fbfcfa;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder{color:#9aa89e;}
+  input:focus{outline:none;border-color:var(--hijau);box-shadow:0 0 0 3px rgba(20,83,45,.12);background:#fff;}
+  .baris-sandi{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px;}
+  .lihat{border:none;background:none;padding:0;font:inherit;font-size:12.5px;font-weight:500;color:var(--hijau);cursor:pointer;}
+  .lihat:hover{text-decoration:underline;}
+  .alert-error{background:#fff1f3;border:1px solid #fecdd3;color:#9f1239;font-size:13px;line-height:1.5;padding:10px 14px;border-radius:10px;margin-bottom:16px;}
+  .tombol{
+    width:100%;height:49px;border:none;border-radius:11px;background:var(--hijau);color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-size:15.5px;font-weight:600;letter-spacing:-0.01em;cursor:pointer;
+    transition:background .15s ease;
+  }
+  .tombol:hover{background:#0e3a20;}
+  .tombol:active{background:#0b2f1a;}
+  .tombol:disabled{background:#7ea78d;cursor:not-allowed;}
+  .catatan{font-size:12.5px;color:#8a9a8f;text-align:center;line-height:1.6;margin:16px 0 0;}
+  .kaki-form{margin-top:34px;padding-top:20px;border-top:1px solid #eef2ed;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .kaki-form img{width:34px;height:34px;display:block;}
+  .kaki-form p{margin:0;font-size:12px;color:#9aab9f;line-height:1.65;text-align:center;max-width:34ch;}
+
+  .hidden{display:none !important;}
+
+  /* ---------- RESPONSIF ---------- */
+  @media (max-width:1000px){
+    .layar{grid-template-columns:1fr;}
+    .kisah{gap:26px;padding:30px 24px 34px;}
+    .kisah::before{right:-220px;bottom:-260px;}
+    .kisah::after{display:none;}
+    .status{max-width:none;}
+    .fitur{margin-top:24px;}
+    .paragraf{max-width:none;}
+    .sisi-form{padding:34px 22px 46px;}
+  }
+  @media (max-width:620px){
+    .judul{font-size:27px;}
+    .paragraf{font-size:14.5px;}
+    /* di HP: cukup dua baris status teratas + tiga fitur ringkas */
+    .status .baris:nth-child(4){display:none;}
+    .fitur-item p{display:none;}
+    .fitur-item{padding:11px 0;}
+  }
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
 
-  <div class="w-full max-w-sm">
-    <!-- Logo & Branding -->
-    <div class="logo-container justify-center mb-9">
-      <div class="logo-icon shadow-sm">
-        <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
-          <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
-          <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d" />
-          <path d="M17.6 30.4 30.4 17.6" stroke="#14532d" stroke-width="2.6" stroke-linecap="round" />
-        </svg>
+<main class="layar">
+
+  <!-- ============ KIRI: PANEL BERCERITA ============ -->
+  <section class="kisah">
+
+    <div class="merek">
+      <svg width="42" height="42" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="19" stroke="#d9f99d" stroke-width="3.6" stroke-linecap="round" stroke-dasharray="89 31" transform="rotate(-56 24 24)"/>
+        <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d"/>
+        <path d="M17.6 30.4 30.4 17.6" stroke="#0e3a20" stroke-width="2.3" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="nama">Stok Pangan Cerdas</div>
+        <div class="sub">MANAJEMEN UMUR SIMPAN</div>
       </div>
-      <div class="font-heading font-bold text-[16px] tracking-tight text-primary">Stok Pangan Cerdas</div>
     </div>
 
-    <div class="card p-7 sm:p-8 rise-in shadow-sm">
-      <div class="flex justify-between items-start mb-6">
-        <div class="badge badge-aman">Portal Admin</div>
+    <div>
+      <h1 class="judul">Sayur, buah, olahan susu, dan roti terbuang karena <em>terlambat diketahui</em>.</h1>
+      <p class="paragraf">Aplikasi ini menghitung sisa umur simpan setiap barang di gudang koperasi, menandai mana yang mendekati batas, dan memberi saran tindakan sebelum barang kehilangan nilai jual.</p>
+
+      <!-- Kartu ini diisi via JS dari GET /api/ringkasan-publik (assets/js/login.js).
+           Markup di bawah adalah fallback statis sebelum data dimuat / kalau API gagal. -->
+      <div class="status" id="status-gudang">
+        <div class="status-kepala">
+          <span>PANTAUAN GUDANG HARI INI</span>
+          <span id="status-total-barang">&nbsp;</span>
+        </div>
+        <div id="status-baris-container">
+          <div class="status-kosong">Memuat data gudang…</div>
+        </div>
       </div>
 
-      <h1 class="section-title text-[24px] mb-2">Masuk ke akun Anda</h1>
-      <p class="text-[14px] text-muted leading-relaxed mb-8">Gunakan akun admin koperasi untuk mengelola stok secara cerdas.</p>
+      <div class="fitur">
+        <div class="fitur-item">
+          <div class="ikon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d9f99d" stroke-width="1.9" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8.2" stroke-dasharray="38 14" transform="rotate(-58 12 12)"/>
+              <path d="M12 8v4l2.6 1.6"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Deteksi risiko otomatis</h3>
+            <p>Tanggal masuk dan umur simpan diubah menjadi status Aman, Berisiko, atau Kritis, diperbarui setiap hari tanpa dihitung manual.</p>
+          </div>
+        </div>
 
-      <form id="form-login" class="flex flex-col gap-5">
+        <div class="fitur-item">
+          <div class="ikon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d9f99d" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3.3"/>
+              <path d="M12 3.2v2.6M12 18.2v2.6M5.2 7.6l2.3 1.3M16.5 15.1l2.3 1.3M5.2 16.4l2.3-1.3M16.5 8.9l2.3-1.3"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Rekomendasi tindakan dari AI</h3>
+            <p>Gemini membaca sisa hari, jumlah stok, dan laju penjualan, lalu menyarankan diskon, distribusi, atau bundling beserta alasannya.</p>
+          </div>
+        </div>
+
+        <div class="fitur-item">
+          <div class="ikon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d9f99d" stroke-width="1.8" stroke-linecap="round">
+              <path d="M4 6v12M7 6v12M10.5 6v12M14 6v12M17.5 6v12M20 6v12"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Kupon diskon ber-barcode</h3>
+            <p>Saran diskon yang disetujui langsung menjadi kupon dengan barcode, siap dipindai kasir tanpa pencatatan ulang.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ KANAN: FORM LOGIN ============ -->
+  <section class="sisi-form">
+    <div class="form-kotak">
+      <span class="lencana">Portal Admin</span>
+      <h2>Masuk ke akun Anda</h2>
+      <p class="halo">Gunakan akun admin koperasi untuk mengelola stok secara cerdas.</p>
+
+      <form id="form-login">
         <div id="login-error" class="hidden alert-error"></div>
-        <div>
-          <label for="input-email" class="form-label">Email</label>
-          <input id="input-email" type="email" required autocomplete="username" placeholder="admin@koperasipangan.id" class="input-field" />
-        </div>
-        <div>
-          <label for="input-password" class="form-label">Kata sandi</label>
-          <input id="input-password" type="password" required autocomplete="current-password" placeholder="••••••••" class="input-field" />
-        </div>
-        <button type="submit" id="btn-login" class="btn btn-primary w-full mt-1">Masuk</button>
-      </form>
-    </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-6 px-2">
-      <div class="flex items-center justify-center gap-2 flex-wrap text-light">
-        <img src="assets/img/logo-tcc-2026.png" alt="Logo TCC 2026" class="h-[22px] w-[22px] rounded-full shrink-0" />
+        <div class="kolom">
+          <label for="input-email">Email</label>
+          <input type="email" id="input-email" autocomplete="username" placeholder="admin@koperasipangan.id" required />
+        </div>
+
+        <div class="kolom">
+          <div class="baris-sandi">
+            <label for="input-password" style="margin:0">Kata sandi</label>
+            <button type="button" class="lihat" id="tombolLihat" aria-controls="input-password">Lihat</button>
+          </div>
+          <input type="password" id="input-password" autocomplete="current-password" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" id="btn-login" class="tombol">Masuk</button>
+      </form>
+
+      <p class="catatan">Data stok hanya dapat diakses oleh admin terdaftar koperasi.</p>
+
+      <div class="kaki-form">
+        <!-- Logo resmi UKM Triple-C / Trunodjoyo Creative Competition (TCC) 2026, aset panitia lomba. -->
+        <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026" width="34" height="34" />
         <p>Stok Pangan Cerdas — Trunodjoyo Creative Competition (TCC) 2026, cabang Vibe Code</p>
       </div>
-    </footer>
-  </div>
+    </div>
+  </section>
 
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/login.js"></script>
+</main>
+
+<script>
+  var sandi = document.getElementById('input-password');
+  var tombol = document.getElementById('tombolLihat');
+  tombol.addEventListener('click', function () {
+    var tampil = sandi.type === 'password';
+    sandi.type = tampil ? 'text' : 'password';
+    tombol.textContent = tampil ? 'Sembunyikan' : 'Lihat';
+  });
+</script>
+
+<script src="assets/js/api.js?v=1.0.0"></script>
+<script src="assets/js/login.js?v=1.0.0"></script>
 </body>
 </html>

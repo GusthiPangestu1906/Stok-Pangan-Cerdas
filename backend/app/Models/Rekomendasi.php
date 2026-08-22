@@ -14,6 +14,8 @@ class Rekomendasi extends Model
         'nama_item',
         'kategori_item',
         'jenis_saran',
+        'sumber',
+        'kode_voucher',
         'isi_saran',
         'status_item_saat_dibuat',
         'jumlah_stok_saat_dibuat',

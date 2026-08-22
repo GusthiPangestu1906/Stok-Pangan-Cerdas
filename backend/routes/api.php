@@ -3,11 +3,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\RekomendasiController;
+use App\Http\Controllers\RingkasanPublikController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/ringkasan-publik', [RingkasanPublikController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

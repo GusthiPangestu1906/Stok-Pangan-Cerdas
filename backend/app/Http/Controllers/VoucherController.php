@@ -50,10 +50,17 @@ class VoucherController extends Controller
             'berlaku_sampai' => ['required', 'date'],
         ]);
 
-        $item = $validated['item_id'] ? Item::find($validated['item_id']) : null;
+        $item = ! empty($validated['item_id']) ? Item::find($validated['item_id']) : null;
         $jumlah = $validated['jumlah'] ?? 1;
 
-        $vouchers = DB::transaction(function () use ($validated, $item, $jumlah) {
+        // Kupon untuk item/rekomendasi spesifik tidak masuk akal punya syarat
+        // belanja minimum -- barang itu sendiri yang jadi syaratnya. Dipaksa
+        // di backend, bukan cuma disembunyikan di form, supaya panggilan API
+        // langsung dengan min_belanja terisi tidak bisa mengelabui ini.
+        $untukTargetSpesifik = $item !== null || ! empty($validated['rekomendasi_id']);
+        $minBelanja = $untukTargetSpesifik ? 0 : ($validated['min_belanja'] ?? 0);
+
+        $vouchers = DB::transaction(function () use ($validated, $item, $jumlah, $minBelanja) {
             $kodeTerpakaiDiBatch = [];
             $hasil = [];
 
@@ -72,7 +79,7 @@ class VoucherController extends Controller
                     'diskon_persen' => $validated['tipe'] === 'persen' ? $validated['nilai'] : null,
                     'diskon_nominal' => $validated['tipe'] === 'nominal' ? $validated['nilai'] : null,
                     'harga_normal' => $validated['harga_normal'] ?? null,
-                    'min_belanja' => $validated['min_belanja'] ?? 0,
+                    'min_belanja' => $minBelanja,
                     'kuota' => 1,
                     'terpakai' => 0,
                     'berlaku_sampai' => $validated['berlaku_sampai'],
@@ -99,6 +106,7 @@ class VoucherController extends Controller
     {
         $validated = $request->validate([
             'kode' => ['required', 'string'],
+            'total_belanja' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $kode = strtoupper(trim($validated['kode']));
@@ -128,6 +136,13 @@ class VoucherController extends Controller
             ], 422);
         }
 
+        $pesanMinBelanja = $this->cekMinBelanja($voucher, $validated['total_belanja'] ?? null);
+        if ($pesanMinBelanja) {
+            return response()->json([
+                'message' => $pesanMinBelanja,
+            ], 422);
+        }
+
         return response()->json([
             'data' => $voucher->load(['item', 'rekomendasi']),
         ]);
@@ -139,8 +154,12 @@ class VoucherController extends Controller
      * Klaim yang berhasil dicatat ke Riwayat sebagai tindakan "Diskon" yang
      * sudah diterapkan, supaya statistik penyelamatan ikut bergerak.
      */
-    public function klaim(Voucher $voucher)
+    public function klaim(Request $request, Voucher $voucher)
     {
+        $validated = $request->validate([
+            'total_belanja' => ['nullable', 'integer', 'min:0'],
+        ]);
+
         if ($voucher->status !== 'aktif') {
             return response()->json([
                 'message' => "Voucher ini berstatus \"{$voucher->status}\", tidak bisa diklaim.",
@@ -156,6 +175,16 @@ class VoucherController extends Controller
         if ($voucher->sisa_kuota <= 0) {
             return response()->json([
                 'message' => 'Kuota voucher ini sudah habis.',
+            ], 422);
+        }
+
+        // Re-validasi min_belanja di sini juga -- endpoint validasi() sudah
+        // memeriksanya, tapi klaim tidak boleh percaya frontend memanggil
+        // validasi() lebih dulu atau mengirim nilai yang sama.
+        $pesanMinBelanja = $this->cekMinBelanja($voucher, $validated['total_belanja'] ?? null);
+        if ($pesanMinBelanja) {
+            return response()->json([
+                'message' => $pesanMinBelanja,
             ], 422);
         }
 
@@ -175,6 +204,8 @@ class VoucherController extends Controller
             'nama_item' => $voucher->nama_item ?? $voucher->item?->nama ?? $voucher->target ?? $voucher->judul,
             'kategori_item' => $voucher->kategori_item ?? $voucher->item?->kategori,
             'jenis_saran' => 'Diskon',
+            'sumber' => 'kasir',
+            'kode_voucher' => $voucher->kode,
             'isi_saran' => "Voucher \"{$voucher->kode}\" ({$voucher->judul}) diklaim di kasir untuk {$namaBarang}.",
             'status_item_saat_dibuat' => $voucher->item?->status ?? 'berisiko',
             // Sengaja 0, BUKAN bug: sistem kasir hanya memvalidasi kode,
@@ -191,6 +222,28 @@ class VoucherController extends Controller
         return response()->json([
             'data' => $voucher->load(['item', 'rekomendasi']),
         ]);
+    }
+
+    /**
+     * Null kalau syarat belanja minimum terpenuhi (atau tidak ada syarat),
+     * atau pesan penolakan yang menyebut kedua angka (total belanja yang
+     * dimasukkan vs minimal yang disyaratkan) kalau tidak.
+     */
+    private function cekMinBelanja(Voucher $voucher, ?int $totalBelanja): ?string
+    {
+        if ($voucher->min_belanja <= 0) {
+            return null;
+        }
+
+        $totalBelanja = $totalBelanja ?? 0;
+        if ($totalBelanja >= $voucher->min_belanja) {
+            return null;
+        }
+
+        $formatTotal = number_format($totalBelanja, 0, ',', '.');
+        $formatMin = number_format($voucher->min_belanja, 0, ',', '.');
+
+        return "Total belanja Rp {$formatTotal} belum memenuhi minimal Rp {$formatMin}.";
     }
 
     /**

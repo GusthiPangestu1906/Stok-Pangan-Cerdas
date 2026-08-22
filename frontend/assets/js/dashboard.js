@@ -101,6 +101,8 @@ const el = {
   voucherPreviewTarget: document.getElementById('voucher-preview-target'),
   voucherPreviewBadge: document.getElementById('voucher-preview-badge'),
   voucherPreviewMinBelanja: document.getElementById('voucher-preview-min-belanja'),
+  voucherPreviewMinBelanjaCell: document.getElementById('voucher-preview-min-belanja-cell'),
+  voucherPreviewKadaluarsaCell: document.getElementById('voucher-preview-kadaluarsa-cell'),
   voucherPreviewKadaluarsa: document.getElementById('voucher-preview-kadaluarsa'),
   voucherPreviewBarcodeSvg: document.getElementById('voucher-preview-barcode-svg'),
   voucherPreviewKode: document.getElementById('voucher-preview-kode'),
@@ -135,6 +137,48 @@ function esc(value) {
 function formatTanggal(dateString) {
   const d = new Date(dateString);
   return `${d.getDate()} ${['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function sanitizeFilename(text) {
+  return String(text || 'Dokumen')
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function tanggalFileStamp() {
+  const d = new Date();
+  const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][d.getMonth()];
+  return `${d.getDate()}${bulan}${d.getFullYear()}`;
+}
+
+/**
+ * Ganti document.title (menentukan nama file PDF hasil cetak), panggil
+ * window.print(), lalu kembalikan title & jalankan afterFn setelah dialog
+ * cetak BENAR-BENAR selesai. afterprint tidak fire di semua browser, jadi
+ * dipasangi fallback timeout supaya modal tidak macet terbuka selamanya --
+ * tapi afterprint (kalau fire) selalu menang lebih dulu karena timeout
+ * dibatalkan begitu event itu tiba.
+ */
+function printDocument(fileTitle, afterFn) {
+  const originalTitle = document.title;
+  document.title = sanitizeFilename(fileTitle);
+
+  let selesai = false;
+  const finish = () => {
+    if (selesai) return;
+    selesai = true;
+    document.title = originalTitle;
+    window.removeEventListener('afterprint', finish);
+    clearTimeout(fallbackTimer);
+    if (afterFn) afterFn();
+  };
+
+  window.addEventListener('afterprint', finish);
+  const fallbackTimer = setTimeout(finish, 2000);
+
+  window.print();
 }
 
 function sisaHariText(sisaHari) {
@@ -218,8 +262,16 @@ function setupKpiFilterEvents() {
   });
 }
 
+/**
+ * Kriteria SAMA dengan yang menyembunyikan kartu di panel AI Insight
+ * (isSudahDiterapkanBaruBaruIni, ambang 24 jam) -- supaya tombol "Minta
+ * Saran AI" hanya menyala lagi setelah kartu rekomendasinya benar-benar
+ * hilang dari panel, bukan begitu admin menandai "Diterapkan".
+ */
 function hasRekomendasiAktif(itemId) {
-  return allRekomendasi.some((r) => r.item_id === itemId && !r.diterapkan);
+  return allRekomendasi.some((r) => (
+    r.item_id === itemId && (!r.diterapkan || isSudahDiterapkanBaruBaruIni(r))
+  ));
 }
 
 function renderActionButtons(item, isMobile = false) {
@@ -244,7 +296,7 @@ function renderActionButtons(item, isMobile = false) {
       btnAi.className = isMobile
         ? 'btn btn-outline border-subtle text-light text-xs h-8 px-3 rounded-lg cursor-not-allowed flex items-center gap-1.5 font-medium'
         : 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed w-7 h-7 shrink-0';
-      btnAi.title = 'Sudah ada rekomendasi aktif untuk barang ini';
+      btnAi.title = 'Rekomendasi masih berlaku, tunggu 24 jam untuk meminta saran baru';
     } else {
       btnAi.className = isMobile
         ? 'btn bg-purple-50 text-purple-700 border border-purple-200/80 hover:bg-purple-100 cursor-pointer text-xs h-8 px-3 rounded-lg flex items-center gap-1.5 font-semibold'
@@ -739,14 +791,32 @@ function renderAiGroup(judul, daftarRekomendasi) {
   return group;
 }
 
-function updateAiFilterUI() {
-  const perluCount = allRekomendasi.filter((r) => !r.diterapkan).length;
-  const sudahCount = allRekomendasi.filter((r) => r.diterapkan).length;
-  const semuaCount = allRekomendasi.length;
+const AI_SUDAH_DITERAPKAN_JAM = 24;
 
-  if (el.aiCountSemua) el.aiCountSemua.textContent = semuaCount;
-  if (el.aiCountBelum) el.aiCountBelum.textContent = perluCount;
-  if (el.aiCountSudah) el.aiCountSudah.textContent = sudahCount;
+/**
+ * Kartu "Diterapkan" cuma disembunyikan dari TAMPILAN panel setelah 24 jam
+ * sejak diterapkan_at (bukan created_at -- yang relevan adalah kapan admin
+ * menindaklanjuti, bukan kapan AI membuat sarannya). Data di database dan
+ * halaman Riwayat tidak tersentuh sama sekali; ini murni filter render.
+ */
+function isSudahDiterapkanBaruBaruIni(r) {
+  if (!r.diterapkan_at) return true;
+  const jamSejakDiterapkan = (Date.now() - new Date(r.diterapkan_at).getTime()) / 3600000;
+  return jamSejakDiterapkan < AI_SUDAH_DITERAPKAN_JAM;
+}
+
+function getRekomendasiTampil() {
+  const perluDitindak = allRekomendasi.filter((r) => !r.diterapkan);
+  const sudahDitindak = allRekomendasi.filter((r) => r.diterapkan && isSudahDiterapkanBaruBaruIni(r));
+  return { perluDitindak, sudahDitindak };
+}
+
+function updateAiFilterUI() {
+  const { perluDitindak, sudahDitindak } = getRekomendasiTampil();
+
+  if (el.aiCountSemua) el.aiCountSemua.textContent = perluDitindak.length + sudahDitindak.length;
+  if (el.aiCountBelum) el.aiCountBelum.textContent = perluDitindak.length;
+  if (el.aiCountSudah) el.aiCountSudah.textContent = sudahDitindak.length;
 
   if (el.aiFilterTabs) {
     const buttons = el.aiFilterTabs.querySelectorAll('[data-ai-filter]');
@@ -756,6 +826,19 @@ function updateAiFilterUI() {
       btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
   }
+}
+
+function renderAiEmptyBelumBox() {
+  const emptyBox = document.createElement('div');
+  emptyBox.className = 'py-8 px-4 text-center bg-purple-50/40 rounded-xl border border-dashed border-purple-200';
+  emptyBox.innerHTML = `
+    <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-700 mb-2">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+    </div>
+    <div class="font-heading text-[14.5px] font-semibold text-primary">Semua saran telah diterapkan!</div>
+    <p class="text-xs text-soft mt-0.5">Tidak ada saran AI yang perlu ditindak saat ini.</p>
+  `;
+  return emptyBox;
 }
 
 function renderRekomendasi() {
@@ -768,31 +851,28 @@ function renderRekomendasi() {
 
   if (total === 0) return;
 
-  const perluDitindak = allRekomendasi.filter((r) => !r.diterapkan);
-  const sudahDitindak = allRekomendasi.filter((r) => r.diterapkan);
+  const { perluDitindak, sudahDitindak } = getRekomendasiTampil();
 
   const fragment = document.createDocumentFragment();
 
   if (activeAiFilter === 'semua') {
-    const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
-    const groupSudah = renderAiGroup('Diterapkan', sudahDitindak);
-    if (groupPerlu) fragment.appendChild(groupPerlu);
-    if (groupSudah) fragment.appendChild(groupSudah);
+    if (perluDitindak.length === 0 && sudahDitindak.length === 0) {
+      // Semua rekomendasi ada, tapi seluruhnya sudah diterapkan >24 jam --
+      // sama seperti tab "Belum" kosong, pakai pesan yang sama (bukan gaya
+      // baru), karena secara fungsional tidak ada yang perlu admin lihat.
+      fragment.appendChild(renderAiEmptyBelumBox());
+    } else {
+      const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
+      const groupSudah = renderAiGroup('Diterapkan', sudahDitindak);
+      if (groupPerlu) fragment.appendChild(groupPerlu);
+      if (groupSudah) fragment.appendChild(groupSudah);
+    }
   } else if (activeAiFilter === 'belum') {
     if (perluDitindak.length > 0) {
       const groupPerlu = renderAiGroup('Perlu Ditindak', perluDitindak);
       if (groupPerlu) fragment.appendChild(groupPerlu);
     } else {
-      const emptyBox = document.createElement('div');
-      emptyBox.className = 'py-8 px-4 text-center bg-purple-50/40 rounded-xl border border-dashed border-purple-200';
-      emptyBox.innerHTML = `
-        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-700 mb-2">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-        </div>
-        <div class="font-heading text-[14.5px] font-semibold text-primary">Semua saran telah diterapkan!</div>
-        <p class="text-xs text-soft mt-0.5">Tidak ada saran AI yang perlu ditindak saat ini.</p>
-      `;
-      fragment.appendChild(emptyBox);
+      fragment.appendChild(renderAiEmptyBelumBox());
     }
   } else if (activeAiFilter === 'sudah') {
     if (sudahDitindak.length > 0) {
@@ -839,9 +919,19 @@ async function requestRekomendasi(item, button) {
   try {
     const rekomendasi = await generateRekomendasi(item.id);
     el.aiError.classList.add('hidden');
-    allRekomendasi = [rekomendasi, ...allRekomendasi];
+
+    // Cache Gemini bisa mengembalikan baris database yang sama (id sama)
+    // kalau item ini sudah punya rekomendasi hari ini -- jangan prepend
+    // duplikat, cukup perbarui entri yang sudah ada dengan data terbaru.
+    const sudahAda = allRekomendasi.some((r) => r.id === rekomendasi.id);
+    if (sudahAda) {
+      allRekomendasi = allRekomendasi.map((r) => (r.id === rekomendasi.id ? rekomendasi : r));
+      showToast(`Rekomendasi untuk "${item.nama}" sudah ada, tidak dibuat ulang.`);
+    } else {
+      allRekomendasi = [rekomendasi, ...allRekomendasi];
+      showToast(`Rekomendasi AI untuk "${item.nama}" berhasil dibuat.`);
+    }
     renderRekomendasi();
-    showToast(`Rekomendasi AI untuk "${item.nama}" berhasil dibuat.`);
   } catch (err) {
     el.aiError.textContent = err.message || 'Gagal meminta rekomendasi AI.';
     el.aiError.classList.remove('hidden');
@@ -982,12 +1072,13 @@ function openLabelModal(item, rekomendasi = null, isBundling = false) {
     rekomendasiId: rekomendasi ? rekomendasi.id : null,
   };
 
+  currentLabelData.qty = populateLabelQtyOptions(item);
+
   if (el.labelInputNama) el.labelInputNama.value = currentLabelData.nama;
   if (el.labelInputKategori) el.labelInputKategori.value = currentLabelData.kategori;
   if (el.labelInputKadaluarsa) el.labelInputKadaluarsa.value = currentLabelData.kadaluarsa;
   if (el.labelInputHargaAsli) el.labelInputHargaAsli.value = currentLabelData.hargaAsli;
   if (el.labelInputTagline) el.labelInputTagline.value = currentLabelData.tagline;
-  if (el.labelInputQty) el.labelInputQty.value = currentLabelData.qty;
 
   updateLabelPctButtons(currentLabelData.diskonPct);
   updateLabelPreview();
@@ -1048,7 +1139,8 @@ function printShelfLabels() {
     }).catch(() => {});
   }
 
-  window.print();
+  const fileTitle = `Label-Rak-${sanitizeFilename(currentLabelData.nama)}-${tanggalFileStamp()}`;
+  printDocument(fileTitle, closeLabelModal);
 }
 
 // Event Listeners for Label Modal
@@ -1194,6 +1286,58 @@ function populateVoucherTargetOptions(selectedVal = 'Semua') {
   el.voucherInputTarget.value = selectedVal;
 }
 
+const QTY_DEFAULT_OPTIONS = [1, 2, 4, 6];
+const QTY_MAKS_BACKEND = 50;
+
+/**
+ * Dipakai untuk modal Kupon maupun Label Rak: kalau ada item spesifik,
+ * batasi opsi maksimal sejumlah stok barang (mencetak lebih banyak
+ * kupon/label daripada barangnya sendiri tidak masuk akal) dan tambahkan
+ * opsi "Sebanyak Stok". Tanpa item (voucher kategori/global), pakai
+ * pilihan tetap karena tidak terikat satu barang.
+ */
+function populateQtyOptions(selectEl, item, satuan, defaultQty = 4) {
+  if (!selectEl) return defaultQty;
+  selectEl.innerHTML = '';
+
+  if (!item) {
+    QTY_DEFAULT_OPTIONS.forEach((n) => {
+      const opt = document.createElement('option');
+      opt.value = String(n);
+      opt.textContent = n === 4 ? `${n} ${satuan} (1 Lembar)` : `${n} ${satuan}`;
+      selectEl.appendChild(opt);
+    });
+    const pilihan = QTY_DEFAULT_OPTIONS.includes(defaultQty) ? defaultQty : 4;
+    selectEl.value = String(pilihan);
+    return pilihan;
+  }
+
+  const maksStok = Math.max(1, Math.min(Number(item.jumlah_stok) || 1, QTY_MAKS_BACKEND));
+  const opsi = QTY_DEFAULT_OPTIONS.filter((n) => n <= maksStok);
+  if (opsi.length === 0 || opsi[opsi.length - 1] !== maksStok) {
+    opsi.push(maksStok);
+  }
+
+  opsi.forEach((n) => {
+    const opt = document.createElement('option');
+    opt.value = String(n);
+    opt.textContent = n === maksStok ? `Sebanyak Stok (${n} ${satuan.toLowerCase()})` : `${n} ${satuan}`;
+    selectEl.appendChild(opt);
+  });
+
+  const pilihan = Math.min(defaultQty, maksStok);
+  selectEl.value = String(pilihan);
+  return pilihan;
+}
+
+function populateVoucherQtyOptions(item, defaultQty = 4) {
+  return populateQtyOptions(el.voucherInputQty, item, 'Kupon', defaultQty);
+}
+
+function populateLabelQtyOptions(item, defaultQty = 4) {
+  return populateQtyOptions(el.labelInputQty, item, 'Label', defaultQty);
+}
+
 let voucherOpenedFromScanner = false;
 
 function openVoucherModal(item = null, rekomendasi = null, fromScanner = false) {
@@ -1211,20 +1355,27 @@ function openVoucherModal(item = null, rekomendasi = null, fromScanner = false) 
   const kode = generateVoucherCode(item ? item.nama : 'SPC');
 
   populateVoucherTargetOptions(targetName);
+  const qtyDefault = populateVoucherQtyOptions(item);
 
   let expDate = '2026-08-25';
   if (item && item.tanggal_kadaluarsa) {
     expDate = item.tanggal_kadaluarsa;
   }
 
+  // Kupon untuk barang/rekomendasi spesifik tidak masuk akal punya syarat
+  // belanja minimum -- barang itu sendiri yang jadi syaratnya. Backend
+  // memaksa ini ke 0 juga (jangan andalkan frontend), tapi field disembunyikan
+  // di sini supaya admin tidak bingung kenapa nilainya diabaikan.
+  const untukTargetSpesifik = Boolean(item || rekomendasi);
+
   currentVoucherData = {
     judul: item ? `Food Rescue Promo · ${targetName}` : 'Kupon Penyelamatan Pangan Kasir',
     target: targetKategori,
     tipe: 'persen',
     nilai: defaultDiskon,
-    minBelanja: 25000,
+    minBelanja: untukTargetSpesifik ? 0 : 25000,
     kadaluarsa: expDate,
-    qty: 4,
+    qty: qtyDefault,
     kode: kode,
     rekomendasiId: rekomendasi ? rekomendasi.id : null,
   };
@@ -1232,7 +1383,11 @@ function openVoucherModal(item = null, rekomendasi = null, fromScanner = false) 
   if (el.voucherInputJudul) el.voucherInputJudul.value = currentVoucherData.judul;
   if (el.voucherInputTarget) el.voucherInputTarget.value = targetName;
   if (el.voucherInputKadaluarsa) el.voucherInputKadaluarsa.value = currentVoucherData.kadaluarsa;
-  if (el.voucherInputMinBelanja) el.voucherInputMinBelanja.value = currentVoucherData.minBelanja;
+  if (el.voucherInputMinBelanja) {
+    el.voucherInputMinBelanja.value = currentVoucherData.minBelanja;
+    const minBelanjaField = el.voucherInputMinBelanja.closest('div');
+    if (minBelanjaField) minBelanjaField.classList.toggle('hidden', untukTargetSpesifik);
+  }
   if (el.voucherInputQty) el.voucherInputQty.value = currentVoucherData.qty;
   if (el.voucherInputKode) el.voucherInputKode.value = currentVoucherData.kode;
 
@@ -1274,6 +1429,12 @@ function updateVoucherPreview() {
   if (el.voucherPreviewJudul) el.voucherPreviewJudul.textContent = currentVoucherData.judul;
   if (el.voucherPreviewTarget) el.voucherPreviewTarget.textContent = `Khusus: ${currentVoucherData.target}`;
   if (el.voucherPreviewMinBelanja) el.voucherPreviewMinBelanja.textContent = formatRupiah(currentVoucherData.minBelanja);
+  // Kupon tanpa syarat belanja minimum (item/rekomendasi spesifik) tidak
+  // perlu menampilkan baris "MIN. BELANJA" di stiker cetak -- sel Masa
+  // Berlaku melebar mengisi grid 2 kolom yang sama.
+  const tanpaMinBelanja = currentVoucherData.minBelanja <= 0;
+  if (el.voucherPreviewMinBelanjaCell) el.voucherPreviewMinBelanjaCell.classList.toggle('hidden', tanpaMinBelanja);
+  if (el.voucherPreviewKadaluarsaCell) el.voucherPreviewKadaluarsaCell.classList.toggle('col-span-2', tanpaMinBelanja);
   if (el.voucherPreviewKadaluarsa) el.voucherPreviewKadaluarsa.textContent = formatTanggal(currentVoucherData.kadaluarsa);
   if (el.voucherPreviewKode) el.voucherPreviewKode.textContent = currentVoucherData.kode;
 
@@ -1364,10 +1525,27 @@ async function saveAndPrintVouchers() {
     el.printableVouchersArea.appendChild(itemDiv);
   });
 
-  window.print();
+  const fileTitle = `Kupon-${sanitizeFilename(currentVoucherData.target)}-${tanggalFileStamp()}`;
+  printDocument(fileTitle, closeVoucherModal);
 }
 
 // ---------- Simulator Scanner & Validasi Kasir ----------
+
+/**
+ * Markup "ajakan scan" default -- dipakai saat modal baru dibuka maupun
+ * saat hasil validasi lama diinvalidasi (mis. nominal belanja berubah),
+ * supaya kasir tidak mengira aplikasinya rusak saat area hasil "kosong".
+ */
+function resetScanResultBox(pesan = 'Ketik atau pilih kode barcode di atas, lalu klik "Validasi"') {
+  if (!el.scanResultContainer) return;
+  el.scanResultContainer.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa89e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1 opacity-60">
+      <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+      <path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" />
+    </svg>
+    <span class="text-muted font-medium text-[11px]">${esc(pesan)}</span>
+  `;
+}
 
 function openScanVoucherModal() {
   if (el.modalLabelDiskon) closeLabelModal();
@@ -1381,15 +1559,7 @@ function openScanVoucherModal() {
     el.scanInputKode.value = '';
     el.scanInputKode.focus();
   }
-  if (el.scanResultContainer) {
-    el.scanResultContainer.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa89e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1 opacity-60">
-        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
-        <path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" />
-      </svg>
-      <span class="text-muted font-medium text-[11px]">Ketik atau pilih kode barcode di atas, lalu klik "Validasi"</span>
-    `;
-  }
+  resetScanResultBox();
 }
 
 function closeScanVoucherModal() {
@@ -1440,14 +1610,24 @@ async function doValidateVoucher() {
 
   let voucher;
   try {
-    voucher = await validasiVoucher(kode);
+    voucher = await validasiVoucher(kode, totalBelanja);
   } catch (err) {
     const pesan = err.message || 'Voucher tidak dapat divalidasi.';
     const belumKadaluarsa = !pesan.toLowerCase().includes('kadaluarsa') && !pesan.toLowerCase().includes('berlaku');
     const isNotFound = pesan.toLowerCase().includes('tidak ditemukan');
     const isKuotaHabis = pesan.toLowerCase().includes('kuota');
+    const isMinBelanja = pesan.toLowerCase().includes('minimal');
 
-    if (isNotFound) {
+    if (isMinBelanja) {
+      el.scanResultContainer.innerHTML = `
+        <div class="w-full p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-left">
+          <div class="flex items-center gap-1.5 font-bold text-xs">
+            <span>⚠️ Belum Memenuhi Minimal Belanja</span>
+          </div>
+          <div class="text-[11px] mt-1">${esc(pesan)}</div>
+        </div>
+      `;
+    } else if (isNotFound) {
       el.scanResultContainer.innerHTML = `
         <div class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 flex flex-col items-center">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="mb-1"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
@@ -1481,19 +1661,9 @@ async function doValidateVoucher() {
     return;
   }
 
-  if (totalBelanja < voucher.min_belanja) {
-    const kurang = voucher.min_belanja - totalBelanja;
-    el.scanResultContainer.innerHTML = `
-      <div class="w-full p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-left">
-        <div class="flex items-center gap-1.5 font-bold text-xs">
-          <span>⚠️ Belum Memenuhi Minimal Belanja</span>
-        </div>
-        <div class="text-[11px] mt-1">Minimal belanja: <strong>${formatRupiah(voucher.min_belanja)}</strong>. Kurang <strong>${formatRupiah(kurang)}</strong> untuk menggunakan kupon ini.</div>
-      </div>
-    `;
-    return;
-  }
-
+  // Backend (validasiVoucher) sudah menolak kalau min_belanja belum
+  // terpenuhi dan ditangani di blok catch di atas -- titik ini hanya
+  // tercapai kalau syarat belanja sudah lolos.
   let potongan = 0;
   if (voucher.tipe === 'persen') {
     potongan = Math.round((totalBelanja * (voucher.nilai / 100)) / 500) * 500;
@@ -1549,8 +1719,12 @@ async function doValidateVoucher() {
     const btn = e.currentTarget;
     btn.disabled = true;
     try {
-      const updated = await klaimVoucher(voucher.id);
+      const updated = await klaimVoucher(voucher.id, totalBelanja);
       showToast(`Kupon ${updated.kode} berhasil diklaim. Sisa kuota: ${updated.sisa_kuota}`);
+      // Segarkan chip "Kupon Aktif Tersedia" dari server, bukan cuma filter
+      // lokal -- supaya kupon yang baru habis langsung hilang, termasuk
+      // kalau kasir lain mengklaim kupon berbeda di perangkat lain.
+      await renderQuickVouchers();
       await doValidateVoucher();
     } catch (err) {
       showToast(err.message || 'Gagal mengklaim voucher.');
@@ -1709,6 +1883,16 @@ if (el.btnDoScan) el.btnDoScan.addEventListener('click', doValidateVoucher);
 if (el.scanInputKode) {
   el.scanInputKode.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') doValidateVoucher();
+  });
+}
+if (el.scanInputBelanja) {
+  // Nominal belanja berubah (ketik ATAU panah atas/bawah -- keduanya
+  // memicu event 'input' pada <input type="number">) meng-invalidate hasil
+  // validasi/tombol klaim yang sedang tampil. Kasir wajib klik Validasi
+  // lagi -- backend tetap satu-satunya sumber kebenaran, frontend tidak
+  // menghitung ulang potongan/syarat kupon sendiri.
+  el.scanInputBelanja.addEventListener('input', () => {
+    resetScanResultBox('Nominal belanja berubah, klik "Validasi" lagi untuk memeriksa ulang kupon.');
   });
 }
 if (el.btnScanCamera) el.btnScanCamera.addEventListener('click', startScanCamera);
