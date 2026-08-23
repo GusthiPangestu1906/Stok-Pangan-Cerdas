@@ -142,13 +142,15 @@
     .paragraf{max-width:none;}
     .sisi-form{padding:34px 22px 46px;}
   }
+  /* Di HP, panel kiri disembunyikan sepenuhnya supaya form login langsung
+     terlihat tanpa perlu menggulir melewati judul, kartu pantauan gudang,
+     dan daftar fitur. Panel itu bercerita — berguna di layar lebar, tapi di
+     layar sempit justru menghalangi satu-satunya hal yang dicari pengunjung
+     halaman ini: kotak masuk. */
   @media (max-width:620px){
-    .judul{font-size:27px;}
-    .paragraf{font-size:14.5px;}
-    /* di HP: cukup dua baris status teratas + tiga fitur ringkas */
-    .status .baris:nth-child(4){display:none;}
-    .fitur-item p{display:none;}
-    .fitur-item{padding:11px 0;}
+    .kisah{display:none;}
+    .layar{min-height:100vh;place-items:center;}
+    .sisi-form{padding:32px 22px;width:100%;}
   }
 </style>
 </head>
