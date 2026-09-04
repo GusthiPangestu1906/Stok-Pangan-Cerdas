@@ -8,9 +8,9 @@ cabang Vibe Code.
 
 | | |
 |---|---|
-| **Aplikasi (frontend)** | https://stok-pangan-cerdas.vercel.app |
-| **API (backend)** | https://stok-pangan-cerdas-production-1606.up.railway.app/api |
-| **Repositori** | https://github.com/HammamFais/Stok-Pangan-Cerdas |
+| **Aplikasi (frontend)** | https://stok-pangan-cerdas.web.app *(juga https://stok-pangan-cerdas.firebaseapp.com)* |
+| **API (backend)** | https://stok-pangan-cerdas-delta.vercel.app/api |
+| **Repositori** | https://github.com/GusthiPangestu1906/Stok-Pangan-Cerdas |
 
 **Akun admin demo:**
 
@@ -126,23 +126,21 @@ mulai berisiko.
 
 ## Arsitektur
 
-- **Backend** — Laravel (PHP), REST API murni. Tidak merender HTML apa pun,
-  hanya menyediakan endpoint JSON di bawah `/api`.
-- **Frontend** — Vanilla JS + Tailwind CSS (lewat CDN), file statis terpisah
-  yang memanggil backend lewat `fetch()`.
-- **Database** — PostgreSQL.
-- **Autentikasi** — Laravel Sanctum, mode *personal access token* (bukan SPA
-  cookie/session), karena frontend dan backend adalah dua deployment terpisah
-  yang beda origin (frontend di Vercel, backend di Railway).
+- **Backend** — Laravel (PHP 8.4), REST API murni dijalankan sebagai Serverless Function di **Vercel** (`https://stok-pangan-cerdas-delta.vercel.app/api`). Tidak merender HTML apa pun, hanya menyediakan endpoint JSON di bawah `/api`.
+- **Frontend** — Vanilla JS + Tailwind CSS (lewat CDN), file statis di-host di **Google Firebase Hosting** (`https://stok-pangan-cerdas.web.app` & `https://stok-pangan-cerdas.firebaseapp.com`) yang memanggil backend lewat `fetch()`.
+- **Database** — Cloud PostgreSQL terkelola di **Neon Serverless PostgreSQL** (region Singapore `ap-southeast-1`).
+- **Autentikasi** — Laravel Sanctum, mode *personal access token* (bukan SPA cookie/session), karena frontend dan backend adalah dua deployment terpisah yang beda origin (frontend di Firebase Hosting, backend di Vercel).
 
 ### Teknologi & versi
 
-| Komponen | Versi |
+| Komponen | Versi / Layanan |
 |---|---|
+| Frontend Hosting | Google Firebase Hosting (`web.app`) |
+| Backend Hosting | Vercel Serverless Function (`vercel-php@0.8.0`) |
+| Database | Neon Serverless PostgreSQL 17 (AWS Singapore `ap-southeast-1`) |
 | PHP | 8.4.14 |
-| Laravel Framework | 13.25.0 |
+| Laravel Framework | 12 / 13 |
 | Laravel Sanctum | 4.3.3 |
-| PostgreSQL | 17.4 |
 | Tailwind CSS | via CDN (`cdn.tailwindcss.com`, selalu versi terbaru) |
 | Google Gemini API | lihat bagian [AI generatif](#ai-generatif) |
 
@@ -150,7 +148,11 @@ mulai berisiko.
 
 ```
 TCC 2026/
-├── backend/                     Laravel — REST API murni
+├── .firebaserc                  Konfigurasi project Firebase (stok-pangan-cerdas)
+├── firebase.json                Konfigurasi routing & hosting Firebase
+├── backend/                     Laravel — REST API murni (Vercel Serverless)
+│   ├── api/
+│   │   └── index.php            Entrypoint Serverless Vercel (PHP 8.4)
 │   ├── app/
 │   │   ├── Http/Controllers/    ItemController, RekomendasiController,
 │   │   │                        RiwayatController, AuthController
@@ -160,19 +162,20 @@ TCC 2026/
 │   ├── database/
 │   │   ├── migrations/          Skema tabel: items, rekomendasi,
 │   │   │                        personal_access_tokens, dll.
-│   │   └── seeders/              ItemSeeder (13 barang contoh), DatabaseSeeder
-│   │                             (akun admin demo)
-│   └── routes/api.php           Semua endpoint /api
-├── frontend/                    Vanilla JS + Tailwind, file statis
+│   │   └── seeders/             ItemSeeder (13 barang contoh), DatabaseSeeder
+│   │                            (akun admin demo)
+│   ├── routes/api.php           Semua endpoint /api
+│   └── vercel.json              Konfigurasi deployment Vercel PHP runtime
+├── frontend/                    Vanilla JS + Tailwind, file statis (Firebase)
 │   ├── index.html               Dashboard Stok
 │   ├── riwayat.html             Riwayat & Statistik
 │   ├── login.html               Halaman login admin
 │   └── assets/
-│       ├── js/                  api.js (klien HTTP + auth), dashboard.js,
-│       │                        riwayat.js, login.js
+│       ├── js/                  config.js (konfigurasi API), api.js (klien HTTP + auth),
+│       │                        dashboard.js, riwayat.js, login.js
 │       └── img/                 Aset gambar (logo TCC 2026, dll.)
-├── design-reference/             Referensi visual saja — lihat bagian
-│                                 "Tentang folder design-reference/" di bawah
+├── design-reference/            Referensi visual saja — lihat bagian
+│                                "Tentang folder design-reference/" di bawah
 ├── CLAUDE.md                    Spesifikasi & batasan teknis project
 └── README.md                    Berkas ini
 ```
@@ -550,10 +553,30 @@ python -m http.server 5500
 
 Buka `http://127.0.0.1:5500/login.html` di browser.
 
-`assets/js/api.js` otomatis mengarah ke `http://127.0.0.1:8000/api` saat
-diakses dari `localhost`/`127.0.0.1`. Untuk deployment produksi, ganti
-placeholder `REPLACE_WITH_RAILWAY_URL` di file itu dengan URL backend Railway
-yang sebenarnya.
+Target backend diatur di `frontend/assets/js/config.js`. Secara default, skrip otomatis mengarah ke backend lokal `http://127.0.0.1:8000/api` saat diakses via `localhost` atau `127.0.0.1`, dan otomatis mengarah ke production backend Vercel (`https://stok-pangan-cerdas-delta.vercel.app/api`) saat dibuka di domain publik Firebase.
+
+### Deployment ke Cloud
+
+1. **Database (Neon PostgreSQL):**
+   - Buat project PostgreSQL gratis di [Neon](https://neon.tech) (region AWS Singapore `ap-southeast-1`).
+   - Jalankan migrasi dan seeder:
+     ```bash
+     php artisan migrate --force
+     php artisan db:seed --force
+     ```
+
+2. **Backend (Vercel Serverless):**
+   - Backend menggunakan `vercel-php` runtime (PHP 8.4) yang dikonfigurasi melalui `backend/vercel.json` dan `backend/api/index.php`.
+   - Setup environment variables di dashboard Vercel (`APP_KEY`, `APP_ENV=production`, `DB_CONNECTION=pgsql`, `DB_HOST`, `DB_PORT=5432`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `GEMINI_API_KEY`, dll.).
+   - Deploy backend ke Vercel via GitHub integration atau `vercel --prod`.
+
+3. **Frontend (Google Firebase Hosting):**
+   - Deploy frontend ke domain `*.web.app` menggunakan Firebase CLI:
+     ```bash
+     firebase login
+     firebase deploy --only hosting
+     ```
+   - Frontend live di `https://stok-pangan-cerdas.web.app`.
 
 ### Cache-busting file JS
 
@@ -656,9 +679,11 @@ terlewat.
   rantai empat model sehingga total menjadi sekitar 80, tapi tetap ada
   batasnya. Untuk pemakaian produksi sesungguhnya, ini perlu di-upgrade ke
   tingkat berbayar. Fitur non-AI tidak terpengaruh sama sekali.
-- **Deployment memakai tingkat gratis.** Backend (Railway) dan database
-  PostgreSQL berjalan di paket percobaan dengan batas kredit dan waktu
-  aktif. Aplikasi bisa berhenti melayani permintaan kalau kredit habis.
+- **Deployment cloud efisien tanpa kartu kredit.** Arsitektur cloud dirancang
+  sepenuhnya menggunakan tier gratis permanen tanpa memerlukan kartu kredit
+  (Frontend di Google Firebase Hosting, Backend di Vercel Serverless,
+  dan Database di Neon PostgreSQL). Hal ini menjamin ketersediaan jangka
+  panjang tanpa risiko expired trial 30 hari.
 - **Belum ada pengujian otomatis.** Seluruh verifikasi dilakukan manual —
   lewat pengujian langsung di browser dan pemanggilan endpoint API
   satu per satu, termasuk simulasi kegagalan Gemini memakai `Http::fake()`
@@ -697,6 +722,6 @@ aplikasi sesungguhnya dibangun dari nol mengikuti arsitektur di
 - `GEMINI_API_KEY` disimpan di `backend/.env` (masuk `.gitignore`, tidak
   pernah dikirim ke frontend). Semua panggilan ke Gemini API lewat backend
   sebagai proxy.
-- Sebelum repo di-*publish* ke GitHub dan sebelum deploy ke Railway,
+- Sebelum repo di-*publish* ke GitHub dan sebelum deploy ke Vercel/Firebase,
   `GEMINI_API_KEY` yang dipakai selama development **harus dirotasi ulang**
-  dan diganti key baru khusus produksi.
+  dan diganti key baru khusus produksi di environment variables Vercel.
