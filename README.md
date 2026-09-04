@@ -10,6 +10,7 @@ cabang Vibe Code.
 |---|---|
 | **Aplikasi (frontend)** | https://stok-pangan-cerdas.web.app *(juga https://stok-pangan-cerdas.firebaseapp.com)* |
 | **API (backend)** | https://stok-pangan-cerdas-delta.vercel.app/api |
+| **Dokumentasi API (Swagger UI)** | https://stok-pangan-cerdas-delta.vercel.app/docs |
 | **Repositori** | https://github.com/GusthiPangestu1906/Stok-Pangan-Cerdas |
 
 **Akun admin demo:**

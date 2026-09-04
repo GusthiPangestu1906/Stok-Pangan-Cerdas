@@ -1,0 +1,763 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Stok Pangan Cerdas API",
+    "description": "Dokumentasi REST API Sistem Manajemen Stok Pangan Koperasi & UMKM dengan AI Expiry & Spoilage Predictor.\n\nDibuat untuk **Trunodjoyo Creative Competition (TCC) 2026**, cabang **Vibe Code** (Web Application Development).\n\n### Cara Menggunakan Dokumentasi Ini:\n1. Klik **POST /api/login** di bawah kategori **Autentikasi & Publik**.\n2. Klik **Try it out**, masukkan email `admin@koperasipangan.id` dan password `admin123`, lalu klik **Execute**.\n3. Salin token dari respons, klik tombol **Authorize 🔓** di kanan atas, tempelkan token, lalu klik **Authorize**.\n4. Sekarang Anda dapat mencoba seluruh endpoint yang membutuhkan autentikasi (CRUD Barang, AI Gemini, Kupon Kasir, dll).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Tim Stok Pangan Cerdas (PENS)",
+      "url": "https://stok-pangan-cerdas.web.app"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://stok-pangan-cerdas-delta.vercel.app",
+      "description": "Production Serverless (Vercel + Neon PostgreSQL)"
+    },
+    {
+      "url": "http://127.0.0.1:8000",
+      "description": "Local Development Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autentikasi & Publik",
+      "description": "Endpoint login admin, logout, profil, dan ringkasan publik"
+    },
+    {
+      "name": "Items (Manajemen Stok)",
+      "description": "Manajemen barang komoditas pangan, stok, dan deteksi risiko"
+    },
+    {
+      "name": "Rekomendasi AI (Gemini)",
+      "description": "Rekomendasi tindakan pencegahan pembusukan dengan Google Gemini AI"
+    },
+    {
+      "name": "Riwayat & Statistik",
+      "description": "Audit trail tindakan penyelamatan pangan dan agregasi metrik"
+    },
+    {
+      "name": "Vouchers (Kupon Kasir)",
+      "description": "Penerbitan kupon diskon ber-barcode Code-39 dan validasi kasir"
+    }
+  ],
+  "paths": {
+    "/api/login": {
+      "post": {
+        "tags": ["Autentikasi & Publik"],
+        "summary": "Login admin",
+        "description": "Melakukan autentikasi admin koperasi dan menghasilkan Personal Access Token (Sanctum).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin@koperasipangan.id"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "admin123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer", "example": 1 },
+                            "name": { "type": "string", "example": "Admin Koperasi Pangan" },
+                            "email": { "type": "string", "example": "admin@koperasipangan.id" }
+                          }
+                        },
+                        "token": {
+                          "type": "string",
+                          "example": "1|abcdef1234567890..."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Email atau kata sandi salah"
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "tags": ["Autentikasi & Publik"],
+        "summary": "Logout admin",
+        "description": "Mencabut token Sanctum aktif yang sedang digunakan.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": {
+            "description": "Logout berhasil"
+          },
+          "401": {
+            "description": "Unauthenticated"
+          }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": ["Autentikasi & Publik"],
+        "summary": "Profil admin saat ini",
+        "description": "Mengambil informasi data user admin yang sedang terautentikasi.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Data user admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 1 },
+                        "name": { "type": "string", "example": "Admin Koperasi Pangan" },
+                        "email": { "type": "string", "example": "admin@koperasipangan.id" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          }
+        }
+      }
+    },
+    "/api/ringkasan-publik": {
+      "get": {
+        "tags": ["Autentikasi & Publik"],
+        "summary": "Ringkasan gudang publik",
+        "description": "Mengambil ringkasan anonim stok pangan untuk kartu 'Pantauan Gudang' di halaman login tanpa autentikasi.",
+        "responses": {
+          "200": {
+            "description": "Ringkasan publik",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total_barang": { "type": "integer", "example": 12 },
+                        "sorotan": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "nama": { "type": "string", "example": "Tomat Segar" },
+                              "kategori": { "type": "string", "example": "Sayur" },
+                              "jumlah_stok": { "type": "integer", "example": 8 },
+                              "sisa_hari": { "type": "integer", "example": 1 },
+                              "status": { "type": "string", "enum": ["aman", "berisiko", "kritis"], "example": "kritis" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/items": {
+      "get": {
+        "tags": ["Items (Manajemen Stok)"],
+        "summary": "Daftar barang komoditas",
+        "description": "Mengambil semua barang stok pangan beserta kalkulasi status risiko tanggal secara real-time.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "kategori",
+            "in": "query",
+            "description": "Filter berdasarkan kategori barang (Sayur, Buah, Daging, Susu & Olahan, Roti)",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter berdasarkan status risiko (aman, berisiko, kritis)",
+            "required": false,
+            "schema": { "type": "string", "enum": ["aman", "berisiko", "kritis"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar barang berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Item" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthenticated" }
+        }
+      },
+      "post": {
+        "tags": ["Items (Manajemen Stok)"],
+        "summary": "Tambah barang baru",
+        "description": "Menambahkan komoditas pangan baru ke inventaris gudang.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nama", "kategori", "jumlah_stok", "harga", "tanggal_masuk", "estimasi_umur_simpan_hari"],
+                "properties": {
+                  "nama": { "type": "string", "example": "Wortel Segar" },
+                  "kategori": { "type": "string", "example": "Sayur" },
+                  "jumlah_stok": { "type": "integer", "minimum": 0, "example": 25 },
+                  "harga": { "type": "integer", "minimum": 0, "example": 12000 },
+                  "tanggal_masuk": { "type": "string", "format": "date", "example": "2026-09-01" },
+                  "estimasi_umur_simpan_hari": { "type": "integer", "minimum": 1, "example": 7 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Barang berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Item" }
+                  }
+                }
+              }
+            }
+          },
+          "422": { "description": "Validasi input gagal" }
+        }
+      }
+    },
+    "/api/items/{id}": {
+      "get": {
+        "tags": ["Items (Manajemen Stok)"],
+        "summary": "Detail satu barang",
+        "description": "Mengambil informasi detail barang komoditas beserta riwayat rekomendasi.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail barang",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Item" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Barang tidak ditemukan" }
+        }
+      },
+      "put": {
+        "tags": ["Items (Manajemen Stok)"],
+        "summary": "Ubah data barang",
+        "description": "Memperbarui data barang. Status risiko akan otomatis terhitung ulang.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nama": { "type": "string", "example": "Wortel Segar Super" },
+                  "kategori": { "type": "string", "example": "Sayur" },
+                  "jumlah_stok": { "type": "integer", "minimum": 0, "example": 20 },
+                  "harga": { "type": "integer", "minimum": 0, "example": 14000 },
+                  "tanggal_masuk": { "type": "string", "format": "date", "example": "2026-09-01" },
+                  "estimasi_umur_simpan_hari": { "type": "integer", "minimum": 1, "example": 7 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Barang berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Item" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Barang tidak ditemukan" },
+          "422": { "description": "Validasi input gagal" }
+        }
+      },
+      "delete": {
+        "tags": ["Items (Manajemen Stok)"],
+        "summary": "Hapus barang",
+        "description": "Menghapus barang dari inventaris gudang dan mencatat sisa stok yang terbuang ke Riwayat Pemusnahan.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "204": { "description": "Barang berhasil dihapus" },
+          "404": { "description": "Barang tidak ditemukan" }
+        }
+      }
+    },
+    "/api/items/{id}/rekomendasi": {
+      "post": {
+        "tags": ["Rekomendasi AI (Gemini)"],
+        "summary": "Minta saran AI untuk satu barang",
+        "description": "Mengirim data barang berisiko atau kritis ke Google Gemini AI untuk memperoleh rekomendasi terstruktur (Diskon, Distribusi, Bundling, atau Pemusnahan).",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "ID barang (harus berstatus berisiko atau kritis)", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rekomendasi diambil dari cache harian",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Rekomendasi" }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Rekomendasi baru berhasil dibuat oleh AI",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Rekomendasi" }
+                  }
+                }
+              }
+            }
+          },
+          "422": { "description": "Barang berstatus Aman tidak memerlukan rekomendasi AI" },
+          "502": { "description": "Gagal menghubungi Gemini API (misal kuota harian habis)" }
+        }
+      }
+    },
+    "/api/rekomendasi": {
+      "get": {
+        "tags": ["Rekomendasi AI (Gemini)"],
+        "summary": "Daftar semua saran rekomendasi",
+        "description": "Mengambil daftar seluruh rekomendasi tindakan AI yang tersedia.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "diterapkan",
+            "in": "query",
+            "description": "Filter status penerapan rekomendasi (true atau false)",
+            "required": false,
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar rekomendasi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Rekomendasi" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rekomendasi/{id}/terapkan": {
+      "patch": {
+        "tags": ["Rekomendasi AI (Gemini)"],
+        "summary": "Tandai rekomendasi diterapkan",
+        "description": "Menandai bahwa saran rekomendasi AI telah dieksekusi di gudang, memindahkannya ke Riwayat Tindakan.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rekomendasi berhasil ditandai diterapkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Rekomendasi" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Rekomendasi tidak ditemukan" }
+        }
+      }
+    },
+    "/api/riwayat": {
+      "get": {
+        "tags": ["Riwayat & Statistik"],
+        "summary": "Daftar riwayat tindakan penyelamatan",
+        "description": "Mengambil log lengkap seluruh tindakan penyelamatan pangan yang telah dieksekusi.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Daftar riwayat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Rekomendasi" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/riwayat/statistik": {
+      "get": {
+        "tags": ["Riwayat & Statistik"],
+        "summary": "Statistik agregasi penyelamatan pangan",
+        "description": "Mengambil ringkasan metrik: total tindakan, unit terselamatkan, unit terbuang, dan rincian per kategori tindakan.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Statistik berhasil dihitung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "jumlah_tindakan": { "type": "integer", "example": 8 },
+                        "jumlah_terselamatkan": { "type": "integer", "example": 6 },
+                        "jumlah_terbuang": { "type": "integer", "example": 2 },
+                        "unit_terselamatkan": { "type": "integer", "example": 45 },
+                        "unit_terbuang": { "type": "integer", "example": 10 },
+                        "per_jenis": {
+                          "type": "object",
+                          "additionalProperties": { "type": "integer" },
+                          "example": { "Diskon": 4, "Distribusi": 1, "Bundling": 1, "Dibuang": 2 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vouchers": {
+      "get": {
+        "tags": ["Vouchers (Kupon Kasir)"],
+        "summary": "Daftar kupon diskon",
+        "description": "Mengambil daftar kupon diskon fisik kasir.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter status voucher (aktif atau habis)",
+            "required": false,
+            "schema": { "type": "string", "enum": ["aktif", "habis"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar kupon",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Voucher" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Vouchers (Kupon Kasir)"],
+        "summary": "Terbitkan batch kupon diskon ber-barcode",
+        "description": "Menerbitkan sejumlah kupon diskon ber-barcode Code-39 dengan kode acak unik di backend.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["judul", "tipe", "nilai", "berlaku_sampai"],
+                "properties": {
+                  "item_id": { "type": "integer", "nullable": true, "example": 1 },
+                  "rekomendasi_id": { "type": "integer", "nullable": true, "example": 2 },
+                  "judul": { "type": "string", "example": "Diskon Cuci Gudang Tomat 30%" },
+                  "target": { "type": "string", "nullable": true, "example": "Tomat Segar" },
+                  "tipe": { "type": "string", "enum": ["persen", "nominal"], "example": "persen" },
+                  "nilai": { "type": "integer", "minimum": 1, "example": 30 },
+                  "harga_normal": { "type": "integer", "nullable": true, "example": 10000 },
+                  "min_belanja": { "type": "integer", "nullable": true, "example": 0 },
+                  "jumlah": { "type": "integer", "minimum": 1, "maximum": 50, "example": 5 },
+                  "berlaku_sampai": { "type": "string", "format": "date", "example": "2026-09-08" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kupon berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Voucher" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vouchers/validasi": {
+      "post": {
+        "tags": ["Vouchers (Kupon Kasir)"],
+        "summary": "Validasi kupon kasir",
+        "description": "Memeriksa keabsahan kode kupon kasir (ada di DB, status aktif, belum kadaluarsa, kuota tersisa, dan minimal belanja terpenuhi).",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["kode"],
+                "properties": {
+                  "kode": { "type": "string", "example": "VCHR-TOM-48201" },
+                  "total_belanja": { "type": "integer", "nullable": true, "example": 25000 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kupon valid dan siap diklaim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Voucher" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Kode voucher tidak ditemukan" },
+          "422": { "description": "Voucher tidak memenuhi syarat validasi (kadaluarsa/habis/min belanja)" }
+        }
+      }
+    },
+    "/api/vouchers/{id}/klaim": {
+      "post": {
+        "tags": ["Vouchers (Kupon Kasir)"],
+        "summary": "Klaim kupon di kasir",
+        "description": "Mengeksekusi klaim kupon, menaikkan pemakaian, dan mencatat transaksi ke Riwayat.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "total_belanja": { "type": "integer", "nullable": true, "example": 25000 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kupon berhasil diklaim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Voucher" }
+                  }
+                }
+              }
+            }
+          },
+          "422": { "description": "Gagal klaim (kuota habis/kadaluarsa)" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Sanctum Token",
+        "description": "Masukkan Personal Access Token Sanctum (dihasilkan saat login)."
+      }
+    },
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "nama": { "type": "string", "example": "Tomat Segar" },
+          "kategori": { "type": "string", "example": "Sayur" },
+          "jumlah_stok": { "type": "integer", "example": 8 },
+          "harga": { "type": "integer", "example": 10000 },
+          "tanggal_masuk": { "type": "string", "format": "date", "example": "2026-09-01" },
+          "estimasi_umur_simpan_hari": { "type": "integer", "example": 4 },
+          "sisa_hari": { "type": "integer", "example": 1 },
+          "status": { "type": "string", "enum": ["aman", "berisiko", "kritis"], "example": "kritis" },
+          "tanggal_kadaluarsa": { "type": "string", "format": "date", "example": "2026-09-05" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Rekomendasi": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "item_id": { "type": "integer", "nullable": true, "example": 1 },
+          "nama_item": { "type": "string", "example": "Tomat Segar" },
+          "kategori_item": { "type": "string", "example": "Sayur" },
+          "jenis_saran": { "type": "string", "enum": ["Diskon", "Distribusi", "Bundling", "Pemusnahan", "Dibuang"], "example": "Diskon" },
+          "isi_saran": { "type": "string", "example": "Segera berikan diskon 30% untuk 8 unit Tomat Segar karena tersisa 1 hari sebelum kadaluarsa." },
+          "status_item_saat_dibuat": { "type": "string", "example": "kritis" },
+          "jumlah_stok_saat_dibuat": { "type": "integer", "example": 8 },
+          "diterapkan": { "type": "boolean", "example": false },
+          "diterapkan_at": { "type": "string", "format": "date-time", "nullable": true },
+          "sumber": { "type": "string", "example": "gemini" },
+          "kode_voucher": { "type": "string", "nullable": true, "example": "VCHR-TOM-48201" }
+        }
+      },
+      "Voucher": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "kode": { "type": "string", "example": "VCHR-TOM-48201" },
+          "item_id": { "type": "integer", "nullable": true, "example": 1 },
+          "rekomendasi_id": { "type": "integer", "nullable": true, "example": 1 },
+          "nama_item": { "type": "string", "nullable": true, "example": "Tomat Segar" },
+          "kategori_item": { "type": "string", "nullable": true, "example": "Sayur" },
+          "judul": { "type": "string", "example": "Diskon Cuci Gudang Tomat 30%" },
+          "target": { "type": "string", "nullable": true, "example": "Tomat Segar" },
+          "diskon_persen": { "type": "integer", "nullable": true, "example": 30 },
+          "diskon_nominal": { "type": "integer", "nullable": true, "example": null },
+          "harga_normal": { "type": "integer", "nullable": true, "example": 10000 },
+          "min_belanja": { "type": "integer", "example": 0 },
+          "kuota": { "type": "integer", "example": 1 },
+          "terpakai": { "type": "integer", "example": 0 },
+          "berlaku_sampai": { "type": "string", "format": "date", "example": "2026-09-05" },
+          "status": { "type": "string", "enum": ["aktif", "habis"], "example": "aktif" },
+          "sudah_kadaluarsa": { "type": "boolean", "example": false },
+          "sisa_kuota": { "type": "integer", "example": 1 }
+        }
+      }
+    }
+  }
+}
