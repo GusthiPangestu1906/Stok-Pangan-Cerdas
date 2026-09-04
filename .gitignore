@@ -20,6 +20,9 @@ frontend/node_modules/
 .DS_Store
 Thumbs.db
 
+# Firebase
+.firebase/
+
 # Editor
 .vscode/
 .idea/
