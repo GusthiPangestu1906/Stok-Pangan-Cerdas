@@ -27,7 +27,7 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
     return redirect()->secure('/docs');
 });
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 Route::get('/ringkasan-publik', [RingkasanPublikController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('items', ItemController::class);
 
     Route::get('/rekomendasi', [RekomendasiController::class, 'index']);
-    Route::post('/items/{item}/rekomendasi', [RekomendasiController::class, 'store']);
+    Route::post('/items/{item}/rekomendasi', [RekomendasiController::class, 'store'])->middleware('throttle:15,1');
     Route::patch('/rekomendasi/{rekomendasi}/terapkan', [RekomendasiController::class, 'terapkan']);
 
     Route::get('/riwayat', [RiwayatController::class, 'index']);
