@@ -5,5 +5,5 @@
  * dengan URL backend Render Anda (misal: https://stok-pangan-cerdas-backend.onrender.com/api)
  */
 window.SPC_CONFIG = {
-  API_BASE_URL: 'https://stok-pangan-cerdas-backend.onrender.com/api'
+  API_BASE_URL: 'https://weeks-household-never-guardian.trycloudflare.com/api'
 };
