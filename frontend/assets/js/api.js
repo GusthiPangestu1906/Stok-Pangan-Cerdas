@@ -1,6 +1,7 @@
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const DEFAULT_API_BASE_URL = 'https://stok-pangan-cerdas-backend.onrender.com/api';
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://127.0.0.1:8000/api'
-  : 'https://stok-pangan-cerdas-production-1606.up.railway.app/api';
+  : (window.SPC_CONFIG?.API_BASE_URL || localStorage.getItem('spc_api_base_url') || DEFAULT_API_BASE_URL);
 
 const TOKEN_KEY = 'spc_token';
 
