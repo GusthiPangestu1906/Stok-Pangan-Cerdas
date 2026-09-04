@@ -1,0 +1,83 @@
+<!-- AI Insight Copilot Side Panel Component -->
+<aside class="lg:col-span-5 xl:col-span-4 order-1 lg:order-2 lg:sticky lg:top-[76px] min-w-0" aria-label="Panel Rekomendasi AI Insight">
+  <section class="card border-2 border-purple-200/80 shadow-xs">
+    <!-- Copilot Header -->
+    <div class="card-header flex flex-col gap-2.5 bg-purple-50/40 border-b border-purple-100">
+      <div class="flex flex-wrap gap-2 items-center justify-between">
+        <div>
+          <div class="badge badge-bundling mb-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" />
+              <circle cx="12" cy="12" r="3.4" />
+            </svg>
+            AI Insight
+          </div>
+          <h2 class="font-heading text-[16.5px] font-semibold tracking-tight text-primary">Rekomendasi Tindakan AI</h2>
+          <p class="text-[12.5px] text-muted mt-0.5">Saran tindakan cepat untuk barang berisiko & kritis.</p>
+        </div>
+      </div>
+
+      <!-- Recommendation Status Filter Tabs -->
+      <div id="ai-filter-tabs" class="ai-filter-tabs" role="tablist" aria-label="Filter Rekomendasi AI">
+        <button type="button" data-ai-filter="semua" class="ai-filter-btn active" role="tab" aria-selected="true"
+          title="Semua rekomendasi">
+          <span>Semua</span>
+          <span id="ai-count-semua" class="ai-filter-count">0</span>
+        </button>
+        <button type="button" data-ai-filter="belum" class="ai-filter-btn" role="tab" aria-selected="false"
+          title="Belum diterapkan">
+          <span>Belum</span>
+          <span id="ai-count-belum" class="ai-filter-count">0</span>
+        </button>
+        <button type="button" data-ai-filter="sudah" class="ai-filter-btn" role="tab" aria-selected="false"
+          title="Diterapkan">
+          <span>Diterapkan</span>
+          <span id="ai-count-sudah" class="ai-filter-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Shimmer Skeleton Loading State for AI Insight -->
+    <div id="ai-loading" class="p-3.5 flex flex-col gap-3" role="status" aria-label="Memuat rekomendasi AI...">
+      <div class="card p-3.5 flex flex-col gap-2.5 border border-purple-100 bg-purple-50/20">
+        <div class="flex justify-between items-center">
+          <div class="shimmer-ai h-4 w-28"></div>
+          <div class="shimmer-ai h-5 w-16 rounded-full"></div>
+        </div>
+        <div class="p-3 bg-purple-50/60 rounded-xl flex flex-col gap-2 border border-purple-100/50">
+          <div class="shimmer-ai h-4 w-20 rounded-full"></div>
+          <div class="shimmer-ai h-3 w-full"></div>
+          <div class="shimmer-ai h-3 w-3/4"></div>
+        </div>
+      </div>
+      <div class="card p-3.5 flex flex-col gap-2.5 border border-purple-100 bg-purple-50/20">
+        <div class="flex justify-between items-center">
+          <div class="shimmer-ai h-4 w-32"></div>
+          <div class="shimmer-ai h-5 w-16 rounded-full"></div>
+        </div>
+        <div class="p-3 bg-purple-50/60 rounded-xl flex flex-col gap-2 border border-purple-100/50">
+          <div class="shimmer-ai h-4 w-24 rounded-full"></div>
+          <div class="shimmer-ai h-3 w-full"></div>
+          <div class="shimmer-ai h-3 w-2/3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="ai-error" class="hidden text-center py-10 text-danger text-sm px-6" role="alert"></div>
+    
+    <!-- Empty State -->
+    <div id="ai-empty" class="hidden py-10 sm:py-12 text-center px-6">
+      <div class="font-heading text-[15.5px] font-semibold mb-1 text-primary">Belum ada rekomendasi aktif</div>
+      <div class="text-xs text-soft leading-relaxed">
+        Klik tombol <span class="text-purple-700 font-semibold">"Minta Saran AI"</span> pada barang berisiko/kritis di daftar barang.
+      </div>
+    </div>
+
+    <!-- Dynamic AI Recommendations Stream List -->
+    <div id="ai-container" class="hidden">
+      <div id="ai-list" class="p-3 flex flex-col gap-2.5 max-h-[calc(100vh-220px)] overflow-y-auto" role="feed" aria-label="Daftar Kartu Rekomendasi AI"></div>
+    </div>
+  </section>
+</aside>

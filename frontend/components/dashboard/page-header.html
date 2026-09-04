@@ -1,0 +1,30 @@
+<!-- Dashboard View Header & Desktop Action Toolbar -->
+<section class="flex items-end justify-between gap-3" aria-label="Judul Halaman dan Aksi Cepat">
+  <div>
+    <p id="tanggal-hari-ini" class="text-[12.5px] sm:text-[13px] text-soft mb-1" aria-live="polite"></p>
+    <h1 class="font-heading text-[20px] sm:text-[27px] font-semibold tracking-tight text-primary">Dashboard Stok</h1>
+  </div>
+  <div class="flex items-center gap-2.5 shrink-0 hidden sm:flex">
+    <!-- Kasir Voucher Simulator Trigger -->
+    <button type="button" id="btn-nav-scan-voucher"
+      class="btn btn-outline h-11 px-3.5 text-sm font-semibold flex items-center gap-2 border-emerald-300 text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 hover:text-emerald-900 transition shadow-xs cursor-pointer"
+      title="Simulator Validasi Kupon Kasir">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+        <path d="M13 5v2" />
+        <path d="M13 17v2" />
+        <path d="M13 11v2" />
+      </svg>
+      <span>Cek Kupon Kasir</span>
+    </button>
+    <!-- Tambah Barang Trigger -->
+    <button id="btn-tambah" class="btn btn-primary h-11 px-[18px] text-sm shrink-0 flex items-center gap-2 shadow-xs cursor-pointer">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      <span>Tambah Barang</span>
+    </button>
+  </div>
+</section>

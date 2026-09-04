@@ -1,0 +1,119 @@
+<!-- Inventory Management Workspace (Header, Search, Chips, Async States, Table/Cards) -->
+<section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-5 order-2 lg:order-1 min-w-0" aria-label="Manajemen Inventaris Stok Pangan">
+  <div class="card">
+    <!-- Card Header: Title & Search Filter Toolbar -->
+    <div class="card-header flex flex-col gap-3">
+      <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+        <div class="font-heading text-[15.5px] sm:text-[16.5px] font-semibold tracking-tight text-primary">
+          Daftar Barang <span id="jumlah-tampil" class="text-caption font-medium"></span>
+        </div>
+        <div class="relative w-full sm:max-w-[320px]">
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex pointer-events-none" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+          </div>
+          <input id="filter-cari" type="text" placeholder="Cari nama barang..."
+            class="input-field pl-9 bg-hover text-sm" aria-label="Cari nama barang" />
+        </div>
+      </div>
+
+      <!-- Category Chips Filter Scrollable Bar -->
+      <div class="pt-2 border-t border-subtle">
+        <div id="chip-filters" class="chips-scroll scrollbar-none" role="group" aria-label="Filter Kategori"></div>
+      </div>
+    </div>
+
+    <!-- Shimmer Skeleton Loading State -->
+    <div id="state-loading" class="p-3 sm:p-5 flex flex-col gap-3" role="status" aria-label="Memuat data stok pangan...">
+      <!-- Desktop Table Shimmer Skeletons -->
+      <div class="hidden lg:flex flex-col gap-3">
+        <div class="inventory-grid px-5 py-2.5 bg-hover/50 border-b border-subtle items-center">
+          <div class="shimmer h-3 w-16"></div>
+          <div class="shimmer h-3 w-10 mx-auto"></div>
+          <div class="shimmer h-3 w-20"></div>
+          <div class="shimmer h-3 w-14 mx-auto"></div>
+          <div class="shimmer h-3 w-16 ml-auto"></div>
+        </div>
+        <div class="inventory-grid px-5 py-3.5 border-b border-subtle items-center">
+          <div class="flex items-center gap-2.5">
+            <div class="shimmer w-2.5 h-2.5 rounded-full"></div>
+            <div class="flex flex-col gap-1.5"><div class="shimmer h-4 w-32"></div><div class="shimmer h-3 w-16"></div></div>
+          </div>
+          <div class="shimmer h-4 w-10 mx-auto"></div>
+          <div class="flex flex-col gap-1"><div class="shimmer h-3.5 w-24"></div><div class="shimmer h-2.5 w-16"></div></div>
+          <div class="shimmer h-6 w-16 rounded-full mx-auto"></div>
+          <div class="flex gap-1.5 justify-end"><div class="shimmer h-8 w-8 rounded-lg"></div><div class="shimmer h-8 w-8 rounded-lg"></div></div>
+        </div>
+        <div class="inventory-grid px-5 py-3.5 border-b border-subtle items-center">
+          <div class="flex items-center gap-2.5">
+            <div class="shimmer w-2.5 h-2.5 rounded-full"></div>
+            <div class="flex flex-col gap-1.5"><div class="shimmer h-4 w-40"></div><div class="shimmer h-3 w-20"></div></div>
+          </div>
+          <div class="shimmer h-4 w-10 mx-auto"></div>
+          <div class="flex flex-col gap-1"><div class="shimmer h-3.5 w-20"></div><div class="shimmer h-2.5 w-14"></div></div>
+          <div class="shimmer h-6 w-16 rounded-full mx-auto"></div>
+          <div class="flex gap-1.5 justify-end"><div class="shimmer h-8 w-8 rounded-lg"></div><div class="shimmer h-8 w-8 rounded-lg"></div></div>
+        </div>
+        <div class="inventory-grid px-5 py-3.5 border-b border-subtle items-center">
+          <div class="flex items-center gap-2.5">
+            <div class="shimmer w-2.5 h-2.5 rounded-full"></div>
+            <div class="flex flex-col gap-1.5"><div class="shimmer h-4 w-28"></div><div class="shimmer h-3 w-14"></div></div>
+          </div>
+          <div class="shimmer h-4 w-10 mx-auto"></div>
+          <div class="flex flex-col gap-1"><div class="shimmer h-3.5 w-24"></div><div class="shimmer h-2.5 w-16"></div></div>
+          <div class="shimmer h-6 w-16 rounded-full mx-auto"></div>
+          <div class="flex gap-1.5 justify-end"><div class="shimmer h-8 w-8 rounded-lg"></div><div class="shimmer h-8 w-8 rounded-lg"></div></div>
+        </div>
+      </div>
+
+      <!-- Mobile Card Shimmer Skeletons -->
+      <div class="lg:hidden flex flex-col gap-3">
+        <div class="card p-4 flex flex-col gap-3 border border-subtle">
+          <div class="flex justify-between items-center"><div class="shimmer h-4 w-36"></div><div class="shimmer h-5 w-16 rounded-full"></div></div>
+          <div class="flex justify-between items-center"><div class="shimmer h-3 w-20"></div><div class="shimmer h-3 w-24"></div></div>
+          <div class="shimmer h-2 w-full rounded-full"></div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-subtle"><div class="shimmer h-8 w-8 rounded-lg"></div><div class="shimmer h-8 w-8 rounded-lg"></div></div>
+        </div>
+        <div class="card p-4 flex flex-col gap-3 border border-subtle">
+          <div class="flex justify-between items-center"><div class="shimmer h-4 w-44"></div><div class="shimmer h-5 w-16 rounded-full"></div></div>
+          <div class="flex justify-between items-center"><div class="shimmer h-3 w-20"></div><div class="shimmer h-3 w-24"></div></div>
+          <div class="shimmer h-2 w-full rounded-full"></div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-subtle"><div class="shimmer h-8 w-8 rounded-lg"></div><div class="shimmer h-8 w-8 rounded-lg"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="state-error" class="hidden text-center py-16 text-danger text-sm" role="alert"></div>
+
+    <!-- Empty State -->
+    <div id="state-empty" class="hidden py-10 sm:py-14 text-center px-6">
+      <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Tidak ada barang yang cocok</div>
+      <div class="text-sm text-soft">Coba ubah kata kunci atau atur ulang filter kategori dan status.</div>
+      <button id="reset-filter" class="btn btn-outline mt-5 mb-2 px-5 h-10 text-sm cursor-pointer">Atur ulang filter</button>
+    </div>
+
+    <!-- Dynamic Data Presentation Layer -->
+    <div id="items-container" class="hidden">
+      <!-- Desktop Data Grid (Large Screen) -->
+      <div class="hidden lg:block">
+        <div
+          class="inventory-grid px-5 py-2.5 bg-hover border-b border-subtle text-[10.5px] font-bold text-muted tracking-widest uppercase items-center"
+          role="rowheader">
+          <div>BARANG</div>
+          <div class="text-center">STOK</div>
+          <div>KADALUARSA</div>
+          <div class="text-center">STATUS</div>
+          <div class="text-right pr-2">AKSI</div>
+        </div>
+        <div id="items-table-body" role="feed" aria-label="Daftar Baris Barang"></div>
+      </div>
+
+      <!-- Mobile & Tablet Responsive Cards (Small Screen) -->
+      <div id="items-cards" class="lg:hidden p-3 flex flex-col gap-3 pb-8" role="feed" aria-label="Daftar Kartu Barang"></div>
+    </div>
+  </div>
+</section>

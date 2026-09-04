@@ -1,0 +1,47 @@
+<!-- Header Component: Brand Logo, Desktop Nav, and User Session / Logout -->
+<header class="bg-surface border-b border-default sticky top-0 z-10" role="banner">
+  <div class="container py-3.5 flex items-center justify-between gap-3">
+    
+    <!-- Brand & Application Identity -->
+    <div class="logo-container shrink-0">
+      <div class="logo-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="19" stroke="#7fb894" stroke-width="4.2" stroke-linecap="round"
+            stroke-dasharray="89 31" transform="rotate(-56 24 24)" />
+          <path d="M14.5 33.5C14.5 22.7 22.7 14.5 33.5 14.5C33.5 25.3 25.3 33.5 14.5 33.5Z" fill="#d9f99d" />
+          <path d="M17.6 30.4 30.4 17.6" stroke="#14532d" stroke-width="2.6" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div>
+        <div class="font-heading font-bold text-[14px] sm:text-[14.5px] tracking-tight leading-tight text-primary">
+          Stok Pangan</div>
+        <div class="text-[10.5px] sm:text-[11.5px] text-subtitle tracking-wide uppercase">CERDAS</div>
+      </div>
+    </div>
+
+    <!-- Desktop Navigation Pills -->
+    <nav class="nav-pills hidden sm:flex" aria-label="Navigasi Utama Desktop">
+      <a href="index.html" class="nav-link active" aria-current="page">Dashboard</a>
+      <a href="riwayat.html" class="nav-link">Riwayat</a>
+    </nav>
+
+    <!-- User Session & Event Badge -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <span
+        class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted border border-strong rounded-full px-2.5 py-1">
+        <img src="assets/img/logo-tcc-2026.png" alt="Logo Trunodjoyo Creative Competition 2026"
+          class="h-[18px] w-[18px] sm:h-[22px] sm:w-[22px] rounded-full" />
+        <span>TCC 2026</span>
+      </span>
+      <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-default">
+        <span id="user-name" class="text-[13px] font-medium text-secondary hidden sm:inline"></span>
+        <button id="btn-logout"
+          class="text-[12.5px] sm:text-[13px] font-medium text-light hover:text-danger transition cursor-pointer p-1"
+          title="Keluar dari akun">
+          Keluar
+        </button>
+      </div>
+    </div>
+
+  </div>
+</header>

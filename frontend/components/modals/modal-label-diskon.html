@@ -1,0 +1,179 @@
+<!-- Modal: Cetak Label Diskon & Shelf Clearance Tag -->
+<div id="modal-label-diskon"
+  class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-[60] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+  role="dialog" aria-modal="true" aria-labelledby="modal-label-title">
+  <div
+    class="bg-surface rounded-2xl w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl border border-default overflow-hidden my-auto">
+    
+    <!-- Modal Header -->
+    <div
+      class="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-subtle flex items-center justify-between bg-purple-50/70 shrink-0">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span
+          class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 text-purple-700 shrink-0" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+            <circle cx="7" cy="7" r=".5" fill="currentColor" />
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h2 id="modal-label-title" class="font-heading text-[15px] sm:text-[16px] font-bold text-primary truncate leading-tight">
+            Cetak Label Rak
+          </h2>
+          <p class="text-[11px] sm:text-[12px] text-muted truncate">Stiker promo siap cetak</p>
+        </div>
+      </div>
+      <button id="modal-label-close" class="text-light hover:text-primary transition p-1 shrink-0 ml-2 cursor-pointer"
+        aria-label="Tutup modal label">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body (Config Form + Live Stiker Preview) -->
+    <div class="p-3.5 sm:p-5 overflow-y-auto min-h-0 flex-1 overscroll-contain">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+        
+        <!-- Konfigurasi Parameter Diskon (Kiri / 5 Kolom) -->
+        <div class="md:col-span-5 flex flex-col gap-2.5 sm:gap-3 text-xs">
+          <div>
+            <label class="form-label">Nama Barang</label>
+            <input id="label-input-nama" type="text" readonly
+              class="input-field bg-muted/10 text-primary font-semibold cursor-not-allowed" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="form-label">Kategori</label>
+              <input id="label-input-kategori" type="text" readonly
+                class="input-field bg-muted/10 text-muted cursor-not-allowed" />
+            </div>
+            <div>
+              <label class="form-label">Kadaluarsa</label>
+              <input id="label-input-kadaluarsa" type="text" readonly
+                class="input-field bg-muted/10 text-muted cursor-not-allowed" />
+            </div>
+          </div>
+
+          <div>
+            <label for="label-input-harga-asli" class="form-label">Harga Normal (Rp)</label>
+            <input id="label-input-harga-asli" type="number" step="500" min="1000"
+              class="input-field font-semibold text-sm" placeholder="Contoh: 20000" />
+          </div>
+
+          <div>
+            <label class="form-label">Pilihan Diskon</label>
+            <div id="label-pct-group" class="grid grid-cols-3 gap-1.5 mt-1">
+              <button type="button" class="label-pct-btn py-1.5 text-xs cursor-pointer" data-pct="30">30%</button>
+              <button type="button" class="label-pct-btn py-1.5 text-xs active cursor-pointer" data-pct="50">50%</button>
+              <button type="button" class="label-pct-btn py-1.5 text-xs cursor-pointer" data-pct="70">70%</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="label-input-tagline" class="form-label">Slogan Promo</label>
+            <select id="label-input-tagline" class="input-field py-1.5 text-xs cursor-pointer">
+              <option value="FOOD RESCUE DEAL">🌱 FOOD RESCUE DEAL</option>
+              <option value="PROMO PAKET BUNDLING">📦 PROMO PAKET BUNDLING</option>
+              <option value="DISKON SPESIAL SORE">⚡ DISKON SPESIAL SORE</option>
+              <option value="CLEARANCE SALE">🔥 CUCI GUDANG</option>
+              <option value="HEMAT & BERKUALITAS">✨ HEMAT & BERKUALITAS</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="label-input-qty" class="form-label">Jumlah Salinan Label</label>
+            <select id="label-input-qty" class="input-field py-1.5 text-xs cursor-pointer">
+              <option value="1">1 Label</option>
+              <option value="2">2 Label (1 Baris)</option>
+              <option value="4" selected>4 Label (1 Lembar)</option>
+              <option value="6">6 Label</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Preview Stiker Rak (Kanan / 7 Kolom) -->
+        <div
+          class="md:col-span-7 flex flex-col justify-between bg-hover/60 p-3 sm:p-4 rounded-xl border border-subtle">
+          <div>
+            <div
+              class="text-[10.5px] sm:text-[11px] font-semibold text-muted tracking-wider uppercase mb-2 flex items-center justify-between">
+              <span>Live Preview Stiker Rak</span>
+              <span
+                class="text-[9.5px] sm:text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-bold">Siap Cetak</span>
+            </div>
+
+            <!-- Kartu Stiker Rak Nyata (Preview Container) -->
+            <div id="shelf-tag-preview"
+              class="shelf-tag bg-white border-2 border-emerald-700 rounded-xl overflow-hidden shadow-md">
+              <div class="shelf-tag-header bg-emerald-800 text-white px-2.5 py-1.5 flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold tracking-tight">
+                  <span>🌿 STOK PANGAN CERDAS</span>
+                </div>
+                <span id="preview-tagline"
+                  class="text-[8.5px] sm:text-[9.5px] font-bold bg-amber-400 text-emerald-950 px-1.5 py-0.5 rounded uppercase">FOOD RESCUE DEAL</span>
+              </div>
+
+              <div class="p-3.5 sm:p-4 flex flex-col gap-2.5 bg-white">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <h3 id="preview-nama"
+                      class="font-heading text-[15px] sm:text-[16.5px] font-bold text-gray-900 truncate leading-tight">
+                      Nama Barang</h3>
+                    <p id="preview-kategori" class="text-[11px] sm:text-[11.5px] text-gray-500 mt-0.5 truncate">
+                      Kategori Pangan</p>
+                  </div>
+                  <div class="shrink-0 flex flex-col items-center">
+                    <span id="preview-pct"
+                      class="shelf-tag-badge bg-rose-600 text-white text-[14px] sm:text-[16px] font-extrabold px-2.5 py-0.5 rounded-lg shadow-xs">-50%</span>
+                  </div>
+                </div>
+
+                <div class="flex items-end justify-between pt-1.5 border-t border-dashed border-gray-200">
+                  <div>
+                    <div class="text-[9.5px] text-gray-400 uppercase font-semibold">Harga Normal</div>
+                    <div id="preview-harga-asli" class="text-[12px] text-gray-400 line-through font-medium">Rp 20.000</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[9.5px] text-emerald-800 uppercase font-bold tracking-wider">Harga Hemat</div>
+                    <div id="preview-harga-diskon"
+                      class="font-heading text-[19px] sm:text-[22px] font-extrabold text-emerald-700 leading-none">Rp 10.000</div>
+                  </div>
+                </div>
+
+                <div
+                  class="bg-amber-50 rounded-lg p-2 border border-amber-200/70 flex items-center justify-between text-[11px] sm:text-[11.5px] mt-0.5">
+                  <span class="text-amber-900 font-medium">⏳ Batas Konsumsi:</span>
+                  <strong id="preview-kadaluarsa" class="text-amber-950 font-bold">20 Agu 2026</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[10.5px] text-soft mt-2.5 hidden sm:block">💡 Stiker akan otomatis dirender dan ditata rapi ke dalam lembar cetak siap potong.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div
+      class="px-4 py-3 sm:px-5 sm:py-3.5 border-t border-subtle bg-surface flex items-center justify-between shrink-0">
+      <button type="button" id="modal-label-cancel"
+        class="btn btn-outline h-9 sm:h-10 px-3.5 text-xs font-medium cursor-pointer">Batal</button>
+      <button type="button" id="btn-print-labels"
+        class="btn btn-primary h-9 sm:h-10 px-4 sm:px-5 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 shadow-sm cursor-pointer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <rect width="12" height="8" x="6" y="14" />
+        </svg>
+        <span>Cetak Stiker Label</span>
+      </button>
+    </div>
+
+  </div>
+</div>

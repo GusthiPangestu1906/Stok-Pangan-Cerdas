@@ -85,6 +85,14 @@ function renderCharts(statistik, riwayatList = cachedRiwayat) {
     ? Math.round((unitSelamat / totalUnit) * 100)
     : (statistik.jumlah_tindakan > 0 ? Math.round((statistik.jumlah_terselamatkan / statistik.jumlah_tindakan) * 100) : 0);
 
+  const skel1 = document.getElementById('chart-penyelamatan-skeleton');
+  if (skel1) skel1.classList.add('hidden');
+  const center1 = document.getElementById('chart-penyelamatan-center');
+  if (center1) center1.classList.remove('hidden');
+
+  const skel2 = document.getElementById('chart-tren-skeleton');
+  if (skel2) skel2.classList.add('hidden');
+
   if (el.chartPenyelamatanPct) {
     el.chartPenyelamatanPct.textContent = `${persenPenyelamatan}%`;
   }

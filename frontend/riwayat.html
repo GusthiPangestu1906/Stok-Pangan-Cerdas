@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="stylesheet" href="assets/css/main.css?v=1.0.2" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -77,23 +77,35 @@
     <!-- Statistik KPI -->
     <section aria-label="Statistik" class="stats-grid">
       <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
-        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Total Tindakan</p>
-        <p id="stat-total" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium truncate">Total Tindakan</p>
+        <p id="stat-total" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">
+          <span class="shimmer h-8 sm:h-9 w-14 rounded-md inline-block"></span>
+        </p>
       </div>
       <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-success/80 shadow-sm">
-        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Barang Terselamatkan</p>
-        <p id="stat-selamat" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">–</p>
-        <p id="stat-selamat-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium truncate">Terselamatkan</p>
+        <p id="stat-selamat" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">
+          <span class="shimmer h-8 sm:h-9 w-14 rounded-md inline-block"></span>
+        </p>
+        <p id="stat-selamat-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">
+          <span class="shimmer h-3 w-16 rounded inline-block"></span>
+        </p>
       </div>
       <div class="card p-4 sm:px-[18px] rounded-2xl border-2 border-danger/80 shadow-sm">
-        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Barang Terbuang</p>
-        <p id="stat-buang" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">–</p>
-        <p id="stat-buang-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">–</p>
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium truncate">Terbuang</p>
+        <p id="stat-buang" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">
+          <span class="shimmer h-8 sm:h-9 w-14 rounded-md inline-block"></span>
+        </p>
+        <p id="stat-buang-unit" class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">
+          <span class="shimmer h-3 w-16 rounded inline-block"></span>
+        </p>
       </div>
       <div class="card p-4 sm:px-[18px] rounded-2xl shadow-sm">
-        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium">Efektivitas Tindakan AI</p>
-        <p id="stat-persen" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">–</p>
-        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Rasio kasus berhasil</p>
+        <p class="text-[12.5px] sm:text-[13px] text-soft font-medium truncate">Efektivitas AI</p>
+        <p id="stat-persen" class="font-heading text-[30px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">
+          <span class="shimmer h-8 sm:h-9 w-16 rounded-md inline-block"></span>
+        </p>
+        <p class="text-[12px] sm:text-[12.5px] text-light mt-1 truncate">Rasio berhasil</p>
       </div>
     </section>
 
@@ -110,8 +122,14 @@
         </div>
 
         <div class="relative flex items-center justify-center my-2 sm:my-3 h-[180px] sm:h-[210px] w-full">
+          <!-- Shimmer Donut Skeleton -->
+          <div id="chart-penyelamatan-skeleton" class="absolute inset-0 flex items-center justify-center">
+            <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full shimmer flex items-center justify-center shadow-xs">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-surface"></div>
+            </div>
+          </div>
           <canvas id="chart-penyelamatan" class="w-full h-full"></canvas>
-          <div id="chart-penyelamatan-center" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <div id="chart-penyelamatan-center" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none hidden">
             <span id="chart-penyelamatan-pct" class="font-heading text-[24px] sm:text-[26px] font-bold text-primary leading-none">0%</span>
             <span class="text-[9.5px] sm:text-[10px] text-soft uppercase tracking-wider font-semibold mt-1">Volume Selamat</span>
           </div>
@@ -120,11 +138,11 @@
         <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-subtle text-xs">
           <div class="flex items-center gap-1.5 min-w-0">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-muted">Diselamatkan: <strong id="legend-selamat" class="text-primary font-semibold">0 unit</strong></span>
+            <span class="text-muted">Diselamatkan: <strong id="legend-selamat" class="text-primary font-semibold"><span class="shimmer h-3 w-12 rounded inline-block"></span></strong></span>
           </div>
           <div class="flex items-center gap-1.5 min-w-0">
             <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
-            <span class="text-muted">Terbuang: <strong id="legend-buang" class="text-primary font-semibold">0 unit</strong></span>
+            <span class="text-muted">Terbuang: <strong id="legend-buang" class="text-primary font-semibold"><span class="shimmer h-3 w-12 rounded inline-block"></span></strong></span>
           </div>
         </div>
       </div>
@@ -139,7 +157,16 @@
           <p class="text-[11.5px] sm:text-[12px] text-muted mt-1 leading-snug">Pertumbuhan unit pangan yang berhasil diselamatkan dari waktu ke waktu.</p>
         </div>
 
-        <div class="my-3 h-[190px] sm:h-[210px] w-full flex items-center justify-center">
+        <div class="relative my-3 h-[190px] sm:h-[210px] w-full flex items-center justify-center">
+          <!-- Shimmer Trend Bars Skeleton -->
+          <div id="chart-tren-skeleton" class="absolute inset-0 flex items-end justify-between gap-2.5 sm:gap-4 px-4 sm:px-8 py-3">
+            <div class="shimmer flex-1 h-14 rounded-t-lg"></div>
+            <div class="shimmer flex-1 h-28 rounded-t-lg"></div>
+            <div class="shimmer flex-1 h-20 rounded-t-lg"></div>
+            <div class="shimmer flex-1 h-36 rounded-t-lg"></div>
+            <div class="shimmer flex-1 h-24 rounded-t-lg"></div>
+            <div class="shimmer flex-1 h-32 rounded-t-lg"></div>
+          </div>
           <canvas id="chart-tren" class="w-full h-full"></canvas>
         </div>
 
@@ -148,7 +175,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
             <span class="text-muted">Unit pangan terselamatkan per tanggal</span>
           </div>
-          <div id="per-jenis-chips" class="inline-flex flex-wrap gap-1.5"></div>
+          <div id="per-jenis-chips" class="inline-flex flex-wrap gap-1.5"><span class="shimmer h-4 w-32 rounded-full inline-block"></span></div>
         </div>
       </div>
     </section>
@@ -177,7 +204,42 @@
         </div>
       </div>
 
-      <div id="state-loading" class="text-center py-16 text-light text-sm">Memuat riwayat...</div>
+      <!-- Shimmer Skeleton Loading for Riwayat -->
+      <div id="state-loading" class="p-3 sm:p-5 flex flex-col gap-3" role="status" aria-label="Memuat riwayat...">
+        <div class="hidden lg:flex flex-col gap-3">
+          <div class="riwayat-grid px-[18px] py-[11px] bg-hover/50 border-b border-subtle items-center">
+            <div class="shimmer h-3 w-28"></div><div class="shimmer h-3 w-20"></div><div class="shimmer h-3 w-24"></div><div class="shimmer h-3 w-24"></div>
+          </div>
+          <div class="riwayat-grid px-[18px] py-3.5 border-b border-subtle items-center">
+            <div class="flex flex-col gap-1"><div class="shimmer h-3.5 w-24"></div><div class="shimmer h-2.5 w-16"></div></div>
+            <div class="flex flex-col gap-1"><div class="shimmer h-4 w-32"></div><div class="shimmer h-2.5 w-20"></div></div>
+            <div class="shimmer h-6 w-24 rounded-full"></div>
+            <div class="shimmer h-4 w-16"></div>
+          </div>
+          <div class="riwayat-grid px-[18px] py-3.5 border-b border-subtle items-center">
+            <div class="flex flex-col gap-1"><div class="shimmer h-3.5 w-24"></div><div class="shimmer h-2.5 w-16"></div></div>
+            <div class="flex flex-col gap-1"><div class="shimmer h-4 w-40"></div><div class="shimmer h-2.5 w-20"></div></div>
+            <div class="shimmer h-6 w-28 rounded-full"></div>
+            <div class="shimmer h-4 w-16"></div>
+          </div>
+          <div class="riwayat-grid px-[18px] py-3.5 border-b border-subtle items-center">
+            <div class="flex flex-col gap-1"><div class="shimmer h-3.5 w-24"></div><div class="shimmer h-2.5 w-16"></div></div>
+            <div class="flex flex-col gap-1"><div class="shimmer h-4 w-28"></div><div class="shimmer h-2.5 w-16"></div></div>
+            <div class="shimmer h-6 w-20 rounded-full"></div>
+            <div class="shimmer h-4 w-16"></div>
+          </div>
+        </div>
+        <div class="lg:hidden flex flex-col gap-2.5">
+          <div class="card p-3.5 flex flex-col gap-2 border border-subtle">
+            <div class="flex justify-between items-center"><div class="shimmer h-4 w-32"></div><div class="shimmer h-5 w-20 rounded-full"></div></div>
+            <div class="flex justify-between items-center"><div class="shimmer h-3 w-24"></div><div class="shimmer h-3 w-16"></div></div>
+          </div>
+          <div class="card p-3.5 flex flex-col gap-2 border border-subtle">
+            <div class="flex justify-between items-center"><div class="shimmer h-4 w-40"></div><div class="shimmer h-5 w-24 rounded-full"></div></div>
+            <div class="flex justify-between items-center"><div class="shimmer h-3 w-24"></div><div class="shimmer h-3 w-16"></div></div>
+          </div>
+        </div>
+      </div>
       <div id="state-error" class="hidden text-center py-16 text-danger text-sm"></div>
       <div id="state-empty" class="hidden py-10 sm:py-14 text-center px-6">
         <div class="font-heading text-[17px] font-semibold mb-1.5 text-primary">Belum ada riwayat tindakan</div>
@@ -242,8 +304,8 @@
     Stok Pangan Cerdas — Trunodjoyo Creative Competition (TCC) 2026, cabang Vibe Code
   </footer>
 
-  <script src="assets/js/config.js?v=1.0.0"></script>
-  <script src="assets/js/api.js?v=1.0.0"></script>
-  <script src="assets/js/riwayat.js?v=1.0.0"></script>
+  <script src="assets/js/config.js?v=1.0.4"></script>
+  <script src="assets/js/api.js?v=1.0.4"></script>
+  <script src="assets/js/riwayat.js?v=1.0.4"></script>
 </body>
 </html>

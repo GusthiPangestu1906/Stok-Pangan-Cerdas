@@ -1,0 +1,55 @@
+<!-- Modal: Tambah / Edit Barang -->
+<div id="modal-form"
+  class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-[60] flex items-center justify-center p-3 sm:p-4"
+  role="dialog" aria-modal="true" aria-labelledby="modal-form-title">
+  <div
+    class="bg-surface rounded-2xl w-full max-w-md max-h-[88vh] flex flex-col shadow-2xl border border-default overflow-hidden">
+    <!-- Modal Header -->
+    <div class="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-subtle flex items-center justify-between shrink-0">
+      <h2 id="modal-form-title" class="font-heading text-[16px] sm:text-[17px] font-semibold text-primary">Tambah Barang</h2>
+      <button id="modal-form-close" class="text-light hover:text-primary transition p-1 cursor-pointer" aria-label="Tutup form">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body / Form -->
+    <form id="form-item" class="p-4 sm:p-5 overflow-y-auto overscroll-contain flex flex-col gap-3.5 flex-1">
+      <div id="form-error" class="hidden alert-error" role="alert"></div>
+      <div>
+        <label for="input-nama" class="form-label">Nama barang</label>
+        <input id="input-nama" name="nama" type="text" required placeholder="Contoh: Bayam Hijau"
+          class="input-field" />
+      </div>
+      <div>
+        <label for="input-kategori" class="form-label">Kategori</label>
+        <input id="input-kategori" name="kategori" type="text" required placeholder="Contoh: Sayur"
+          list="daftar-kategori" class="input-field" />
+        <datalist id="daftar-kategori"></datalist>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="input-masuk" class="form-label">Tgl. masuk</label>
+          <input id="input-masuk" name="tanggal_masuk" type="date" required class="input-field" />
+        </div>
+        <div>
+          <label for="input-umur" class="form-label">Umur simpan (hari)</label>
+          <input id="input-umur" name="estimasi_umur_simpan_hari" type="number" min="1" required placeholder="7"
+            class="input-field" />
+        </div>
+      </div>
+      <div>
+        <label for="input-stok" class="form-label">Jumlah stok</label>
+        <input id="input-stok" name="jumlah_stok" type="number" min="0" required placeholder="40"
+          class="input-field" />
+      </div>
+      <div class="flex gap-2.5 mt-2 pt-2 border-t border-subtle">
+        <button type="submit" id="form-submit"
+          class="btn btn-primary h-11 flex-1 px-4 text-xs sm:text-sm font-semibold cursor-pointer">Simpan Barang</button>
+        <button type="button" id="form-cancel" class="btn btn-outline h-11 px-4 text-xs sm:text-sm cursor-pointer">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>

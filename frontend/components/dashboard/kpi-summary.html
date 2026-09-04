@@ -1,0 +1,69 @@
+<!-- Executive KPI & Stock Status Summary Grid -->
+<section aria-label="Ringkasan Status Stok" class="stats-grid">
+  <!-- Card: Semua Barang -->
+  <div data-filter="Semua"
+    class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group"
+    title="Klik untuk menampilkan semua barang">
+    <div class="flex items-center justify-between">
+      <p class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-primary transition-colors">Total Barang</p>
+      <span class="hidden sm:inline-block text-[10.5px] font-semibold text-soft bg-subtle px-2 py-0.5 rounded-full">Semua</span>
+    </div>
+    <p id="summary-total" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-primary">
+      <span class="shimmer h-8 sm:h-9 w-16 rounded-md inline-block"></span>
+    </p>
+    <p id="summary-total-stok" class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">
+      <span class="shimmer h-3 w-20 rounded inline-block"></span>
+    </p>
+  </div>
+
+  <!-- Card: Stok Aman -->
+  <div data-filter="aman"
+    class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl border-2 border-success/80 shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group"
+    title="Klik untuk menyaring barang berstatus Aman">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-[7px]">
+        <span class="dot dot-aman"></span>
+        <span class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-success transition-colors">Aman</span>
+      </div>
+      <span class="hidden sm:inline-block text-[10.5px] font-semibold text-success/90 bg-emerald-50 px-2 py-0.5 rounded-full">Filter Aman</span>
+    </div>
+    <p id="summary-aman" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-success">
+      <span class="shimmer h-8 sm:h-9 w-14 rounded-md inline-block"></span>
+    </p>
+    <p class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">Sisa > 5 hari</p>
+  </div>
+
+  <!-- Card: Stok Berisiko -->
+  <div data-filter="berisiko"
+    class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl border-2 border-warning/80 shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group"
+    title="Klik untuk menyaring barang berstatus Berisiko">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-[7px]">
+        <span class="dot dot-berisiko"></span>
+        <span class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-berisiko transition-colors">Berisiko</span>
+      </div>
+      <span class="hidden sm:inline-block text-[10.5px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">Filter Berisiko</span>
+    </div>
+    <p id="summary-berisiko" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-berisiko">
+      <span class="shimmer h-8 sm:h-9 w-14 rounded-md inline-block"></span>
+    </p>
+    <p class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">Perlu tindakan</p>
+  </div>
+
+  <!-- Card: Stok Kritis -->
+  <div data-filter="kritis"
+    class="kpi-card card p-3.5 sm:p-4 sm:px-[18px] rounded-2xl border-2 border-danger/80 shadow-sm sm:cursor-pointer cursor-default transition-all sm:hover:-translate-y-0.5 sm:hover:shadow-md select-none group"
+    title="Klik untuk menyaring barang berstatus Kritis">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-[7px]">
+        <span class="dot dot-kritis"></span>
+        <span class="text-[12.5px] sm:text-[13px] text-soft font-medium group-hover:text-danger transition-colors">Kritis</span>
+      </div>
+      <span class="hidden sm:inline-block text-[10.5px] font-semibold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-full">Filter Kritis</span>
+    </div>
+    <p id="summary-kritis" class="font-heading text-[28px] sm:text-[36px] font-bold tracking-tight mt-1 leading-snug text-danger">
+      <span class="shimmer h-8 sm:h-9 w-14 rounded-md inline-block"></span>
+    </p>
+    <p class="text-[11.5px] sm:text-[12.5px] text-light mt-0.5 sm:mt-1 truncate">Tindak hari ini</p>
+  </div>
+</section>

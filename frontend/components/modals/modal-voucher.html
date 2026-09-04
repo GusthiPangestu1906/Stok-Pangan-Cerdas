@@ -1,0 +1,178 @@
+<!-- Modal: Terbitkan Voucher & Kupon Barcode -->
+<div id="modal-voucher"
+  class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-[60] flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto"
+  role="dialog" aria-modal="true" aria-labelledby="modal-voucher-title">
+  <div
+    class="bg-surface rounded-2xl w-full max-w-[94vw] sm:max-w-xl md:max-w-2xl max-h-[92vh] flex flex-col shadow-2xl border border-default overflow-hidden my-auto box-border">
+    
+    <!-- Modal Header -->
+    <div
+      class="px-3.5 py-2.5 sm:px-5 sm:py-3.5 border-b border-subtle flex items-center justify-between bg-emerald-50/70 shrink-0">
+      <div class="flex items-center gap-2 min-w-0">
+        <span
+          class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-100 text-emerald-800 shrink-0" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+            <path d="M13 5v2" />
+            <path d="M13 17v2" />
+            <path d="M13 11v2" />
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h2 id="modal-voucher-title" class="font-heading text-[14px] sm:text-[16px] font-bold text-primary truncate leading-tight">Terbitkan Kupon / Voucher</h2>
+          <p class="text-[10px] sm:text-[11.5px] text-muted truncate">Kupon terdaftar di mesin kasir</p>
+        </div>
+      </div>
+      <button id="modal-voucher-close" class="text-light hover:text-primary transition p-1 shrink-0 ml-1 cursor-pointer"
+        aria-label="Tutup modal voucher">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body (Config Form + Live Ticket Preview) -->
+    <div class="p-3 sm:p-5 overflow-y-auto min-h-0 flex-1 overscroll-contain">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-6 items-center w-full">
+        
+        <!-- Konfigurasi Form Voucher (Kiri / 6 Kolom) -->
+        <div class="md:col-span-6 flex flex-col gap-2.5 sm:gap-3 text-xs w-full min-w-0">
+          <div>
+            <label for="voucher-input-judul" class="form-label text-[11px] sm:text-xs">Judul Kupon</label>
+            <input id="voucher-input-judul" type="text" placeholder="Contoh: Food Rescue Promo"
+              class="input-field text-xs py-1.5 sm:py-2 font-medium w-full" />
+          </div>
+
+          <div>
+            <label for="voucher-input-target" class="form-label text-[11px] sm:text-xs">Target Produk / Promo</label>
+            <select id="voucher-input-target" class="input-field text-xs py-1.5 sm:py-2 font-medium w-full cursor-pointer">
+              <option value="Semua">Semua Kategori (Global)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label text-[11px] sm:text-xs">Besaran Diskon</label>
+            <div id="voucher-diskon-group" class="grid grid-cols-4 gap-1 mt-1 w-full">
+              <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold cursor-pointer" data-tipe="persen" data-val="30">30%</button>
+              <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold active cursor-pointer" data-tipe="persen" data-val="50">50%</button>
+              <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold cursor-pointer" data-tipe="persen" data-val="70">70%</button>
+              <button type="button" class="label-pct-btn py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold cursor-pointer" data-tipe="nominal" data-val="10000">10rb</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="voucher-input-min-belanja" class="form-label text-[11px] sm:text-xs">Min. Belanja (Rp)</label>
+              <input id="voucher-input-min-belanja" type="number" step="1000" min="0" value="25000"
+                class="input-field font-semibold text-xs py-1.5 w-full" />
+            </div>
+            <div>
+              <label for="voucher-input-kadaluarsa" class="form-label text-[11px] sm:text-xs">Masa Berlaku</label>
+              <input id="voucher-input-kadaluarsa" type="date"
+                class="input-field text-xs py-1.5 w-full" />
+            </div>
+          </div>
+
+          <div>
+            <label for="voucher-input-qty" class="form-label text-[11px] sm:text-xs">Jumlah Kupon Dicetak</label>
+            <select id="voucher-input-qty" class="input-field text-xs py-1.5 sm:py-2 font-medium w-full cursor-pointer">
+              <option value="1">1 Kupon</option>
+              <option value="2">2 Kupon</option>
+              <option value="4" selected>4 Kupon (1 Lembar)</option>
+              <option value="6">6 Kupon</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="voucher-input-kode" class="form-label flex items-center justify-between text-[11px] sm:text-xs">
+              <span>Kode Barcode</span>
+              <button type="button" id="btn-voucher-generate-code"
+                class="text-[10.5px] sm:text-[11px] text-emerald-800 hover:text-emerald-950 font-semibold hover:underline cursor-pointer">
+                Acak Kode
+              </button>
+            </label>
+            <input id="voucher-input-kode" type="text"
+              class="input-field font-mono uppercase text-xs tracking-wider py-1.5 font-bold text-gray-700 bg-muted/10 w-full" />
+          </div>
+        </div>
+
+        <!-- Live Preview Resi Kupon Kasir (Kanan / 6 Kolom) -->
+        <div class="md:col-span-6 flex flex-col justify-center w-full min-w-0">
+          <div id="voucher-ticket-preview" class="voucher-ticket p-3.5 sm:p-4 bg-white flex flex-col gap-3 shadow-md w-full box-border border-2 border-dashed border-emerald-600 rounded-xl">
+            <!-- Header Brand & Status -->
+            <div class="flex items-center justify-between border-b border-emerald-100 pb-2">
+              <div class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 tracking-tight">
+                <span>🌿 STOK PANGAN CERDAS</span>
+              </div>
+              <span class="text-[9px] uppercase font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200">
+                KUPON RESMI KASIR
+              </span>
+            </div>
+
+            <!-- Judul Promo & Potongan Diskon -->
+            <div class="flex items-start justify-between gap-2.5">
+              <div class="flex-1 min-w-0">
+                <h3 id="voucher-preview-judul" class="font-heading text-[13px] sm:text-[14px] font-bold text-gray-900 leading-snug break-words">
+                  Food Rescue Promo · Susu UHT 1L
+                </h3>
+                <div class="flex items-center gap-1.5 text-[11px] text-gray-600 mt-1">
+                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span id="voucher-preview-target" class="font-medium">Khusus: Olahan Susu</span>
+                </div>
+              </div>
+              <div class="shrink-0 flex flex-col items-center">
+                <span id="voucher-preview-badge" class="inline-block bg-rose-600 text-white font-heading font-black text-sm sm:text-base px-2.5 py-1 rounded-lg shadow-xs leading-none">
+                  -50%
+                </span>
+                <span class="text-[8.5px] font-bold text-rose-600 mt-0.5 tracking-wider">POTONGAN</span>
+              </div>
+            </div>
+
+            <!-- Rincian Ketentuan Resi -->
+            <div class="bg-gray-50/90 rounded-lg p-2.5 border border-gray-200/90 grid grid-cols-2 gap-2 text-[11px] text-gray-700">
+              <div id="voucher-preview-min-belanja-cell" class="flex flex-col">
+                <span class="text-[9.5px] text-gray-500 font-semibold uppercase">Min. Belanja</span>
+                <span id="voucher-preview-min-belanja" class="font-bold text-gray-900 text-xs">Rp 25.000</span>
+              </div>
+              <div id="voucher-preview-kadaluarsa-cell" class="flex flex-col text-right">
+                <span class="text-[9.5px] text-gray-500 font-semibold uppercase">Masa Berlaku s/d</span>
+                <span id="voucher-preview-kadaluarsa" class="font-bold text-emerald-800 text-xs">21 Agu 2026</span>
+              </div>
+            </div>
+
+            <!-- Barcode Display Area -->
+            <div class="flex flex-col items-center justify-center pt-1.5 w-full bg-white rounded-lg p-2 border border-dashed border-gray-300">
+              <svg id="voucher-preview-barcode-svg" class="h-10 sm:h-12 w-48 sm:w-56 max-w-full text-gray-900" viewBox="0 0 100 24"
+                preserveAspectRatio="none">
+              </svg>
+              <div id="voucher-preview-kode" class="font-mono text-xs sm:text-sm font-extrabold text-gray-900 tracking-widest mt-1">
+                VCHR-SUS-70632
+              </div>
+              <span class="text-[9.5px] text-gray-500 mt-0.5 text-center">Tunjukkan / scan barcode ini di kasir saat pembayaran</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div
+      class="px-3.5 py-2.5 sm:px-5 sm:py-3 border-t border-subtle bg-surface flex items-center justify-between gap-2 shrink-0">
+      <button type="button" id="modal-voucher-cancel"
+        class="btn btn-outline h-8 sm:h-9 px-3 text-xs font-medium shrink-0 cursor-pointer">Batal</button>
+      <button type="button" id="btn-print-vouchers"
+        class="btn btn-primary h-8 sm:h-9 px-3 sm:px-4 text-xs font-semibold flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <rect width="12" height="8" x="6" y="14" />
+        </svg>
+        <span>Simpan & Cetak</span>
+      </button>
+    </div>
+
+  </div>
+</div>

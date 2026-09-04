@@ -4,6 +4,8 @@ const API_BASE_URL = (window.location.hostname === 'localhost' || window.locatio
   : (window.SPC_CONFIG?.API_BASE_URL || localStorage.getItem('spc_api_base_url') || DEFAULT_API_BASE_URL);
 
 const TOKEN_KEY = 'spc_token';
+const CACHE_PREFIX = 'spc_cache_';
+const MAX_TIMEOUT_MS = 15000; // Batas timeout 15 detik agar antrean request lokal tidak terputus
 
 function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -15,6 +17,23 @@ function setToken(token) {
 
 function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+}
+
+function getCache(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const { data } = JSON.parse(raw);
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setCache(key, data) {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch (e) {}
 }
 
 function redirectToLogin() {
@@ -29,26 +48,58 @@ async function apiRequest(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers,
-    ...options,
-  });
+  const isGet = !options.method || options.method.toUpperCase() === 'GET';
+  const cacheKey = path;
 
-  if (response.status === 401) {
-    redirectToLogin();
-    throw new Error('Sesi berakhir, silakan login kembali.');
+  // Batasi waktu maksimal request ke server hanya 3 detik
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), MAX_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      headers,
+      signal: controller.signal,
+      ...options,
+    });
+    clearTimeout(timeoutId);
+
+    if (response.status === 401) {
+      redirectToLogin();
+      throw new Error('Sesi berakhir, silakan login kembali.');
+    }
+
+    if (response.status === 204) return null;
+
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message = body?.message || `Permintaan gagal (HTTP ${response.status})`;
+      throw new Error(message);
+    }
+
+    const result = body?.data ?? body;
+    if (isGet && result) {
+      setCache(cacheKey, result);
+    }
+    return result;
+  } catch (err) {
+    clearTimeout(timeoutId);
+
+    // Jika terjadi timeout atau offline, otomatis fallback ke cache data sebelumnya
+    if (isGet) {
+      const cached = getCache(cacheKey);
+      if (cached) {
+        console.warn(`[API] Memuat cache cepat untuk ${path} karena request memakan waktu.`);
+        return cached;
+      }
+    }
+
+    if (err.name === 'AbortError') {
+      throw new Error('Koneksi server terputus / timeout. Silakan periksa koneksi backend.');
+    }
+
+    throw err;
   }
-
-  if (response.status === 204) return null;
-
-  const body = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message = body?.message || `Permintaan gagal (HTTP ${response.status})`;
-    throw new Error(message);
-  }
-
-  return body?.data ?? body;
 }
 
 // ---------- Auth ----------
@@ -129,7 +180,7 @@ function fetchStatistikRiwayat() {
 
 // ---------- Vouchers ----------
 
-function fetchVouchers(filters = {}) {
+async function fetchVouchers(filters = {}) {
   const params = new URLSearchParams();
   if (filters.status) params.set('status', filters.status);
   const query = params.toString();
