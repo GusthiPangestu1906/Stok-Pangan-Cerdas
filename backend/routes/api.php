@@ -24,7 +24,7 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
         ]);
     }
 
-    return redirect('/docs');
+    return redirect()->secure('/docs');
 });
 
 Route::post('/login', [AuthController::class, 'login']);

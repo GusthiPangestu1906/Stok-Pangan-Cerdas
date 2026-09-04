@@ -45,5 +45,5 @@ Route::get('/api', function (Request $request) {
         ]);
     }
 
-    return redirect('/docs');
+    return redirect()->secure('/docs');
 });
