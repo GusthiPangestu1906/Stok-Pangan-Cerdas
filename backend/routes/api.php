@@ -8,6 +8,18 @@ use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Stok Pangan Cerdas API is running',
+        'health' => '/up',
+        'endpoints' => [
+            'ringkasan_publik' => '/api/ringkasan-publik',
+            'login' => '/api/login',
+        ],
+    ]);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/ringkasan-publik', [RingkasanPublikController::class, 'index']);
 
