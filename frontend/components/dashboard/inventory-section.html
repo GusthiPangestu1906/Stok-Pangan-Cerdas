@@ -1,28 +1,47 @@
 <!-- Inventory Management Workspace (Header, Search, Chips, Async States, Table/Cards) -->
-<section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-5 order-2 lg:order-1 min-w-0" aria-label="Manajemen Inventaris Stok Pangan">
+<section class="flex flex-col gap-5 min-w-0 w-full" aria-label="Manajemen Inventaris Stok Pangan">
   <div class="card">
-    <!-- Card Header: Title & Search Filter Toolbar -->
+    <!-- Card Header: Title & Filter Toolbar -->
     <div class="card-header flex flex-col gap-3">
-      <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-        <div class="font-heading text-[15.5px] sm:text-[16.5px] font-semibold tracking-tight text-primary">
+      <!-- Row 1: Title + Inline Toolbar (sm+) -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+        <div class="font-heading text-[15.5px] sm:text-[16.5px] font-semibold tracking-tight text-primary shrink-0">
           Daftar Barang <span id="jumlah-tampil" class="text-caption font-medium"></span>
         </div>
-        <div class="relative w-full sm:max-w-[320px]">
-          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex pointer-events-none" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
+
+        <!-- Toolbar: stacked on mobile, inline on sm+ -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <!-- Category Dropdown: full width on mobile, fixed on sm+ -->
+          <div class="relative w-full sm:w-auto sm:flex-shrink-0">
+            <select id="filter-kategori"
+              class="input-field w-full sm:w-[155px] pl-3 pr-8 h-[38px] text-[13px] font-medium bg-hover cursor-pointer appearance-none border border-subtle rounded-lg focus:border-forest"
+              aria-label="Filter Kategori">
+              <option value="Semua">Semua Kategori</option>
+            </select>
+            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
           </div>
-          <input id="filter-cari" type="text" placeholder="Cari nama barang..."
-            class="input-field pl-9 bg-hover text-sm" aria-label="Cari nama barang" />
+
+          <!-- Search Input: full width on mobile, fixed on sm+ -->
+          <div class="relative w-full sm:w-[195px]">
+            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-caption flex pointer-events-none" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </div>
+            <input id="filter-cari" type="text" placeholder="Cari nama barang..."
+              class="input-field w-full pl-9 h-[38px] bg-hover text-[13px] border border-subtle rounded-lg focus:border-forest" aria-label="Cari nama barang" />
+          </div>
         </div>
       </div>
 
-      <!-- Category Chips Filter Scrollable Bar -->
+      <!-- Row 2: Status Chips (always horizontally scrollable) -->
       <div class="pt-2 border-t border-subtle">
-        <div id="chip-filters" class="chips-scroll scrollbar-none" role="group" aria-label="Filter Kategori"></div>
+        <div id="chip-filters" class="chips-scroll scrollbar-none" role="group" aria-label="Filter Status"></div>
       </div>
     </div>
 

@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Dashboard Sistem Manajemen Stok Pangan Cerdas — Pengurangan Food Waste dengan Rekomendasi AI" />
-  <title>Stok Pangan Cerdas — Dashboard</title>
+  <meta name="description" content="Manajemen Inventaris Stok Pangan Cerdas — Pengurangan Food Waste dengan Rekomendasi AI" />
+  <title>Stok Pangan Cerdas — Inventaris Barang</title>
 
   <!-- Favicon & Identity -->
   <link rel="icon" type="image/svg+xml"
@@ -32,19 +32,44 @@
   <div data-include="components/layout/mobile-nav.html"></div>
 
   <!-- ==========================================
-    2. MAIN DASHBOARD VIEWPORT
+    2. MAIN INVENTARIS VIEWPORT
     ========================================== -->
   <main class="container py-5 sm:py-8 flex flex-col gap-5 rise-in" role="main">
-    <!-- View Header & Quick Actions -->
-    <div data-include="components/dashboard/page-header.html"></div>
+    <!-- View Header: Title, Breadcrumb, & Action -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 border-b border-subtle">
+      <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-2 text-xs text-secondary">
+          <a href="index.html" class="hover:text-forest transition flex items-center gap-1 font-medium">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Dashboard
+          </a>
+          <span>/</span>
+          <span class="text-primary font-semibold">Inventaris</span>
+        </div>
+        <h1 class="font-heading text-xl sm:text-2xl font-bold tracking-tight text-primary">
+          Manajemen Inventaris
+        </h1>
+        <p class="text-xs sm:text-sm text-secondary">
+          Pantau stok bahan pangan, status kesegaran, filter kategori, dan cetak label diskon.
+        </p>
+      </div>
 
-    <!-- Executive KPI Grid -->
-    <div data-include="components/dashboard/kpi-summary.html"></div>
-    
-    <!-- 2-Column Content: Urgent Action Items (Left) + AI Copilot Panel (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-      <div data-include="components/dashboard/urgent-items-section.html"></div>
-      <div data-include="components/dashboard/ai-insight-panel.html"></div>
+      <!-- Quick Action Tambah Barang (Desktop/Tablet) -->
+      <div class="hidden sm:flex items-center gap-2.5 shrink-0">
+        <button id="btn-tambah" class="btn btn-primary h-[40px] px-4 text-[13px] font-semibold shadow-xs">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>Tambah Barang</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Inventory Section (Full Width Workspace) -->
+    <div class="w-full">
+      <div data-include="components/dashboard/inventory-section.html"></div>
     </div>
   </main>
 
@@ -79,7 +104,6 @@
   <script src="assets/js/api.js?v=1.0.3"></script>
   <script src="assets/js/component-loader.js?v=1.0.3"></script>
   <script>
-    // Muat seluruh komponen HTML modular terlebih dahulu sebelum inisialisasi logika dashboard
     loadComponents().then(() => {
       const script = document.createElement('script');
       script.type = 'module';

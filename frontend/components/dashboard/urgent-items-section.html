@@ -1,0 +1,89 @@
+<!-- Urgent Items Section: Barang Perlu Tindakan Segera (Khusus Kritis & Berisiko) -->
+<section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-5 order-2 lg:order-1 min-w-0"
+  aria-label="Barang Perlu Tindakan Segera">
+  <div class="card overflow-hidden">
+    <!-- Card Header: Title & Shortcut Link -->
+    <div class="card-header p-4 bg-rose-50/40 border-b border-rose-100/70 flex flex-col gap-2">
+      <!-- Top Row: Badge + Shortcut Link -->
+      <div class="flex items-center justify-between gap-2">
+        <span
+          class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-800 bg-rose-100/90 px-2.5 py-1 rounded-lg">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Perhatian
+        </span>
+
+        <a href="inventaris.html"
+          class="text-xs font-semibold text-forest hover:text-emerald-800 flex items-center gap-1 transition">
+          <span>Buka Inventaris</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Main Title Row -->
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h2 class="font-heading text-[16px] sm:text-[17px] font-bold tracking-tight text-primary">
+            Perlu Tindakan Segera
+          </h2>
+          <span id="urgent-badge-count" class="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
+            0 Barang
+          </span>
+        </div>
+        <p class="text-xs text-secondary mt-1 leading-normal">
+          Barang berstatus waspada atau kritis yang membutuhkan diskon / tindakan hari ini.
+        </p>
+      </div>
+    </div>
+
+    <!-- Shimmer Skeleton Loading State -->
+    <div id="urgent-loading" class="p-4 flex flex-col gap-3" role="status" aria-label="Memuat barang perlu tindakan...">
+      <div class="shimmer h-12 w-full rounded-lg"></div>
+      <div class="shimmer h-12 w-full rounded-lg"></div>
+      <div class="shimmer h-12 w-full rounded-lg"></div>
+    </div>
+
+    <!-- Empty State: Semua Aman -->
+    <div id="urgent-empty" class="hidden p-8 flex flex-col items-center justify-center text-center">
+      <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <div class="font-heading text-[15px] font-semibold text-primary">Semua Stok Pangan Aman!</div>
+      <p class="text-xs text-secondary max-w-sm mt-1">Tidak ada stok berstatus waspada atau kritis saat ini. Seluruh
+        bahan pangan dalam kondisi simpan yang baik.</p>
+    </div>
+
+    <!-- Container Daftar Barang Urgent (Tabel Desktop & Kartu Mobile) -->
+    <div id="urgent-container" class="hidden">
+      <!-- Desktop Table Header -->
+      <div class="hidden lg:block overflow-x-auto">
+        <div
+          class="inventory-grid px-5 py-2.5 bg-hover/50 border-b border-subtle text-caption text-[11px] font-semibold tracking-wider uppercase">
+          <div>Barang</div>
+          <div class="text-center">Stok</div>
+          <div>Kadaluarsa</div>
+          <div class="text-center">Status</div>
+          <div class="text-right pr-2">Aksi Cepat</div>
+        </div>
+        <div id="urgent-table-body" class="flex flex-col divide-y divide-subtle">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Mobile Cards View -->
+      <div id="urgent-cards" class="lg:hidden p-3 flex flex-col gap-2.5">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+  </div>
+</section>

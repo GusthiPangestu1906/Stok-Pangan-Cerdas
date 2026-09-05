@@ -12,6 +12,7 @@ export const el = {
   // Header & Filter Inventaris
   jumlahTampil: document.getElementById('jumlah-tampil'),
   chipFilters: document.getElementById('chip-filters'),
+  filterKategori: document.getElementById('filter-kategori'),
   cari: document.getElementById('filter-cari'),
   resetFilter: document.getElementById('reset-filter'),
 

@@ -3,8 +3,8 @@
  * Arsitektur Bersih (Clean Architecture) - Domain & Feature Layer
  */
 
-import { state } from './state.js?v=1.0.5';
-import { el } from './elements.js?v=1.0.5';
+import { state } from './state.js?v=1.0.7';
+import { el } from './elements.js?v=1.0.7';
 import {
   esc,
   formatTanggal,
@@ -15,9 +15,9 @@ import {
   withButtonLoading,
   BULAN_PANJANG,
   HARI,
-} from './utils.js?v=1.0.5';
-import { loadRekomendasi, isSudahDiterapkanBaruBaruIni, requestRekomendasi } from './ai.js?v=1.0.5';
-import { openLabelModal } from './labels.js?v=1.0.5';
+} from './utils.js?v=1.0.7';
+import { loadRekomendasi, isSudahDiterapkanBaruBaruIni, requestRekomendasi } from './ai.js?v=1.0.7';
+import { openLabelModal } from './labels.js?v=1.0.7';
 
 export function renderTanggalHariIni() {
   if (!el.tanggalHariIni) return;
@@ -34,21 +34,25 @@ export function renderSummary(filteredItems) {
   if (el.summaryBerisiko) el.summaryBerisiko.textContent = state.allItems.filter((item) => item.status === 'berisiko').length;
   if (el.summaryKritis) el.summaryKritis.textContent = state.allItems.filter((item) => item.status === 'kritis').length;
   if (el.jumlahTampil) el.jumlahTampil.textContent = `· ${filteredItems.length}`;
+  const mobileQuickCount = document.getElementById('mobile-quick-count');
+  if (mobileQuickCount) mobileQuickCount.textContent = `· ${state.allItems.length}`;
 
-  // Highlight KPI card yang sedang aktif memfilter tabel (desktop/tablet)
+  // Highlight KPI card yang sedang aktif memfilter tabel (desktop/tablet atau halaman inventaris)
   const isDesktop = window.innerWidth >= 640;
+  const isInventaris = window.location.pathname.toLowerCase().includes('inventaris');
   const kpiCards = document.querySelectorAll('[data-filter]');
   kpiCards.forEach((card) => {
-    const filter = card.dataset.filter;
-    const isActive = (filter === 'Semua' && state.activeStatus === 'Semua') || filter === state.activeStatus;
+    const filter = (card.dataset.filter || '').toLowerCase();
+    const currentStatus = (state.activeStatus || 'Semua').toLowerCase();
+    const isActive = (filter === 'semua' && currentStatus === 'semua') || filter === currentStatus;
 
-    if (!isDesktop) {
+    if (!isDesktop && !isInventaris) {
       card.classList.remove('ring-2', 'ring-offset-2', 'ring-emerald-500', 'ring-amber-500', 'ring-rose-500', 'ring-slate-700');
       return;
     }
 
-    card.classList.toggle('ring-2', isActive && filter !== 'Semua');
-    card.classList.toggle('ring-offset-2', isActive && filter !== 'Semua');
+    card.classList.toggle('ring-2', isActive && filter !== 'semua');
+    card.classList.toggle('ring-offset-2', isActive && filter !== 'semua');
 
     if (filter === 'aman') {
       card.classList.toggle('ring-emerald-500', isActive);
@@ -56,10 +60,10 @@ export function renderSummary(filteredItems) {
       card.classList.toggle('ring-amber-500', isActive);
     } else if (filter === 'kritis') {
       card.classList.toggle('ring-rose-500', isActive);
-    } else if (filter === 'Semua') {
-      card.classList.toggle('ring-2', isActive && state.activeStatus === 'Semua');
-      card.classList.toggle('ring-slate-700', isActive && state.activeStatus === 'Semua');
-      card.classList.toggle('ring-offset-2', isActive && state.activeStatus === 'Semua');
+    } else if (filter === 'semua') {
+      card.classList.toggle('ring-2', isActive && currentStatus === 'semua');
+      card.classList.toggle('ring-slate-700', isActive && currentStatus === 'semua');
+      card.classList.toggle('ring-offset-2', isActive && currentStatus === 'semua');
     }
   });
 }
@@ -67,17 +71,61 @@ export function renderSummary(filteredItems) {
 export function setupKpiFilterEvents() {
   document.querySelectorAll('[data-filter]').forEach((card) => {
     card.addEventListener('click', () => {
-      if (window.innerWidth < 640) return;
-      const filter = card.dataset.filter;
+      const isInventaris = window.location.pathname.toLowerCase().includes('inventaris');
+      if (window.innerWidth < 640 && !isInventaris) return;
+      const rawFilter = (card.dataset.filter || '').toLowerCase();
+      const filter = rawFilter === 'semua' ? 'Semua' : rawFilter;
       if (filter === 'Semua') {
         state.activeStatus = 'Semua';
       } else {
-        state.activeStatus = state.activeStatus === filter ? 'Semua' : filter;
+        state.activeStatus = (state.activeStatus || '').toLowerCase() === filter ? 'Semua' : filter;
       }
       renderFilters();
       applyFilters();
     });
   });
+}
+
+export function getItemStatusInfo(item) {
+  if (!item) return { label: '', badgeClass: 'badge-default', dotColor: '#8a9a8f' };
+
+  // 1. Cek apakah ada rekomendasi yang sudah DITERAPKAN hari ini (prioritas utama)
+  const appliedRec = (state.allRekomendasi || []).find(
+    (r) => r.item_id === item.id && (r.diterapkan === true || r.diterapkan === 1) && isSudahDiterapkanBaruBaruIni(r)
+  );
+
+  // 2. Cek apakah ada rekomendasi AI aktif yang menunggu tindakan
+  const pendingRec = (state.allRekomendasi || []).find(
+    (r) => r.item_id === item.id && (!r.diterapkan || r.diterapkan === false || r.diterapkan === 0)
+  );
+
+  const activeRec = appliedRec || pendingRec;
+  const isApplied = Boolean(appliedRec);
+  const rawJenis = activeRec?.jenis_saran ? activeRec.jenis_saran.trim() : null;
+  const jenisSaran = rawJenis ? (rawJenis.charAt(0).toUpperCase() + rawJenis.slice(1)) : null;
+
+  // Status risiko bawaan barang (Aman, Berisiko, Kritis) - konsisten dengan KPI & filter inventaris
+  const dotColors = { aman: '#22c55e', berisiko: '#f59e0b', kritis: '#e11d48' };
+  const rawStatus = (item.status || 'aman').toLowerCase();
+  const label = rawStatus === 'berisiko' ? 'Berisiko' : (rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1));
+  const dotColor = dotColors[rawStatus] || '#8a9a8f';
+  const badgeClass = `badge-${rawStatus}`;
+
+  return {
+    hasAiAction: Boolean(activeRec),
+    isApplied,
+    jenisSaran,
+    label, // Selalu "Aman", "Berisiko", atau "Kritis" agar konsisten di inventaris
+    badgeClass,
+    dotClass: `dot-${rawStatus}`,
+    dotColor,
+    title: isApplied
+      ? `Status: ${label} · Tindakan AI "${jenisSaran}" telah diterapkan`
+      : jenisSaran
+      ? `Status: ${label} · Saran AI: "${jenisSaran}"`
+      : `Status: ${label}`,
+    rekomendasi: activeRec,
+  };
 }
 
 export function hasRekomendasiAktif(itemId) {
@@ -97,29 +145,64 @@ export function renderActionButtons(item, isMobile = false) {
   const btnHapus = clone.querySelector('[data-action="hapus"]');
 
   const bisaAi = item.status !== 'aman';
-  const sudahAdaRekomendasi = bisaAi && hasRekomendasiAktif(item.id);
+  const statusInfo = getItemStatusInfo(item);
   const sudahKadaluarsa = item.sisa_hari < 0;
 
   // 1. Tombol AI (hanya untuk barang kritis/berisiko)
   if (bisaAi && btnAi) {
     btnAi.classList.remove('hidden');
     btnAi.dataset.id = item.id;
-    if (sudahAdaRekomendasi) {
-      btnAi.disabled = true;
-      btnAi.className = isMobile
-        ? 'btn btn-outline border-subtle text-light text-xs h-8 px-3 rounded-lg cursor-not-allowed flex items-center gap-1.5 font-medium'
-        : 'btn btn-outline btn-icon border-subtle text-light cursor-not-allowed w-7 h-7 shrink-0';
-      btnAi.title = 'Rekomendasi masih berlaku, tunggu 24 jam untuk meminta saran baru';
+
+    if (statusInfo.hasAiAction) {
+      if (statusInfo.isApplied) {
+        btnAi.disabled = true;
+        btnAi.className = isMobile
+          ? 'btn bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs h-8 px-3 rounded-lg flex items-center gap-1.5 font-semibold cursor-default'
+          : 'btn btn-outline btn-icon border-emerald-300 text-emerald-800 bg-emerald-50/70 w-7 h-7 shrink-0 cursor-default';
+        btnAi.title = `Tindakan AI "${statusInfo.jenisSaran}" telah diterapkan`;
+        btnAi.innerHTML = `
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        `;
+        if (isMobile) {
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = statusInfo.jenisSaran;
+          btnAi.appendChild(labelSpan);
+        }
+      } else {
+        btnAi.className = isMobile
+          ? 'btn bg-purple-50 text-purple-700 border border-purple-200/80 hover:bg-purple-100 cursor-pointer text-xs h-8 px-3 rounded-lg flex items-center gap-1.5 font-semibold'
+          : 'btn btn-outline btn-icon border-purple-200 text-purple-700 hover:bg-purple-50 cursor-pointer transition-colors w-7 h-7 shrink-0';
+        btnAi.title = `Saran AI: ${statusInfo.jenisSaran} (Klik untuk melihat saran)`;
+        btnAi.innerHTML = `
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" />
+            <circle cx="12" cy="12" r="3.4" />
+          </svg>
+        `;
+        if (isMobile) {
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = `Saran: ${statusInfo.jenisSaran}`;
+          btnAi.appendChild(labelSpan);
+        }
+      }
     } else {
       btnAi.className = isMobile
         ? 'btn bg-purple-50 text-purple-700 border border-purple-200/80 hover:bg-purple-100 cursor-pointer text-xs h-8 px-3 rounded-lg flex items-center gap-1.5 font-semibold'
         : 'btn btn-outline btn-icon border-purple-200 text-purple-700 hover:bg-purple-50 cursor-pointer transition-colors w-7 h-7 shrink-0';
       btnAi.title = 'Minta Saran AI';
-    }
-    if (isMobile) {
-      const labelSpan = document.createElement('span');
-      labelSpan.textContent = 'Minta Saran AI';
-      btnAi.appendChild(labelSpan);
+      btnAi.innerHTML = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v3M12 18v3M4.9 7.5l2.6 1.5M16.5 15l2.6 1.5M4.9 16.5l2.6-1.5M16.5 9l2.6-1.5" />
+          <circle cx="12" cy="12" r="3.4" />
+        </svg>
+      `;
+      if (isMobile) {
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = 'Minta Saran AI';
+        btnAi.appendChild(labelSpan);
+      }
     }
   } else if (btnAi) {
     btnAi.remove();
@@ -173,14 +256,17 @@ export function renderTableRow(item) {
   if (!template) return document.createElement('div');
   const clone = template.content.cloneNode(true);
 
+  const statusInfo = getItemStatusInfo(item);
+
   const dotEl = clone.querySelector('.js-dot');
-  if (dotEl) dotEl.classList.add(`dot-${item.status}`);
+  if (dotEl) {
+    dotEl.classList.add(statusInfo.dotClass);
+  }
 
   // Status dot color indicator next to name
   const statusDot = clone.querySelector('.js-status-dot');
   if (statusDot) {
-    const dotColors = { aman: '#22c55e', berisiko: '#f59e0b', kritis: '#e11d48' };
-    statusDot.style.backgroundColor = dotColors[item.status] || '#8a9a8f';
+    statusDot.style.backgroundColor = statusInfo.dotColor;
   }
 
   const elNama = clone.querySelector('.js-nama');
@@ -210,8 +296,9 @@ export function renderTableRow(item) {
 
   const badge = clone.querySelector('.js-status-badge');
   if (badge) {
-    badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
-    badge.classList.add(`badge-${item.status}`);
+    badge.textContent = statusInfo.label;
+    badge.className = `js-status-badge badge text-[11px] ${statusInfo.badgeClass}`;
+    badge.title = statusInfo.title;
   }
 
   const actions = clone.querySelector('.js-actions');
@@ -227,6 +314,8 @@ export function renderCard(item) {
   const template = document.getElementById('tmpl-card');
   if (!template) return document.createElement('div');
   const clone = template.content.cloneNode(true);
+
+  const statusInfo = getItemStatusInfo(item);
 
   const elNama = clone.querySelector('.js-nama');
   if (elNama) elNama.textContent = item.nama;
@@ -251,8 +340,9 @@ export function renderCard(item) {
 
   const badge = clone.querySelector('.js-status-badge');
   if (badge) {
-    badge.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
-    badge.classList.add(`badge-${item.status}`);
+    badge.textContent = statusInfo.label;
+    badge.className = `js-status-badge badge shrink-0 ${statusInfo.badgeClass}`;
+    badge.title = statusInfo.title;
   }
 
   const actions = clone.querySelector('.js-actions');
@@ -282,57 +372,52 @@ export function renderItems(items) {
 
 export function renderFilters() {
   if (!el.chipFilters) return;
-  const categories = [...new Set(state.allItems.map((i) => i.kategori).filter(Boolean))];
+  const categories = [...new Set(state.allItems.map((i) => i.kategori).filter(Boolean))].sort();
 
+  // Isi dropdown kategori
   if (el.daftarKategori) {
     el.daftarKategori.innerHTML = categories.map((k) => `<option value="${esc(k)}"></option>`).join('');
   }
+  if (el.filterKategori) {
+    const currentVal = state.activeKategori;
+    el.filterKategori.innerHTML = [
+      `<option value="Semua">Semua Kategori</option>`,
+      ...categories.map((kat) => `<option value="${esc(kat)}">${esc(kat)}</option>`),
+    ].join('');
+    el.filterKategori.value = categories.includes(currentVal) ? currentVal : 'Semua';
+  }
 
+  // Chip bar — hanya chip STATUS (bukan kategori)
   el.chipFilters.innerHTML = '';
 
+  // Chip "Semua" — reset status filter
   const chipSemua = document.createElement('button');
   chipSemua.type = 'button';
-  chipSemua.className = `chip ${state.activeKategori === 'Semua' && state.activeStatus === 'Semua' ? 'active' : ''}`;
+  chipSemua.className = `chip ${state.activeStatus === 'Semua' ? 'chip-active active' : ''}`;
   chipSemua.textContent = 'Semua';
   chipSemua.addEventListener('click', () => {
-    state.activeKategori = 'Semua';
     state.activeStatus = 'Semua';
     renderFilters();
     applyFilters();
   });
   el.chipFilters.appendChild(chipSemua);
 
-  // Chip status (khusus mobile)
+  // Chip Aman / Berisiko / Kritis
   const statusList = [
     { key: 'aman', label: 'Aman' },
     { key: 'berisiko', label: 'Berisiko' },
     { key: 'kritis', label: 'Kritis' },
   ];
+  const anyStatusActive = state.activeStatus !== 'Semua';
   statusList.forEach(({ key, label }) => {
+    const isActive = state.activeStatus === key;
     const count = state.allItems.filter((i) => i.status === key).length;
     const chip = document.createElement('button');
     chip.type = 'button';
-    chip.className = `chip sm:hidden ${state.activeStatus === key ? 'active' : ''}`;
-    chip.innerHTML = `
-      <span class="w-1.5 h-1.5 rounded-full ${key === 'aman' ? 'bg-emerald-500' : key === 'berisiko' ? 'bg-amber-500' : 'bg-rose-500'}"></span>
-      ${label} (${count})
-    `;
+    chip.className = `chip ${isActive ? 'chip-active active' : anyStatusActive ? 'chip-muted' : ''}`;
+    chip.textContent = `${label} (${count})`;
     chip.addEventListener('click', () => {
-      state.activeStatus = state.activeStatus === key ? 'Semua' : key;
-      renderFilters();
-      applyFilters();
-    });
-    el.chipFilters.appendChild(chip);
-  });
-
-  // Chip kategori
-  categories.forEach((kat) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = `chip ${state.activeKategori === kat ? 'active' : ''}`;
-    chip.textContent = kat;
-    chip.addEventListener('click', () => {
-      state.activeKategori = state.activeKategori === kat ? 'Semua' : kat;
+      state.activeStatus = isActive ? 'Semua' : key;
       renderFilters();
       applyFilters();
     });
@@ -352,6 +437,10 @@ export function applyFilters() {
 
   renderSummary(filtered);
 
+  if (typeof window.renderUrgentSection === 'function') {
+    window.renderUrgentSection();
+  }
+
   if (!el.itemsContainer || !el.loading || !el.empty) return;
   el.loading.classList.add('hidden');
 
@@ -365,15 +454,13 @@ export function applyFilters() {
   el.itemsContainer.classList.remove('hidden');
 
   if (filtered.length === 0) {
-    if (el.tableBody) {
-      el.tableBody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-light text-sm">Tidak ada barang yang cocok dengan filter</td></tr>';
-    }
-    if (el.cards) {
-      el.cards.innerHTML = '<div class="text-center py-8 text-light text-sm">Tidak ada barang yang cocok dengan filter</div>';
-    }
+    el.empty.classList.remove('hidden');
+    el.itemsContainer.classList.add('hidden');
     return;
   }
 
+  el.empty.classList.add('hidden');
+  el.itemsContainer.classList.remove('hidden');
   renderItems(filtered);
 }
 
@@ -434,6 +521,25 @@ export async function handleActionClick(e) {
   } else if (action === 'hapus') {
     openDeleteModal(item);
   } else if (action === 'ai') {
+    const statusInfo = getItemStatusInfo(item);
+    if (statusInfo.isApplied) {
+      showToast(`Tindakan AI "${statusInfo.jenisSaran}" untuk "${item.nama}" telah diterapkan.`);
+      return;
+    }
+    // Jika sudah ada rekomendasi aktif yang menunggu tindakan, sorot kartunya di panel AI
+    if (statusInfo.hasAiAction && statusInfo.rekomendasi) {
+      const recId = statusInfo.rekomendasi.id;
+      const aiCard = document.querySelector(
+        `[data-buang-item="${item.id}"], [data-cetak-label="${recId}"], [data-terapkan="${recId}"], [data-buat-voucher="${recId}"], [data-cetak-bundling="${recId}"]`
+      )?.closest('.card');
+      if (aiCard) {
+        aiCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        aiCard.classList.add('ring-2', 'ring-purple-500', 'ring-offset-2');
+        setTimeout(() => aiCard.classList.remove('ring-2', 'ring-purple-500', 'ring-offset-2'), 2500);
+        showToast(`Membuka rekomendasi AI "${statusInfo.jenisSaran}" untuk ${item.nama}.`);
+        return;
+      }
+    }
     await requestRekomendasi(item, btn);
   } else if (action === 'label') {
     const rekomendasi = state.allRekomendasi.find((r) => r.item_id === item.id);
@@ -528,16 +634,28 @@ export function initItemsEvents() {
     });
   }
 
-  // Delegasi event klik aksi pada tabel dan kartu
+  // Delegasi event klik aksi pada tabel dan kartu (Inventaris & Dashboard Urgent)
   if (el.tableBody) el.tableBody.addEventListener('click', handleActionClick);
   if (el.cards) el.cards.addEventListener('click', handleActionClick);
 
-  // Filter input pencarian & tombol reset
+  const urgentContainer = document.getElementById('urgent-container');
+  if (urgentContainer) urgentContainer.addEventListener('click', handleActionClick);
+
+  // Filter input pencarian, dropdown kategori, & tombol reset
   if (el.cari) el.cari.addEventListener('input', applyFilters);
+
+  if (el.filterKategori) {
+    el.filterKategori.addEventListener('change', () => {
+      state.activeKategori = el.filterKategori.value;
+      applyFilters();
+    });
+  }
+
   if (el.resetFilter) {
     el.resetFilter.addEventListener('click', () => {
       state.activeKategori = 'Semua';
       state.activeStatus = 'Semua';
+      if (el.filterKategori) el.filterKategori.value = 'Semua';
       if (el.cari) el.cari.value = '';
       renderFilters();
       applyFilters();

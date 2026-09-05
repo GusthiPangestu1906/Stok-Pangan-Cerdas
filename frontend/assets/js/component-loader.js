@@ -29,4 +29,58 @@ async function loadComponents() {
       }
     })
   );
+
+  updateActiveNavLinks();
+}
+
+/**
+ * Sinkronisasi status aktif otomatis pada bilah navigasi desktop & mobile
+ */
+function updateActiveNavLinks() {
+  const path = window.location.pathname.toLowerCase();
+  const isInventaris = path.includes('inventaris');
+  const isRiwayat = path.includes('riwayat');
+  const isDashboard = !isInventaris && !isRiwayat;
+
+  // Mobile Bottom Nav items
+  document.querySelectorAll('.mobile-bottom-nav .mobile-nav-item').forEach((item) => {
+    const href = (item.getAttribute('href') || '').toLowerCase();
+    if (!href) return; // Tombol aksi modal (cth: scanner voucher)
+
+    let isActive = false;
+    if (isInventaris) {
+      isActive = href.includes('inventaris');
+    } else if (isRiwayat) {
+      isActive = href.includes('riwayat');
+    } else {
+      isActive = href.includes('index') || href === './' || href === '';
+    }
+
+    item.classList.toggle('active', isActive);
+    if (isActive) {
+      item.setAttribute('aria-current', 'page');
+    } else {
+      item.removeAttribute('aria-current');
+    }
+  });
+
+  // Desktop Nav Pills
+  document.querySelectorAll('.nav-pills .nav-link').forEach((link) => {
+    const href = (link.getAttribute('href') || '').toLowerCase();
+    let isActive = false;
+    if (isInventaris) {
+      isActive = href.includes('inventaris');
+    } else if (isRiwayat) {
+      isActive = href.includes('riwayat');
+    } else {
+      isActive = href.includes('index') || href === './' || href === '';
+    }
+
+    link.classList.toggle('active', isActive);
+    if (isActive) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
+  });
 }

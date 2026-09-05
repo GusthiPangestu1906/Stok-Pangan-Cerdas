@@ -39,8 +39,8 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 /* Layout Grid */
 .inventory-grid {
   display: grid;
-  grid-template-columns: minmax(170px, 2fr) 60px minmax(130px, 1.4fr) 90px 145px;
-  gap: 0.5rem 0.75rem;
+  grid-template-columns: minmax(180px, 2fr) 70px minmax(140px, 1.2fr) minmax(120px, 1fr) 160px;
+  gap: 0.5rem 1.25rem;
   align-items: center;
 }
 
@@ -124,6 +124,11 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
 .dot-aman { background-color: #22c55e; }
 .dot-berisiko { background-color: #f59e0b; }
 .dot-kritis { background-color: #e11d48; }
+.dot-diskon { background-color: #d97706; }
+.dot-bundling { background-color: #86198f; }
+.dot-distribusi { background-color: #16a34a; }
+.dot-pemusnahan, .dot-dibuang { background-color: #e11d48; }
+.dot-olah-kembali { background-color: #0d9488; }
 
 .progress-bar { height: 100%; border-radius: 99px; transition: width 0.3s ease; }
 .progress-aman { background-color: #22c55e; }
@@ -182,11 +187,25 @@ input:focus, select:focus { outline: 2px solid #14532d; outline-offset: 1px; }
   background-color: #fff1f3;
   color: #9f1239;
 }
-.chip-status-kritis.chip-active {
-  background-color: #e11d48;
-  color: #ffffff;
-  border-color: #e11d48;
+.chip-status-kritis.chip-active,
+.chip-status-kritis.active {
+  background-color: #e11d48 !important;
+  color: #ffffff !important;
+  border-color: #e11d48 !important;
   box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
+}
+
+/* Chip redup — untuk chip status yang tidak aktif saat ada status lain yang dipilih */
+.chip.chip-muted {
+  opacity: 0.42;
+  border-color: #dbe3dc;
+  background: #ffffff;
+  color: #3c4d42;
+}
+.chip.chip-muted:hover {
+  opacity: 0.75;
+  border-color: #14532d;
+  color: #14532d;
 }
 
 /* Buttons */

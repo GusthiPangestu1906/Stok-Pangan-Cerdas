@@ -10,17 +10,25 @@ import { applyFilters, openDeleteModal } from './items.js?v=1.0.5';
 import { openLabelModal } from './labels.js?v=1.0.5';
 import { openVoucherModal } from './vouchers.js?v=1.0.5';
 
-const AI_SUDAH_DITERAPKAN_JAM = 24;
-
-export function isSudahDiterapkanBaruBaruIni(r) {
-  if (!r.diterapkan_at) return true;
-  const jamSejakDiterapkan = (Date.now() - new Date(r.diterapkan_at).getTime()) / 3600000;
-  return jamSejakDiterapkan < AI_SUDAH_DITERAPKAN_JAM;
+export function isDiterapkanHariIni(r) {
+  if (!r.diterapkan || !r.diterapkan_at) return false;
+  const d = new Date(r.diterapkan_at);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
 }
 
+// Alias untuk menjaga backward compatibility import di modul lain
+export const isSudahDiterapkanBaruBaruIni = isDiterapkanHariIni;
+
 export function getRekomendasiTampil() {
+  // 1. Belum diterapkan: Selalu tampilkan agar user dapat menindaklanjuti
   const perluDitindak = state.allRekomendasi.filter((r) => !r.diterapkan);
-  const sudahDitindak = state.allRekomendasi.filter((r) => r.diterapkan && isSudahDiterapkanBaruBaruIni(r));
+  // 2. Sudah diterapkan: HANYA tampilkan yang dieksekusi pada HARI INI saja (history lama tidak disimpan di panel AI)
+  const sudahDitindak = state.allRekomendasi.filter((r) => r.diterapkan && isDiterapkanHariIni(r));
   return { perluDitindak, sudahDitindak };
 }
 

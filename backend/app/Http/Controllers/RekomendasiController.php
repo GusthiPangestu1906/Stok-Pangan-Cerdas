@@ -19,6 +19,17 @@ class RekomendasiController extends Controller
         $rekomendasi = Rekomendasi::query()
             ->with('item')
             ->whereHas('item')
+            ->when(!$request->boolean('semua'), function ($query) {
+                // Hanya tampilkan rekomendasi yang belum diterapkan,
+                // ATAU yang diterapkan HARI INI saja (history lama tidak disimpan di panel AI)
+                $query->where(function ($q) {
+                    $q->where('diterapkan', false)
+                      ->orWhere(function ($sub) {
+                          $sub->where('diterapkan', true)
+                              ->whereDate('diterapkan_at', Carbon::today());
+                      });
+                });
+            })
             ->when($request->has('diterapkan'), fn ($query) => $query->where('diterapkan', $request->boolean('diterapkan')))
             ->latest()
             ->get();

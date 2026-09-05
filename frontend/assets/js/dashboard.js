@@ -3,8 +3,8 @@
  * Arsitektur Bersih (Clean Architecture) - Main Application Bootstrap Layer
  */
 
-import { state } from './dashboard/state.js?v=1.0.5';
-import { el } from './dashboard/elements.js?v=1.0.5';
+import { state } from './dashboard/state.js?v=1.0.7';
+import { el } from './dashboard/elements.js?v=1.0.7';
 import {
   renderTanggalHariIni,
   renderFilters,
@@ -13,11 +13,14 @@ import {
   initItemsEvents,
   closeFormModal,
   closeDeleteModal,
-} from './dashboard/items.js?v=1.0.5';
-import { renderRekomendasi, initAiEvents } from './dashboard/ai.js?v=1.0.5';
-import { initLabelsEvents, closeLabelModal } from './dashboard/labels.js?v=1.0.5';
-import { initVouchersEvents, closeVoucherModal } from './dashboard/vouchers.js?v=1.0.5';
-import { initScannerEvents, closeScanVoucherModal } from './dashboard/scanner.js?v=1.0.5';
+} from './dashboard/items.js?v=1.0.9';
+import { renderRekomendasi, initAiEvents } from './dashboard/ai.js?v=1.0.9';
+import { initLabelsEvents, closeLabelModal } from './dashboard/labels.js?v=1.0.9';
+import { initVouchersEvents, closeVoucherModal } from './dashboard/vouchers.js?v=1.0.9';
+import { initScannerEvents, closeScanVoucherModal } from './dashboard/scanner.js?v=1.0.9';
+import { renderUrgentSection } from './dashboard/urgent.js?v=1.0.9';
+
+window.renderUrgentSection = renderUrgentSection;
 
 // 1. Validasi Keamanan Otentikasi Pengguna
 if (typeof window.getToken === 'function' && !window.getToken()) {
@@ -77,6 +80,7 @@ async function init() {
     setupKpiFilterEvents();
     renderFilters();
     applyFilters();
+    renderUrgentSection();
     renderRekomendasi();
   } catch (err) {
     if (el.error) {
