@@ -22,19 +22,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Prepare Clean Service Account
-        id: prep
-        env:
-          FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
-        run: python prepare-sa.py /tmp/sa.json
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ steps.prep.outputs.sa_json }}
-          create_credentials_file: true
-
       - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
         run: |
-          npm install --global firebase-tools@latest
-          firebase deploy --only hosting --project stok-pangan-cerdas --non-interactive
+          if [ -n "$FIREBASE_TOKEN" ]; then
+            echo "Deploying to Firebase using FIREBASE_TOKEN..."
+            npm install --global firebase-tools@latest
+            firebase deploy --only hosting --project stok-pangan-cerdas --token "$FIREBASE_TOKEN" --non-interactive
+          else
+            echo "Deploying to Firebase using Service Account..."
+            python prepare-sa.py /tmp/sa.json
+            export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
+            npm install --global firebase-tools@latest
+            firebase deploy --only hosting --project stok-pangan-cerdas --non-interactive
+          fi

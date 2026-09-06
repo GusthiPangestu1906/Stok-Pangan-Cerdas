@@ -10,21 +10,25 @@ if not raw:
     print('ERROR: FIREBASE_SECRET is empty! Please configure FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS in GitHub Secrets.', file=sys.stderr)
     sys.exit(1)
 
+# Diagnostic (safe, no private key is leaked)
+print(f'Secret Diagnostic: length={len(raw)}, start={repr(raw[:25])}, end={repr(raw[-25:])}, contains_BEGIN={"BEGIN" in raw}, contains_json={"{" in raw}')
+
 # 1. Try Base64 decode if raw looks like base64
 try:
     clean_b64 = ''.join(raw.split())
     clean_b64 += '=' * (-len(clean_b64) % 4)
     decoded = base64.b64decode(clean_b64).decode('utf-8', errors='ignore')
     if 'private_key' in decoded or 'BEGIN' in decoded:
+        print('Detected and decoded Base64 secret.')
         raw = decoded
-except Exception:
-    pass
+except Exception as e:
+    print(f'Base64 decode note: {e}')
 
 # 2. Extract private key from raw
 pk_match = re.search(r'-----BEGIN[^-]*PRIVATE KEY-----(.*?)-----END[^-]*PRIVATE KEY-----', raw, re.DOTALL)
 if not pk_match:
-    # Try finding base64 key directly if header was missing
-    print('ERROR: Could not find BEGIN PRIVATE KEY header in secret. Please ensure the full JSON is pasted.', file=sys.stderr)
+    print('ERROR: Could not find BEGIN PRIVATE KEY header in secret.', file=sys.stderr)
+    print('Please check what is currently saved in FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS on GitHub Secrets.', file=sys.stderr)
     sys.exit(1)
 
 raw_body = pk_match.group(1)
