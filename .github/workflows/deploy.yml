@@ -22,7 +22,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
+          create_credentials_file: true
+
       - name: Deploy to Firebase Hosting
-        env:
-          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
-        run: node scripts/deploy-firebase.js
+        run: |
+          npm install --global firebase-tools@latest
+          firebase deploy --only hosting --project stok-pangan-cerdas --non-interactive
