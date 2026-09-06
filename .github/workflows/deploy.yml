@@ -17,22 +17,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: 20
+          python-version: '3.11'
 
-      - name: Deploy to Firebase Hosting
+      - name: Prepare Clean Service Account
+        id: prep
         env:
           FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
-        run: |
-          # Decode if Base64, or use raw if valid JSON
-          if echo "$FIREBASE_SECRET" | base64 -d > /tmp/sa.json 2>/dev/null && grep -q "private_key" /tmp/sa.json; then
-            echo "Successfully loaded Base64 service account key."
-          else
-            echo "$FIREBASE_SECRET" > /tmp/sa.json
-          fi
+        run: python prepare-sa.py /tmp/sa.json
 
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ steps.prep.outputs.sa_json }}
+          create_credentials_file: true
+
+      - name: Deploy to Firebase Hosting
+        run: |
           npm install --global firebase-tools@latest
           firebase deploy --only hosting --project stok-pangan-cerdas --non-interactive
