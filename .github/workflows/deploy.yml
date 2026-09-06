@@ -22,13 +22,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
-          create_credentials_file: true
-
       - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
         run: |
+          # Decode if Base64, or use raw if valid JSON
+          if echo "$FIREBASE_SECRET" | base64 -d > /tmp/sa.json 2>/dev/null && grep -q "private_key" /tmp/sa.json; then
+            echo "Successfully loaded Base64 service account key."
+          else
+            echo "$FIREBASE_SECRET" > /tmp/sa.json
+          fi
+
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
           npm install --global firebase-tools@latest
           firebase deploy --only hosting --project stok-pangan-cerdas --non-interactive
