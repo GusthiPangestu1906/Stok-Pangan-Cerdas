@@ -6,49 +6,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-backend:
-    name: Deploy Backend to Vercel
-    runs-on: ubuntu-latest
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-    defaults:
-      run:
-        working-directory: apps/backend
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Vercel CLI
-        if: env.VERCEL_TOKEN != ''
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        if: env.VERCEL_TOKEN != ''
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Project Artifacts
-        if: env.VERCEL_TOKEN != ''
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel Production
-        if: env.VERCEL_TOKEN != ''
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-
   deploy-frontend:
     name: Deploy Frontend to Firebase Hosting
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/frontend
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}'
-          channelId: live
-          projectId: stok-pangan-cerdas
-          entryPoint: apps/frontend
+          node-version: 20
+
+      - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STOK_PANGAN_CERDAS }}
+        run: node scripts/deploy-firebase.js
