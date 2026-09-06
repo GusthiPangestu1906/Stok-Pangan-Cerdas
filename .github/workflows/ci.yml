@@ -1,0 +1,94 @@
+name: Continuous Integration (CI)
+
+on:
+  push:
+    branches: [main, master, develop, dev]
+  pull_request:
+    branches: [main, master, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-tests:
+    name: Backend Test Suite (Laravel 12 / PHP 8.4)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP Runtime
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, bcmath, curl
+          coverage: none
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('apps/backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run Automated Test Suite
+        run: php artisan test --colors=always
+
+      - name: Validate Modular OpenAPI Specification
+        run: |
+          php -r "require 'vendor/autoload.php'; require 'bootstrap/app.php'; \$spec = App\Modules\Shared\Services\OpenApiSpecBuilder::build(); if (empty(\$spec['paths'])) { throw new Exception('OpenAPI paths empty!'); } echo 'OpenAPI spec validated successfully with ' . count(\$spec['paths']) . ' paths.\n';"
+
+  frontend-check:
+    name: Frontend Syntax & Integrity Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JSON Configurations
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('firebase.json', 'utf8')); console.log('firebase.json is valid JSON');"
+
+      - name: Validate Core JavaScript Syntax
+        run: |
+          node --check assets/js/config.js
+          node --check assets/js/api.js
+          node --check assets/js/component-loader.js
+          node --check assets/js/dashboard.js
+          node --check assets/js/dashboard/items.js
+          node --check assets/js/dashboard/items-render.js
+          node --check assets/js/dashboard/items-filter.js
+          node --check assets/js/dashboard/items-modal.js
+          node --check assets/js/dashboard/vouchers.js
+          node --check assets/js/dashboard/ai.js
+          node --check assets/js/dashboard/scanner.js
+          node --check assets/js/dashboard/labels.js
+          node --check assets/js/dashboard/urgent.js
+          node --check assets/js/dashboard/utils.js
+          echo "All JavaScript modules passed syntax check!"

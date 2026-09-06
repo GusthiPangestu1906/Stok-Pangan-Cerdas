@@ -1,0 +1,166 @@
+{
+    "/api/ringkasan-publik": {
+        "get": {
+            "tags": [
+                "Autentikasi & Publik"
+            ],
+            "summary": "Ringkasan gudang publik",
+            "description": "Mengambil ringkasan anonim stok pangan untuk kartu 'Pantauan Gudang' di halaman login tanpa autentikasi.",
+            "responses": {
+                "200": {
+                    "description": "Ringkasan publik",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "object",
+                                        "properties": {
+                                            "total_barang": {
+                                                "type": "integer",
+                                                "example": 12
+                                            },
+                                            "sorotan": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "nama": {
+                                                            "type": "string",
+                                                            "example": "Tomat Segar"
+                                                        },
+                                                        "kategori": {
+                                                            "type": "string",
+                                                            "example": "Sayur"
+                                                        },
+                                                        "jumlah_stok": {
+                                                            "type": "integer",
+                                                            "example": 8
+                                                        },
+                                                        "sisa_hari": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "status": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "aman",
+                                                                "berisiko",
+                                                                "kritis"
+                                                            ],
+                                                            "example": "kritis"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/riwayat": {
+        "get": {
+            "tags": [
+                "Riwayat & Statistik"
+            ],
+            "summary": "Daftar riwayat tindakan penyelamatan",
+            "description": "Mengambil log lengkap seluruh tindakan penyelamatan pangan yang telah dieksekusi.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Daftar riwayat",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Rekomendasi"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/riwayat/statistik": {
+        "get": {
+            "tags": [
+                "Riwayat & Statistik"
+            ],
+            "summary": "Statistik agregasi penyelamatan pangan",
+            "description": "Mengambil ringkasan metrik: total tindakan, unit terselamatkan, unit terbuang, dan rincian per kategori tindakan.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Statistik berhasil dihitung",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "object",
+                                        "properties": {
+                                            "jumlah_tindakan": {
+                                                "type": "integer",
+                                                "example": 8
+                                            },
+                                            "jumlah_terselamatkan": {
+                                                "type": "integer",
+                                                "example": 6
+                                            },
+                                            "jumlah_terbuang": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "unit_terselamatkan": {
+                                                "type": "integer",
+                                                "example": 45
+                                            },
+                                            "unit_terbuang": {
+                                                "type": "integer",
+                                                "example": 10
+                                            },
+                                            "per_jenis": {
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                    "type": "integer"
+                                                },
+                                                "example": {
+                                                    "Diskon": 4,
+                                                    "Distribusi": 1,
+                                                    "Bundling": 1,
+                                                    "Dibuang": 2
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

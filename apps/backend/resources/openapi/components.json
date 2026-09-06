@@ -1,0 +1,225 @@
+{
+    "securitySchemes": {
+        "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "Sanctum Token",
+            "description": "Masukkan Personal Access Token Sanctum (dihasilkan saat login)."
+        }
+    },
+    "schemas": {
+        "Item": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "nama": {
+                    "type": "string",
+                    "example": "Tomat Segar"
+                },
+                "kategori": {
+                    "type": "string",
+                    "example": "Sayur"
+                },
+                "jumlah_stok": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "harga": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "tanggal_masuk": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-09-01"
+                },
+                "estimasi_umur_simpan_hari": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "sisa_hari": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "aman",
+                        "berisiko",
+                        "kritis"
+                    ],
+                    "example": "kritis"
+                },
+                "tanggal_kadaluarsa": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-09-05"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "Rekomendasi": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "item_id": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": 1
+                },
+                "nama_item": {
+                    "type": "string",
+                    "example": "Tomat Segar"
+                },
+                "kategori_item": {
+                    "type": "string",
+                    "example": "Sayur"
+                },
+                "jenis_saran": {
+                    "type": "string",
+                    "enum": [
+                        "Diskon",
+                        "Distribusi",
+                        "Bundling",
+                        "Pemusnahan",
+                        "Dibuang"
+                    ],
+                    "example": "Diskon"
+                },
+                "isi_saran": {
+                    "type": "string",
+                    "example": "Segera berikan diskon 30% untuk 8 unit Tomat Segar karena tersisa 1 hari sebelum kadaluarsa."
+                },
+                "status_item_saat_dibuat": {
+                    "type": "string",
+                    "example": "kritis"
+                },
+                "jumlah_stok_saat_dibuat": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "diterapkan": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "diterapkan_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                },
+                "sumber": {
+                    "type": "string",
+                    "example": "gemini"
+                },
+                "kode_voucher": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "VCHR-TOM-48201"
+                }
+            }
+        },
+        "Voucher": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "kode": {
+                    "type": "string",
+                    "example": "VCHR-TOM-48201"
+                },
+                "item_id": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": 1
+                },
+                "rekomendasi_id": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": 1
+                },
+                "nama_item": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Tomat Segar"
+                },
+                "kategori_item": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Sayur"
+                },
+                "judul": {
+                    "type": "string",
+                    "example": "Diskon Cuci Gudang Tomat 30%"
+                },
+                "target": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Tomat Segar"
+                },
+                "diskon_persen": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": 30
+                },
+                "diskon_nominal": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": null
+                },
+                "harga_normal": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": 10000
+                },
+                "min_belanja": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "kuota": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "terpakai": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "berlaku_sampai": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-09-05"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "aktif",
+                        "habis"
+                    ],
+                    "example": "aktif"
+                },
+                "sudah_kadaluarsa": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "sisa_kuota": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        }
+    }
+}

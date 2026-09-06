@@ -1,20 +1,20 @@
-# Backend (Laravel)
-backend/vendor/
-backend/node_modules/
-backend/.env
-backend/.env.backup
-backend/.env.production
-backend/storage/logs/*.log
-backend/storage/*.key
-backend/storage/pail/
-backend/bootstrap/cache/*.php
-backend/public/hot
-backend/public/storage
-backend/.phpunit.cache
-backend/.phpunit.result.cache
+# Apps Backend (Laravel)
+apps/backend/vendor/
+apps/backend/node_modules/
+apps/backend/.env
+apps/backend/.env.backup
+apps/backend/.env.production
+apps/backend/storage/logs/*.log
+apps/backend/storage/*.key
+apps/backend/storage/pail/
+apps/backend/bootstrap/cache/*.php
+apps/backend/public/hot
+apps/backend/public/storage
+apps/backend/.phpunit.cache
+apps/backend/.phpunit.result.cache
 
-# Frontend
-frontend/node_modules/
+# Apps Frontend
+apps/frontend/node_modules/
 
 # OS
 .DS_Store
@@ -22,16 +22,26 @@ Thumbs.db
 
 # Firebase
 .firebase/
+apps/frontend/.firebase/
 
-# Editor
+# Editor & Local
 .vscode/
 .idea/
+cloudflared.exe
 
-# Claude Code
+# Claude Code & AI
 .claude/
 CLAUDE.md
 .mcp.json
 .claude.json
 
-# Design reference (local only, not for repo)
+# Design reference
 design-reference/
+
+# Vercel & Local Envs
+.vercel/
+apps/backend/.vercel/
+.env.local
+.env.*.local
+apps/backend/.env.local
+apps/frontend/.env.local

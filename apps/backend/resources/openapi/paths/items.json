@@ -1,0 +1,366 @@
+{
+    "/api/items": {
+        "get": {
+            "tags": [
+                "Items (Manajemen Stok)"
+            ],
+            "summary": "Daftar barang komoditas",
+            "description": "Mengambil semua barang stok pangan beserta kalkulasi status risiko tanggal secara real-time.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "kategori",
+                    "in": "query",
+                    "description": "Filter berdasarkan kategori barang (Sayur, Buah, Daging, Susu & Olahan, Roti)",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "status",
+                    "in": "query",
+                    "description": "Filter berdasarkan status risiko (aman, berisiko, kritis)",
+                    "required": false,
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "aman",
+                            "berisiko",
+                            "kritis"
+                        ]
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Daftar barang berhasil diambil",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Item"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthenticated"
+                }
+            }
+        },
+        "post": {
+            "tags": [
+                "Items (Manajemen Stok)"
+            ],
+            "summary": "Tambah barang baru",
+            "description": "Menambahkan komoditas pangan baru ke inventaris gudang.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "nama",
+                                "kategori",
+                                "jumlah_stok",
+                                "harga",
+                                "tanggal_masuk",
+                                "estimasi_umur_simpan_hari"
+                            ],
+                            "properties": {
+                                "nama": {
+                                    "type": "string",
+                                    "example": "Wortel Segar"
+                                },
+                                "kategori": {
+                                    "type": "string",
+                                    "example": "Sayur"
+                                },
+                                "jumlah_stok": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "example": 25
+                                },
+                                "harga": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "example": 12000
+                                },
+                                "tanggal_masuk": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2026-09-01"
+                                },
+                                "estimasi_umur_simpan_hari": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "example": 7
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "Barang berhasil dibuat",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Item"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "422": {
+                    "description": "Validasi input gagal"
+                }
+            }
+        }
+    },
+    "/api/items/{id}": {
+        "get": {
+            "tags": [
+                "Items (Manajemen Stok)"
+            ],
+            "summary": "Detail satu barang",
+            "description": "Mengambil informasi detail barang komoditas beserta riwayat rekomendasi.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Detail barang",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Item"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Barang tidak ditemukan"
+                }
+            }
+        },
+        "put": {
+            "tags": [
+                "Items (Manajemen Stok)"
+            ],
+            "summary": "Ubah data barang",
+            "description": "Memperbarui data barang. Status risiko akan otomatis terhitung ulang.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "nama": {
+                                    "type": "string",
+                                    "example": "Wortel Segar Super"
+                                },
+                                "kategori": {
+                                    "type": "string",
+                                    "example": "Sayur"
+                                },
+                                "jumlah_stok": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "example": 20
+                                },
+                                "harga": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "example": 14000
+                                },
+                                "tanggal_masuk": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2026-09-01"
+                                },
+                                "estimasi_umur_simpan_hari": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "example": 7
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Barang berhasil diperbarui",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Item"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Barang tidak ditemukan"
+                },
+                "422": {
+                    "description": "Validasi input gagal"
+                }
+            }
+        },
+        "delete": {
+            "tags": [
+                "Items (Manajemen Stok)"
+            ],
+            "summary": "Hapus barang",
+            "description": "Menghapus barang dari inventaris gudang dan mencatat sisa stok yang terbuang ke Riwayat Pemusnahan.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "204": {
+                    "description": "Barang berhasil dihapus"
+                },
+                "404": {
+                    "description": "Barang tidak ditemukan"
+                }
+            }
+        }
+    },
+    "/api/items/{id}/rekomendasi": {
+        "post": {
+            "tags": [
+                "Rekomendasi AI (Gemini)"
+            ],
+            "summary": "Minta saran AI untuk satu barang",
+            "description": "Mengirim data barang berisiko atau kritis ke Google Gemini AI untuk memperoleh rekomendasi terstruktur (Diskon, Distribusi, Bundling, atau Pemusnahan).",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID barang (harus berstatus berisiko atau kritis)",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Rekomendasi diambil dari cache harian",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Rekomendasi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "201": {
+                    "description": "Rekomendasi baru berhasil dibuat oleh AI",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Rekomendasi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "422": {
+                    "description": "Barang berstatus Aman tidak memerlukan rekomendasi AI"
+                },
+                "502": {
+                    "description": "Gagal menghubungi Gemini API (misal kuota harian habis)"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,91 @@
+{
+    "/api/rekomendasi": {
+        "get": {
+            "tags": [
+                "Rekomendasi AI (Gemini)"
+            ],
+            "summary": "Daftar semua saran rekomendasi",
+            "description": "Mengambil daftar seluruh rekomendasi tindakan AI yang tersedia.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "diterapkan",
+                    "in": "query",
+                    "description": "Filter status penerapan rekomendasi (true atau false)",
+                    "required": false,
+                    "schema": {
+                        "type": "boolean"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Daftar rekomendasi",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Rekomendasi"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/rekomendasi/{id}/terapkan": {
+        "patch": {
+            "tags": [
+                "Rekomendasi AI (Gemini)"
+            ],
+            "summary": "Tandai rekomendasi diterapkan",
+            "description": "Menandai bahwa saran rekomendasi AI telah dieksekusi di gudang, memindahkannya ke Riwayat Tindakan.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Rekomendasi berhasil ditandai diterapkan",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Rekomendasi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Rekomendasi tidak ditemukan"
+                }
+            }
+        }
+    }
+}

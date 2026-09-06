@@ -1,0 +1,275 @@
+{
+    "/api/vouchers": {
+        "get": {
+            "tags": [
+                "Vouchers (Kupon Kasir)"
+            ],
+            "summary": "Daftar kupon diskon",
+            "description": "Mengambil daftar kupon diskon fisik kasir.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "status",
+                    "in": "query",
+                    "description": "Filter status voucher (aktif atau habis)",
+                    "required": false,
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "aktif",
+                            "habis"
+                        ]
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Daftar kupon",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Voucher"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post": {
+            "tags": [
+                "Vouchers (Kupon Kasir)"
+            ],
+            "summary": "Terbitkan batch kupon diskon ber-barcode",
+            "description": "Menerbitkan sejumlah kupon diskon ber-barcode Code-39 dengan kode acak unik di backend.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "judul",
+                                "tipe",
+                                "nilai",
+                                "berlaku_sampai"
+                            ],
+                            "properties": {
+                                "item_id": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "example": 1
+                                },
+                                "rekomendasi_id": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "example": 2
+                                },
+                                "judul": {
+                                    "type": "string",
+                                    "example": "Diskon Cuci Gudang Tomat 30%"
+                                },
+                                "target": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "example": "Tomat Segar"
+                                },
+                                "tipe": {
+                                    "type": "string",
+                                    "enum": [
+                                        "persen",
+                                        "nominal"
+                                    ],
+                                    "example": "persen"
+                                },
+                                "nilai": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "example": 30
+                                },
+                                "harga_normal": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "example": 10000
+                                },
+                                "min_belanja": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "example": 0
+                                },
+                                "jumlah": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 50,
+                                    "example": 5
+                                },
+                                "berlaku_sampai": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2026-09-08"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "Kupon berhasil dibuat",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Voucher"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/vouchers/validasi": {
+        "post": {
+            "tags": [
+                "Vouchers (Kupon Kasir)"
+            ],
+            "summary": "Validasi kupon kasir",
+            "description": "Memeriksa keabsahan kode kupon kasir (ada di DB, status aktif, belum kadaluarsa, kuota tersisa, dan minimal belanja terpenuhi).",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "kode"
+                            ],
+                            "properties": {
+                                "kode": {
+                                    "type": "string",
+                                    "example": "VCHR-TOM-48201"
+                                },
+                                "total_belanja": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "example": 25000
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Kupon valid dan siap diklaim",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Voucher"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Kode voucher tidak ditemukan"
+                },
+                "422": {
+                    "description": "Voucher tidak memenuhi syarat validasi (kadaluarsa/habis/min belanja)"
+                }
+            }
+        }
+    },
+    "/api/vouchers/{id}/klaim": {
+        "post": {
+            "tags": [
+                "Vouchers (Kupon Kasir)"
+            ],
+            "summary": "Klaim kupon di kasir",
+            "description": "Mengeksekusi klaim kupon, menaikkan pemakaian, dan mencatat transaksi ke Riwayat.",
+            "security": [
+                {
+                    "bearerAuth": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "total_belanja": {
+                                    "type": "integer",
+                                    "nullable": true,
+                                    "example": 25000
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Kupon berhasil diklaim",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/Voucher"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "422": {
+                    "description": "Gagal klaim (kuota habis/kadaluarsa)"
+                }
+            }
+        }
+    }
+}

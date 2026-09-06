@@ -1,0 +1,44 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Stok Pangan Cerdas API",
+        "description": "Dokumentasi REST API Sistem Manajemen Stok Pangan Koperasi & UMKM dengan AI Expiry & Spoilage Predictor.\n\nDibuat untuk **Trunodjoyo Creative Competition (TCC) 2026**, cabang **Vibe Code** (Web Application Development).\n\n### Cara Menggunakan Dokumentasi Ini:\n1. Klik **POST /api/login** di bawah kategori **Autentikasi & Publik**.\n2. Klik **Try it out**, masukkan email `admin@koperasipangan.id` dan password `admin123`, lalu klik **Execute**.\n3. Salin token dari respons, klik tombol **Authorize 🔓** di kanan atas, tempelkan token, lalu klik **Authorize**.\n4. Sekarang Anda dapat mencoba seluruh endpoint yang membutuhkan autentikasi (CRUD Barang, AI Gemini, Kupon Kasir, dll).",
+        "version": "1.0.0",
+        "contact": {
+            "name": "Tim Stok Pangan Cerdas (PENS)",
+            "url": "https://stok-pangan-cerdas.web.app"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://stok-pangan-cerdas-delta.vercel.app",
+            "description": "Production Serverless (Vercel + Neon PostgreSQL)"
+        },
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local Development Server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Autentikasi & Publik",
+            "description": "Endpoint login admin, logout, profil, dan ringkasan publik"
+        },
+        {
+            "name": "Items (Manajemen Stok)",
+            "description": "Manajemen barang komoditas pangan, stok, dan deteksi risiko"
+        },
+        {
+            "name": "Rekomendasi AI (Gemini)",
+            "description": "Rekomendasi tindakan pencegahan pembusukan dengan Google Gemini AI"
+        },
+        {
+            "name": "Riwayat & Statistik",
+            "description": "Audit trail tindakan penyelamatan pangan dan agregasi metrik"
+        },
+        {
+            "name": "Vouchers (Kupon Kasir)",
+            "description": "Penerbitan kupon diskon ber-barcode Code-39 dan validasi kasir"
+        }
+    ]
+}
