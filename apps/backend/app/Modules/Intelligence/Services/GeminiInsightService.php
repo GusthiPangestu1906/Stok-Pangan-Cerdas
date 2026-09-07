@@ -2,6 +2,7 @@
 
 namespace App\Modules\Intelligence\Services;
 
+use App\Modules\Intelligence\Contracts\AiInsightServiceInterface;
 use App\Modules\Inventory\Models\Item;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
-class GeminiInsightService
+class GeminiInsightService implements AiInsightServiceInterface
 {
     private readonly string $apiKey;
 

@@ -70,6 +70,10 @@ Lomba TCC-26/
 ## 3. Keunggulan Teknis untuk Lomba TCC-26
 
 1. **Microservice-Ready**: Tiap modul memiliki rute, controller, service, dan use case terisolasi. Kapan pun dibutuhkan, modul AI atau Voucher dapat di-extract menjadi microservice terpisah.
-2. **Skinny Controllers**: Controller murni bertindak sebagai HTTP adapter; seluruh logika transaksi ditangani Use Cases (Actions).
-3. **No Code Bloat**: Seluruh file kode berada di bawah batas standar kualitas industri (< 310 baris).
-4. **Deployability Tinggi**: Tetap dapat dideploy ke Vercel Serverless dan Firebase Hosting dengan performa optimal tanpa overhead latensi jaringan antar-service.
+2. **Skinny Controllers & SRP**: Controller murni bertindak sebagai HTTP adapter; seluruh logika transaksi ditangani Use Cases (Actions).
+3. **Penerapan Prinsip SOLID & OOP Modern**:
+   - **Dependency Inversion (DIP)**: Modul AI mengandalkan abstraksi antarmuka (`AiInsightServiceInterface`), sehingga implementasi vendor AI mudah ditukar/dimock tanpa menyentuh controller.
+   - **Type Safety & Rich Domain Enums**: Status kesegaran inventaris (`ItemStatus`) dan jenis saran (`JenisSaran`) menggunakan Backed Enums PHP 8 dengan enkapsulasi domain methods.
+4. **No Code Bloat**: Seluruh file kode berada di bawah batas standar kualitas industri (< 310 baris).
+5. **Deployability Tinggi**: Tetap dapat dideploy ke Vercel Serverless dan Firebase Hosting dengan performa optimal tanpa overhead latensi jaringan antar-service.
+

@@ -3,6 +3,7 @@
 namespace App\Modules\Inventory\Models;
 
 use App\Modules\Intelligence\Models\Rekomendasi;
+use App\Modules\Inventory\Enums\ItemStatus;
 use Carbon\Carbon;
 use Database\Factories\ItemFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -55,14 +56,16 @@ class Item extends Model
     protected function status(): Attribute
     {
         return Attribute::get(function () {
-            $sisaHari = $this->sisa_hari;
-
-            return match (true) {
-                $sisaHari <= 2 => 'kritis',
-                $sisaHari <= 5 => 'berisiko',
-                default => 'aman',
-            };
+            return ItemStatus::fromSisaHari($this->sisa_hari)->value;
         });
+    }
+
+    /**
+     * Mengembalikan objek status berbasis PHP 8 Enum untuk domain logic type-safe.
+     */
+    public function getStatusEnumAttribute(): ItemStatus
+    {
+        return ItemStatus::fromSisaHari($this->sisa_hari);
     }
 
     public function rekomendasi(): HasMany

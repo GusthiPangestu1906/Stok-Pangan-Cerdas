@@ -2,8 +2,8 @@
 
 namespace App\Modules\Intelligence\Controllers;
 
+use App\Modules\Intelligence\Contracts\AiInsightServiceInterface;
 use App\Modules\Intelligence\Models\Rekomendasi;
-use App\Modules\Intelligence\Services\GeminiInsightService;
 use App\Modules\Inventory\Models\Item;
 use App\Modules\Shared\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class RekomendasiController extends Controller
     /**
      * Generate a new AI recommendation for the given item.
      */
-    public function store(Item $item, GeminiInsightService $gemini)
+    public function store(Item $item, AiInsightServiceInterface $aiService)
     {
         if ($item->status === 'aman') {
             return response()->json([
@@ -72,7 +72,7 @@ class RekomendasiController extends Controller
         }
 
         try {
-            $hasil = $gemini->buatRekomendasi($item);
+            $hasil = $aiService->buatRekomendasi($item);
         } catch (RuntimeException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
